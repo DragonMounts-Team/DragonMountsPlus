@@ -12,6 +12,7 @@ import net.dragonmounts.neo.common.entity.ai.control.DragonMoveControl;
 import net.dragonmounts.neo.common.entity.breath.DragonBreathHelper;
 import net.dragonmounts.neo.common.init.DMItems;
 import net.dragonmounts.neo.common.init.DMSounds;
+import net.dragonmounts.neo.common.init.DragonTypes;
 import net.dragonmounts.neo.common.init.DragonVariants;
 import net.dragonmounts.neo.common.inventory.DragonInventory;
 import net.dragonmounts.neo.common.inventory.DragonInventoryHandler;
@@ -66,6 +67,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 /**
  * @see Mule
@@ -140,10 +142,24 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     );
     public final DragonBreathHelper<?> breathHelper = this.createBreathHelper();
 
-    public TameableDragonEntity(EntityType<? extends TameableDragonEntity> type, Level level) {
+    @SuppressWarnings("unchecked")
+    public <T extends Level, E extends TameableDragonEntity> TameableDragonEntity(
+            EntityType<? extends TameableDragonEntity> type,
+            Level level,
+            @Nullable BiConsumer<T, E> init
+    ) {
         super(type, level);
         this.setPersistenceRequired();
         this.moveControl = new DragonMoveControl(this);
+        if (init != null) {
+            init.accept((T) level, (E) this);
+        }
+        if (this.stage == null) {
+            this.setLifeStage(DragonLifeStage.ADULT, true, false);
+        }
+        if (this.lastType == null) {
+            this.applyType(DragonTypes.ENDER);
+        }
     }
 
     @Override

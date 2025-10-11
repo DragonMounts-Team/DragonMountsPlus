@@ -49,6 +49,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 
@@ -63,16 +64,11 @@ public class ServerDragonEntity extends TameableDragonEntity {
     public final DragonHeadLocator<ServerDragonEntity> headLocator = new DragonHeadLocator<>(this);
 
     public ServerDragonEntity(EntityType<? extends TameableDragonEntity> type, ServerLevel level) {
-        super(type, level);
-        this.setLifeStage(DragonLifeStage.ADULT, true, false);
+        super(type, level, null);
     }
 
-    public ServerDragonEntity(ServerLevel level, BiConsumer<ServerLevel, ServerDragonEntity> init) {
-        super(DMEntities.TAMEABLE_DRAGON.get(), level);
-        init.accept(level, this);
-        if (this.stage == null) {
-            this.setLifeStage(DragonLifeStage.ADULT, true, false);
-        }
+    public ServerDragonEntity(ServerLevel level, @Nullable BiConsumer<ServerLevel, ServerDragonEntity> init) {
+        super(DMEntities.TAMEABLE_DRAGON.get(), level, init);
     }
 
     @Override

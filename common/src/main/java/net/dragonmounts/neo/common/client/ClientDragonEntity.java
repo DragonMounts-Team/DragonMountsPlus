@@ -32,8 +32,7 @@ public class ClientDragonEntity extends TameableDragonEntity {
     private boolean wasOnGround;
 
     public ClientDragonEntity(EntityType<? extends TameableDragonEntity> type, Level world) {
-        super(type, world);
-        this.stage = DragonLifeStage.ADULT;
+        super(type, world, null);
     }
 
     @Override
