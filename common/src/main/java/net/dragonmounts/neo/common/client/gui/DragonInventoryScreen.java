@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -99,7 +100,7 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
+    public void resize(@NotNull Minecraft minecraft, int width, int height) {
         String string = this.name.getValue();
         this.init(minecraft, width, height);
         this.name.setValue(string);
@@ -155,7 +156,7 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
         this.name.setEditable(false);
     }
 
-    public void render(GuiGraphics graphics, int x, int y, float ticks) {
+    public void render(@NotNull GuiGraphics graphics, int x, int y, float ticks) {
         super.render(graphics, x, y, ticks);
         this.name.render(graphics, x, y, ticks);
         this.trustToggle.render(graphics, x, y, ticks);
@@ -164,7 +165,7 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void renderLabels(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
         super.renderLabels(graphics, mouseX, mouseY);
         var font = this.font;
         graphics.drawString(font, this.armor, 20, 33, 0xE99E0C, false);

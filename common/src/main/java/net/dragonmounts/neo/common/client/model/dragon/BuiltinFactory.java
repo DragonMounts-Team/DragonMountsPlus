@@ -26,12 +26,14 @@ import static net.minecraft.client.model.geom.PartPose.rotation;
 
 public enum BuiltinFactory implements ModelFactory {
     NORMAL("normal"),
+    @Deprecated
     COMPAT("compat") {
         @Override
         public CubeListBuilder applyWingUV(CubeListBuilder builder) {
             return builder.texOffs(-49, 176);
         }
     },
+    @Deprecated
     COMPAT_TAIL_HORNED("compat_tail_horned") {
         @Override
         public CubeListBuilder applyWingUV(CubeListBuilder builder) {
@@ -343,28 +345,38 @@ public enum BuiltinFactory implements ModelFactory {
             makeHindLeg(root, "left_hind_leg", SKELETON_LEG_WIDTH, LEG_LENGTH, true, PartPose.offset(11, 13, 46));
             makeHindLeg(root, "right_hind_leg", SKELETON_LEG_WIDTH, LEG_LENGTH, false, PartPose.offset(-11, 13, 46));
         }
-    },
-    WITHER("wither") {
+
         @Override
-        public CubeListBuilder applyWingUV(CubeListBuilder builder) {
-            return builder.texOffs(-49, 176);
+        public void makeChest(PartDefinition body) {
+            body.addOrReplaceChild(
+                    "chest",
+                    CubeListBuilder.create()
+                            .texOffs(192, 132)
+                            .addBox(12, 0, 21, 4, 12, 12)
+                            .texOffs(224, 132)
+                            .addBox(-16, 0, 21, 4, 12, 12),
+                    PartPose.ZERO
+            );
         }
 
         @Override
-        public void makeTail(PartDefinition root) {
-            makeHornedTail(root);
-        }
-
-        @Override
-        public void makeFrontLegs(PartDefinition root) {
-            makeFrontLeg(root, "left_front_leg", SKELETON_LEG_WIDTH, LEG_LENGTH, true, PartPose.offset(11, 18, 4));
-            makeFrontLeg(root, "right_front_leg", SKELETON_LEG_WIDTH, LEG_LENGTH, false, PartPose.offset(-11, 18, 4));
-        }
-
-        @Override
-        public void makeHindLegs(PartDefinition root) {
-            makeHindLeg(root, "left_hind_leg", SKELETON_LEG_WIDTH, LEG_LENGTH, true, PartPose.offset(11, 13, 46));
-            makeHindLeg(root, "right_hind_leg", SKELETON_LEG_WIDTH, LEG_LENGTH, false, PartPose.offset(-11, 13, 46));
+        public void makeSaddle(PartDefinition body) {
+            body.addOrReplaceChild(
+                    "saddle",
+                    CubeListBuilder.create()
+                            .texOffs(184, 98)
+                            .addBox(-7, -2, -15, 15, 3, 20)
+                            .texOffs(214, 120)
+                            .addBox(-3, -3, -14, 6, 1, 2, ATTACHED_TO_BOTTOM)
+                            .addBox(-6, -4, 2, 13, 2, 2, ATTACHED_TO_BOTTOM)
+                            .texOffs(220, 100)
+                            .addBox(12, 0, -14, 1, 14, 2, ATTACHED_TO_BOTTOM)
+                            .addBox(-13, 0, -14, 1, 10, 2, ATTACHED_TO_BOTTOM)
+                            .texOffs(224, 132)
+                            .addBox(12, 14, -15, 1, 5, 4)
+                            .addBox(-13, 10, -15, 1, 5, 4),
+                    PartPose.ZERO
+            );
         }
     };
     public static final int NORMAL_LEG_WIDTH = 9;

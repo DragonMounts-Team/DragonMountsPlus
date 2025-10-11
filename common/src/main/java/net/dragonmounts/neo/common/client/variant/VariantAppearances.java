@@ -76,7 +76,7 @@ public class VariantAppearances {
     public static final VariantAppearance HOLLOWED;
 
     static {
-        var builder = builder(BuiltinFactory.COMPAT)
+        var builder = builder(BuiltinFactory.NORMAL)
                 .withBreath(DMParticleSprites.AIRFLOW_BREATH, AirflowBreathParticle.FACTORY);
         AETHER_FEMALE = builder.build(makeId("aether/female"));
         AETHER_MALE = builder.build(makeId("aether/male"));
@@ -182,7 +182,7 @@ public class VariantAppearances {
     }
 
     static {
-        WITHER = builder(BuiltinFactory.WITHER)
+        WITHER = builder(BuiltinFactory.SKELETON).setArmorCategory("skeleton")
                 .withBreath(DMParticleSprites.WITHER_BREATH)
                 .build(makeId("wither"));
     }

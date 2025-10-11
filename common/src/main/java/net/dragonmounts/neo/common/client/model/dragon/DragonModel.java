@@ -80,7 +80,7 @@ public class DragonModel extends EntityModel<DragonRenderState> implements Heade
     }
 
     @Override
-    public void setupAnim(DragonRenderState state) {
+    public void setupAnim(@NotNull DragonRenderState state) {
         super.setupAnim(state);
         this.root.xRot = -state.pitch;
         var head = this.head;
