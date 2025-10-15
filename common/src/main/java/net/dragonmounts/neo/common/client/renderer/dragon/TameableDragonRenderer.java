@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Pose;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.client.renderer.entity.EnderDragonRenderer.renderCrystalBeams;
@@ -25,9 +23,6 @@ public class TameableDragonRenderer extends MobRenderer<ClientDragonEntity, Drag
     public void extractRenderState(ClientDragonEntity dragon, DragonRenderState state, float partialTick) {
         super.extractRenderState(dragon, state, partialTick);
         dragon.animator.extractRenderState(state, partialTick);
-        if (state.pose == Pose.SLEEPING) {
-            state.pose = Pose.SITTING;
-        }
     }
 
     @Override
@@ -59,12 +54,12 @@ public class TameableDragonRenderer extends MobRenderer<ClientDragonEntity, Drag
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(DragonRenderState state) {
+    public ResourceLocation getTextureLocation(DragonRenderState state) {
         return state.variant.appearance.getBodyTexture(state);
     }
 
     @Override
-    public @NotNull DragonRenderState createRenderState() {
+    public DragonRenderState createRenderState() {
         return new DragonRenderState();
     }
 

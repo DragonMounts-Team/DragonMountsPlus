@@ -41,9 +41,7 @@ public class ArmorEffectTooltip implements ClientTooltipComponent {
         return this.heightCache;
     }
 
-    /**
-     * @see GuiGraphics#drawWordWrap(Font, FormattedText, int, int, int, int, boolean)
-     */
+    /// @see GuiGraphics#drawWordWrap(Font, FormattedText, int, int, int, int, boolean)
     @Override
     public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics graphics) {
         int line = font.lineHeight;

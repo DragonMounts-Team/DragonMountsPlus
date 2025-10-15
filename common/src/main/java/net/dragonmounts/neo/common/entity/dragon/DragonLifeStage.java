@@ -10,7 +10,6 @@ import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.IntFunction;
 
@@ -48,7 +47,7 @@ public enum DragonLifeStage implements StringRepresentable {
         return new AttributeModifier(MODIFIER_ID, Math.max(getSizeAverage(this), 0.1F) * factor, operation);
     }
 
-    public boolean isOldEnough(@NotNull DragonLifeStage limit) {
+    public boolean isOldEnough(DragonLifeStage limit) {
         return this.ordinal() > limit.ordinal();
     }
 

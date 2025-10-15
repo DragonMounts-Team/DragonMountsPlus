@@ -27,9 +27,7 @@ import java.util.function.BiFunction;
 import static net.dragonmounts.neo.common.DragonMountsShared.BLOCK_TRANSLATION_KEY_PREFIX;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED;
 
-/**
- * @see net.minecraft.world.level.block.AbstractSkullBlock
- */
+/// @see net.minecraft.world.level.block.AbstractSkullBlock
 public abstract class DragonHeadBlock extends BaseEntityBlock implements DragonTypified {
     protected static <T extends DragonHeadBlock> MapCodec<T> makeCodec(BiFunction<DragonVariant, Properties, T> factory) {
         return RecordCodecBuilder.mapCodec((instance) -> instance.group(DragonVariant.CODEC.fieldOf("variant").forGetter(DragonHeadBlock::getVariant), propertiesCodec()).apply(instance, factory));
@@ -87,6 +85,7 @@ public abstract class DragonHeadBlock extends BaseEntityBlock implements DragonT
         return new DragonHeadBlockEntity(pos, state);
     }
 
+    @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide && state.getBlock() instanceof DragonHeadBlock) {

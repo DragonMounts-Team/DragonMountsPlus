@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import net.dragonmounts.neo.common.init.DMItems;
 import net.dragonmounts.neo.common.init.DMRecipes;
 import net.dragonmounts.neo.common.init.DragonArmorMaterials;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -28,15 +27,15 @@ import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.display.SmithingRecipeDisplay;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.ItemLike;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@MethodsReturnNonnullByDefault
+@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "UnstableApiUsage"})
+@org.jetbrains.annotations.NotNullByDefault
 public class DragonArmorUpgradeRecipe implements SmithingRecipe {
     public static List<ItemAttributeModifiers.Entry> merge(List<ItemAttributeModifiers.Entry> base, ItemLike item) {
         var component = item.asItem().components().get(DataComponents.ATTRIBUTE_MODIFIERS);
@@ -86,13 +85,14 @@ public class DragonArmorUpgradeRecipe implements SmithingRecipe {
     private final Optional<Ingredient> template = Optional.of(Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE));
     private final Optional<Ingredient> base = Optional.of(Ingredient.of(DMItems.DIAMOND_DRAGON_ARMOR));
     private final Optional<Ingredient> addition;
-    private PlacementInfo placementInfo;
+    private @Nullable PlacementInfo placementInfo;
 
     public DragonArmorUpgradeRecipe(Ingredient addition) {
         this.addition = Optional.of(addition);
     }
 
-    public ItemStack assemble(@NotNull SmithingRecipeInput input, @NotNull HolderLookup.Provider registries) {
+    @Override
+    public ItemStack assemble(SmithingRecipeInput input, HolderLookup.Provider registries) {
         var stack = input.base();
         var component = stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
         boolean found = false;
@@ -201,10 +201,10 @@ public class DragonArmorUpgradeRecipe implements SmithingRecipe {
         };
         public static final StreamCodec<RegistryFriendlyByteBuf, DragonArmorUpgradeRecipe> STREAM_CODEC = new StreamCodec<>() {
             @Override
-            public void encode(@NotNull RegistryFriendlyByteBuf buffer, @NotNull DragonArmorUpgradeRecipe ignored) {}
+            public void encode(RegistryFriendlyByteBuf buffer, DragonArmorUpgradeRecipe ignored) {}
 
             @Override
-            public DragonArmorUpgradeRecipe decode(@NotNull RegistryFriendlyByteBuf buffer) {
+            public DragonArmorUpgradeRecipe decode(RegistryFriendlyByteBuf buffer) {
                 return new DragonArmorUpgradeRecipe(Ingredient.of(buffer.registryAccess().lookupOrThrow(Registries.ITEM).getOrThrow(ItemTags.NETHERITE_TOOL_MATERIALS)));
             }
         };

@@ -97,6 +97,7 @@ public abstract class BreathParticle extends TextureSheetParticle implements Bre
         if (Math.abs(y) > 0.0) {
             this.collided = y != movement.y;
         }
+        //noinspection SuspiciousNameCombination
         if (!Mth.equal(x, movement.x)) {
             this.collided = true;
             this.xd = 0.0;

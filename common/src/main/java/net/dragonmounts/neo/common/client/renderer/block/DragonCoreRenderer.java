@@ -18,14 +18,14 @@ import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NotNullByDefault;
 
 import static net.dragonmounts.neo.common.DragonMountsShared.makeId;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
-/**
- * @see net.minecraft.client.renderer.blockentity.ShulkerBoxRenderer
- */
+/// @see net.minecraft.client.renderer.blockentity.ShulkerBoxRenderer
+@SuppressWarnings("UnstableApiUsage")
+@NotNullByDefault
 public class DragonCoreRenderer implements BlockEntityRenderer<DragonCoreBlockEntity> {
     private static final ResourceLocation TEXTURE_LOCATION = makeId("textures/block/dragon_core.png");
     private static final RenderType RENDER_TYPE = RenderType.entityCutoutNoCull(TEXTURE_LOCATION);
@@ -74,7 +74,7 @@ public class DragonCoreRenderer implements BlockEntityRenderer<DragonCoreBlockEn
         ).apply(instance, Unbaked::new));
 
         @Override
-        public @NotNull MapCodec<Unbaked> type() {
+        public MapCodec<Unbaked> type() {
             return CODEC;
         }
 

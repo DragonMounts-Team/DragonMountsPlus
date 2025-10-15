@@ -79,7 +79,7 @@ public record DragonFood(
         }, writeNull);
     }
 
-    private static final Reference2ObjectOpenHashMap<Item, DragonFood> FALLBACKS = new Reference2ObjectOpenHashMap<>();
+    private static final Reference2ObjectOpenHashMap<Item, @Nullable DragonFood> FALLBACKS = new Reference2ObjectOpenHashMap<>();
 
     public static void setFallback(Item item, DragonFood fallback) {
         FALLBACKS.put(item, fallback);

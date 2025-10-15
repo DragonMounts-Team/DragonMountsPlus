@@ -43,7 +43,7 @@ public class ServerBreathHelper extends DragonBreathHelper<ServerDragonEntity> {
      */
     @Override
     public void tick() {
-        ++tickCounter;
+        ++this.tickCounter;
         var breath = this.breath;
         if (breath == null) return;
         var dragon = this.dragon;

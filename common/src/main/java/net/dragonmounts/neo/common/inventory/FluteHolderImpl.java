@@ -3,16 +3,15 @@ package net.dragonmounts.neo.common.inventory;
 import net.dragonmounts.neo.common.capability.FluteHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class FluteHolderImpl implements FluteHolder {
-    public static FluteHolderImpl of(@NotNull ItemStack flute) {
+    public static FluteHolderImpl of(ItemStack flute) {
         var holder = new FluteHolderImpl();
         holder.setFlute(flute);
         return holder;
     }
 
-    private @NotNull ItemStack flute = ItemStack.EMPTY;
+    private ItemStack flute = ItemStack.EMPTY;
 
     @Override
     public ItemStack getFlute() {
@@ -20,7 +19,7 @@ public class FluteHolderImpl implements FluteHolder {
     }
 
     @Override
-    public void setFlute(@NotNull ItemStack flute) {
+    public void setFlute(ItemStack flute) {
         this.flute = flute;
     }
 

@@ -162,6 +162,7 @@ public class DragonCoreBlock extends BaseEntityBlock {
         return CODEC;
     }
 
+    @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(type, DMBlockEntities.DRAGON_CORE.get(), DragonCoreBlockEntity::tick);

@@ -24,18 +24,6 @@ public class Interpolation {
             {0.0F, 1.0F, 0.0F, 0.0F}
     };
 
-    @Deprecated(forRemoval = true)
-    /// just for quick refactor
-    public static float lerp(float a, float b, float x) {
-        return Mth.lerp(x, a, b);
-    }
-
-    public static float clampedLinear(float start, float end, float delta) {
-        if (delta <= 0.0F) return start;
-        if (delta >= 1.0F) return end;
-        return start + delta * (end - start);
-    }
-
     public static float clampedSmoothLinear(float start, float end, float delta) {
         if (delta <= 0.0F) return start;
         if (delta >= 1.0F) return end;

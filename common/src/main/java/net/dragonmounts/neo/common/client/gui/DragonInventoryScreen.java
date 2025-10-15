@@ -22,7 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.function.Function;
 
@@ -45,11 +45,11 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
     private static final Component ORDER_TO_SIT = Component.translatable("button.neodragonmounts.order_to_sit");
     private static final Component ORDER_TO_STAND = Component.translatable("button.neodragonmounts.order_to_stand");
     private static final Component MESSAGE = Component.translatable("container.neodragonmounts.dragon_inventory");
-    private IconToggleButton trustToggle;
-    private TextToggleButton sittingToggle;
-    private EditBox name;
-    private String health;
-    private String armor;
+    private @UnknownNullability IconToggleButton trustToggle;
+    private @UnknownNullability TextToggleButton sittingToggle;
+    private @UnknownNullability EditBox name;
+    private @UnknownNullability String health;
+    private @UnknownNullability String armor;
 
     public DragonInventoryScreen(DragonInventoryHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
@@ -100,7 +100,7 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
     }
 
     @Override
-    public void resize(@NotNull Minecraft minecraft, int width, int height) {
+    public void resize(Minecraft minecraft, int width, int height) {
         String string = this.name.getValue();
         this.init(minecraft, width, height);
         this.name.setValue(string);
@@ -156,7 +156,8 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
         this.name.setEditable(false);
     }
 
-    public void render(@NotNull GuiGraphics graphics, int x, int y, float ticks) {
+    @Override
+    public void render(GuiGraphics graphics, int x, int y, float ticks) {
         super.render(graphics, x, y, ticks);
         this.name.render(graphics, x, y, ticks);
         this.trustToggle.render(graphics, x, y, ticks);
@@ -165,13 +166,14 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
     }
 
     @Override
-    protected void renderLabels(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         super.renderLabels(graphics, mouseX, mouseY);
         var font = this.font;
         graphics.drawString(font, this.armor, 20, 33, 0xE99E0C, false);
         graphics.drawString(font, this.health, 20, 44, 0xE99E0C, false);
     }
 
+    @Override
     protected void renderBg(GuiGraphics graphics, float ticks, int x, int y) {
         int left = this.leftPos, top = this.topPos;
         Function<ResourceLocation, RenderType> renderer = RenderType::guiTextured;

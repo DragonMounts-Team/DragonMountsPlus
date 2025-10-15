@@ -125,6 +125,7 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
         return this.entries.inverse().get(id);
     }
 
+    @Override
     public Collection<ConfigEntry<?>> getEntries() {
         return this.entries.keySet();
     }

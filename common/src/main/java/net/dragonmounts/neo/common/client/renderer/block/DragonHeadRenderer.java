@@ -20,11 +20,13 @@ import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
+@SuppressWarnings("UnstableApiUsage")
+@NotNullByDefault
 public enum DragonHeadRenderer implements BlockEntityRenderer<DragonHeadBlockEntity>, BlockEntityRendererProvider<DragonHeadBlockEntity> {
     INSTANCE;
 
@@ -85,7 +87,7 @@ public enum DragonHeadRenderer implements BlockEntityRenderer<DragonHeadBlockEnt
     }
 
     @Override
-    public @NotNull BlockEntityRenderer<DragonHeadBlockEntity> create(Context context) {
+    public BlockEntityRenderer<DragonHeadBlockEntity> create(Context context) {
         return this;
     }
 
@@ -125,12 +127,12 @@ public enum DragonHeadRenderer implements BlockEntityRenderer<DragonHeadBlockEnt
         ).apply(instance, Unbaked::new));
 
         @Override
-        public @NotNull MapCodec<Unbaked> type() {
+        public MapCodec<Unbaked> type() {
             return CODEC;
         }
 
         @Override
-        public SpecialModelRenderer<?> bake(@NotNull EntityModelSet models) {
+        public SpecialModelRenderer<?> bake(EntityModelSet models) {
             return new Special(this.animation, this.variant);
         }
     }

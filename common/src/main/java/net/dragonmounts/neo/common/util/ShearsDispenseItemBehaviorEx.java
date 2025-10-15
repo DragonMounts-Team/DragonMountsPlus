@@ -21,7 +21,8 @@ import org.apache.commons.lang3.function.Consumers;
 import org.jetbrains.annotations.NotNull;
 
 public class ShearsDispenseItemBehaviorEx extends ShearsDispenseItemBehavior {
-    protected @NotNull ItemStack execute(BlockSource block, ItemStack stack) {
+    @Override
+    protected @NotNull ItemStack execute(BlockSource block, @NotNull ItemStack stack) {
         var level = block.level();
         if (!level.isClientSide()) {
             var pos = block.pos().relative(block.state().getValue(DispenserBlock.FACING));
@@ -63,7 +64,7 @@ public class ShearsDispenseItemBehaviorEx extends ShearsDispenseItemBehavior {
                         return true;
                     }
                     continue;
-                default:// continue;
+                default: // continue;
             }
         }
         return false;

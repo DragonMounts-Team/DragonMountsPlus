@@ -12,8 +12,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NotNullByDefault;
 
+@SuppressWarnings("UnstableApiUsage")
+@NotNullByDefault
 public record ContorlGrowthConsumeEffect(boolean isAllowed) implements ConsumeEffect {
     public static final MapCodec<ContorlGrowthConsumeEffect> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.BOOL.fieldOf("allowed").forGetter(ContorlGrowthConsumeEffect::isAllowed)
@@ -25,12 +27,12 @@ public record ContorlGrowthConsumeEffect(boolean isAllowed) implements ConsumeEf
     );
 
     @Override
-    public @NotNull Type<ContorlGrowthConsumeEffect> getType() {
+    public Type<ContorlGrowthConsumeEffect> getType() {
         return DMConsumeEffects.CONTROL_GROWTH;
     }
 
     @Override
-    public boolean apply(@NotNull Level level, @NotNull ItemStack stack, @NotNull LivingEntity entity) {
+    public boolean apply(Level level, ItemStack stack, LivingEntity entity) {
         if (entity instanceof TameableDragonEntity) {
             ((TameableDragonEntity) entity).setAgeLocked(!this.isAllowed);
             return true;

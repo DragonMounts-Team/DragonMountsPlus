@@ -1,0 +1,5 @@
+<root>
+    <item name='com.mojang.serialization.Encoder com.mojang.serialization.DataResult&lt;T&gt; encode(A, com.mojang.serialization.DynamicOps&lt;T&gt;, T) 0'>
+        <annotation name='org.jetbrains.annotations.UnknownNullability'/>
+    </item>
+</root>

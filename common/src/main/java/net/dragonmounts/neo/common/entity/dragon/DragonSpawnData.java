@@ -10,10 +10,12 @@ public class DragonSpawnData extends AgeableMob.AgeableMobGroupData {
         this.stage = stage;
     }
 
+    @Override
     public final boolean isShouldSpawnBaby() {
         return false;
     }
 
+    @Override
     public final float getBabySpawnChance() {
         return 0.0F;
     }

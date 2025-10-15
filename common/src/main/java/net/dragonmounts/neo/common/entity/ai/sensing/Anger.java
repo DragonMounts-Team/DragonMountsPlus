@@ -4,7 +4,7 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class Anger {
-    public LivingEntity target;
+    public @Nullable LivingEntity target;
     public int timestamp;
 
     public abstract @Nullable LivingEntity updateTarget(@Nullable LivingEntity source, @Nullable LivingEntity fallback);

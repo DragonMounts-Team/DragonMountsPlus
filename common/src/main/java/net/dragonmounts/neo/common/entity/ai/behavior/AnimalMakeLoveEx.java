@@ -11,6 +11,8 @@ import net.minecraft.world.entity.animal.Animal;
 
 import java.util.Optional;
 
+import static net.dragonmounts.neo.common.util.BrainUtil.getUnchecked;
+
 /// @see net.minecraft.world.entity.ai.behavior.AnimalMakeLove
 public class AnimalMakeLoveEx extends Behavior<Animal> {
     private final EntityType<? extends Animal> partnerType;
@@ -53,7 +55,7 @@ public class AnimalMakeLoveEx extends Behavior<Animal> {
 
     @Override
     protected void start(ServerLevel level, Animal entity, long gameTime) {
-        Animal animal = this.findValidBreedPartner(entity).get();
+        Animal animal = getUnchecked(this.findValidBreedPartner(entity));
         entity.getBrain().setMemory(MemoryModuleType.BREED_TARGET, animal);
         animal.getBrain().setMemory(MemoryModuleType.BREED_TARGET, entity);
         BehaviorUtils.lockGazeAndWalkToEachOther(entity, animal, this.speedModifier, this.closeEnoughDistance);
@@ -94,12 +96,12 @@ public class AnimalMakeLoveEx extends Behavior<Animal> {
     }
 
     private Animal getBreedTarget(Animal animal) {
-        return (Animal) animal.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
+        return getUnchecked(animal.getBrain().getMemory(MemoryModuleType.BREED_TARGET));
     }
 
     private boolean hasBreedTargetOfRightType(Animal animal) {
         var brain = animal.getBrain();
-        return brain.hasMemoryValue(MemoryModuleType.BREED_TARGET) && brain.getMemory(MemoryModuleType.BREED_TARGET).get().getType() == this.partnerType;
+        return brain.hasMemoryValue(MemoryModuleType.BREED_TARGET) && getUnchecked(brain.getMemory(MemoryModuleType.BREED_TARGET)).getType() == this.partnerType;
     }
 
     private Optional<? extends Animal> findValidBreedPartner(Animal self) {

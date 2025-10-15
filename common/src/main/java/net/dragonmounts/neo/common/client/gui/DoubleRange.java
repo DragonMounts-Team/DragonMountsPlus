@@ -3,7 +3,6 @@ package net.dragonmounts.neo.common.client.gui;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -27,17 +26,17 @@ public class DoubleRange implements OptionInstance.SliderableValueSet<Double> {
     }
 
     @Override
-    public @NotNull Double fromSliderValue(double delta) {
+    public Double fromSliderValue(double delta) {
         return Math.round(Mth.lerp(delta, this.min, this.max) / this.step) * this.step;
     }
 
     @Override
-    public @NotNull Optional<Double> validateValue(Double value) {
+    public Optional<Double> validateValue(Double value) {
         return value.compareTo(this.min) < 0 || value.compareTo(this.max) > 0 ? Optional.empty() : Optional.of(value);
     }
 
     @Override
-    public @NotNull Codec<Double> codec() {
+    public Codec<Double> codec() {
         return Codec.doubleRange(this.min, this.max);
     }
 }

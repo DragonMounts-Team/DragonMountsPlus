@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static net.dragonmounts.neo.common.DragonMountsShared.makeId;
 
@@ -21,7 +21,7 @@ public class DragonCoreHandler extends AbstractContainerMenu {
     public static final ResourceLocation ESSENCE_ICON = makeId("slot/essence");
     public final Container container;
 
-    public DragonCoreHandler(int id, Inventory inventory, BlockPos pos) {
+    public DragonCoreHandler(int id, Inventory inventory, @Nullable BlockPos pos) {
         this(id, inventory, pos != null && inventory.player.level().getBlockEntity(pos) instanceof Container value ? value : new SimpleContainer(1));
     }
 
@@ -56,7 +56,7 @@ public class DragonCoreHandler extends AbstractContainerMenu {
 
     @Override
     @SuppressWarnings("ConstantValue")
-    public @NotNull ItemStack quickMoveStack(Player player, int index) {
+    public ItemStack quickMoveStack(Player player, int index) {
         var slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {
             var stack = slot.getItem();

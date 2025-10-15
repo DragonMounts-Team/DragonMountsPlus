@@ -11,6 +11,7 @@ import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import static net.dragonmounts.neo.common.DragonMountsShared.makeId;
 
@@ -18,8 +19,8 @@ public class FluteSlot extends Slot {
     public static final ResourceLocation ICON = makeId("slot/flute");
     public final FluteHolder holder;
     public final DragonInventoryHandler inventory;
-    public SlotListener<? super FluteSlot> listener;
-    public String desiredName;
+    public @Nullable SlotListener<? super FluteSlot> listener;
+    public @Nullable String desiredName;
 
     public FluteSlot(
             DragonInventoryHandler handler,

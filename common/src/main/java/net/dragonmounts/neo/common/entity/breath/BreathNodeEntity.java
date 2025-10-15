@@ -14,6 +14,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNullByDefault;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Created by TGG on 31/07/2015.
@@ -25,11 +27,13 @@ import net.minecraft.world.phys.Vec3;
  * 2) call onUpdate() every tick to move and collide
  * 3) various getters for intensity, radius, and recent collisions.
  */
+@SuppressWarnings("UnstableApiUsage")
+@NotNullByDefault
 public class BreathNodeEntity extends Entity implements BreathNodeHost {
     private final BreathNode node;
     public final ReferenceOpenHashSet<LivingEntity> checked = new ReferenceOpenHashSet<>();
     private final ObjectArrayList<Collision> collisions = new ObjectArrayList<>();
-    private NodeLineSegment segment;
+    private @UnknownNullability NodeLineSegment segment;
     private boolean collided;
 
     public BreathNodeEntity(EntityType<?> type, Level level) {
@@ -89,7 +93,7 @@ public class BreathNodeEntity extends Entity implements BreathNodeHost {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {}
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
         return false;
     }
 

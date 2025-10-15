@@ -13,7 +13,6 @@ import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.RenderShape;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
 import static net.dragonmounts.neo.common.entity.dragon.HatchableDragonEggEntity.EGG_CRACK_THRESHOLD;
@@ -21,9 +20,7 @@ import static net.dragonmounts.neo.common.entity.dragon.HatchableDragonEggEntity
 import static net.dragonmounts.neo.common.util.math.MathUtil.HALF_RAD_FACTOR;
 import static net.minecraft.client.renderer.ItemBlockRenderTypes.getMovingBlockRenderType;
 
-/**
- * @see net.minecraft.client.renderer.entity.FallingBlockRenderer
- */
+/// @see net.minecraft.client.renderer.entity.FallingBlockRenderer
 public class DragonEggRenderer extends EntityRenderer<HatchableDragonEggEntity, DragonEggRenderState> {
     protected final BlockRenderDispatcher dispatcher;
 
@@ -80,7 +77,7 @@ public class DragonEggRenderer extends EntityRenderer<HatchableDragonEggEntity, 
     }
 
     @Override
-    public @NotNull DragonEggRenderState createRenderState() {
+    public DragonEggRenderState createRenderState() {
         return new DragonEggRenderState();
     }
 }

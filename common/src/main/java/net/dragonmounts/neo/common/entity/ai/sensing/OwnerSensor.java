@@ -10,9 +10,7 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import java.util.Collections;
 import java.util.Set;
 
-/**
- * <b>RELIES ON {@link net.minecraft.world.entity.ai.sensing.PlayerSensor}</b>
- */
+/// <b>RELIES ON {@link net.minecraft.world.entity.ai.sensing.PlayerSensor}</b>
 public class OwnerSensor extends Sensor<TamableAnimal> {
     @Override
     protected void doTick(ServerLevel level, TamableAnimal entity) {

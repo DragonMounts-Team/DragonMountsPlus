@@ -46,7 +46,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -78,8 +77,8 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     public static final int EGG_CRACK_THRESHOLD = (int) (EGG_CRACK_PROCESS_THRESHOLD * MIN_HATCHING_TIME);
     public static final int EGG_SHAKE_THRESHOLD = (int) (EGG_SHAKE_PROCESS_THRESHOLD * MIN_HATCHING_TIME);
     public static final String VANILLA_DATA_PARAMETER_KEY = "IsVanilla";
-    protected String variant;
-    protected UUID owner;
+    protected @Nullable String variant;
+    protected @Nullable UUID owner;
     protected boolean hatched;
     protected boolean isVanilla;
     protected float rotationAxis;
@@ -107,7 +106,7 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     }
 
     @Override
-    protected void defineSynchedData(@NotNull SynchedEntityData.Builder builder) {
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_DRAGON_TYPE, DragonTypes.ENDER);
     }
@@ -400,12 +399,13 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     }
 
     @Contract("!null -> !null")
-    public @Nullable Block asBlock(HatchableDragonEggBlock fallback) {
+    public @Nullable Block asBlock(@Nullable HatchableDragonEggBlock fallback) {
         return this.isVanilla
                 ? Blocks.DRAGON_EGG
                 : this.getDragonType().getInstance(HatchableDragonEggBlock.class, fallback);
     }
 
+    @Override
     public final void setDragonType(DragonType type, boolean reset) {
         var manager = this.getAttributes();
         manager.removeAttributeModifiers(this.getDragonType().attributes);

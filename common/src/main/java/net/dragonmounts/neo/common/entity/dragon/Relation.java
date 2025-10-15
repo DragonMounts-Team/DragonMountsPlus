@@ -3,6 +3,7 @@ package net.dragonmounts.neo.common.entity.dragon;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 public enum Relation {
@@ -12,9 +13,9 @@ public enum Relation {
     OWNER(true, null);
     private static final Logger LOGGER = LogUtils.getLogger();
     public final boolean isTrusted;
-    private final Component reason;
+    private final @Nullable Component reason;
 
-    Relation(boolean isTrusted, String reason) {
+    Relation(boolean isTrusted, @Nullable String reason) {
         this.isTrusted = isTrusted;
         this.reason = reason == null ? null : Component.translatable(reason);
     }

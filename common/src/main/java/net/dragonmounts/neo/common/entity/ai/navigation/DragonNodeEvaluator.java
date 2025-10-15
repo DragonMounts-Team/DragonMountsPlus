@@ -13,13 +13,14 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * @see net.minecraft.world.level.pathfinder.FlyNodeEvaluator
  * @see net.minecraft.world.level.pathfinder.SwimNodeEvaluator
  */
 public class DragonNodeEvaluator extends WalkNodeEvaluator {
-    private ServerDragonEntity dragon;
+    private @UnknownNullability ServerDragonEntity dragon;
 
     @Override
     public void prepare(PathNavigationRegion level, Mob mob) {
@@ -55,35 +56,42 @@ public class DragonNodeEvaluator extends WalkNodeEvaluator {
             var neighbor = this.findAcceptedNode(center.x + direction.getStepX(), center.y, center.z + direction.getStepZ(), height, floor, direction, type);
             this.reusableNeighbors[direction.get2DDataValue()] = neighbor;
             if (this.isNeighborValid(neighbor, center)) {
+                assert neighbor != null;
                 neighbors[nodes++] = neighbor;
             }
         }
 
+        Node neighbor; // injected
+
         for (var direction : Direction.Plane.HORIZONTAL) {
             var clockwise = direction.getClockWise();
             if (this.isDiagonalValid(center, this.reusableNeighbors[direction.get2DDataValue()], this.reusableNeighbors[clockwise.get2DDataValue()])) {
-                var neighbor = this.findAcceptedNode(
+                neighbor = this.findAcceptedNode(
                         center.x + direction.getStepX() + clockwise.getStepX(), center.y, center.z + direction.getStepZ() + clockwise.getStepZ(), height, floor, direction, type
                 );
                 if (this.isDiagonalValid(neighbor)) {
+                    assert neighbor != null;
                     neighbors[nodes++] = neighbor;
                 }
             }
         }
 
         // modification start
-        Node upper = this.findAcceptedNode(center.x, center.y + 1, center.z, height - 1, floor, Direction.UP, type);
-        if (this.isVerticalNeighborValid(upper, center)) {
-            neighbors[nodes++] = upper;
+        neighbor = this.findAcceptedNode(center.x, center.y + 1, center.z, height - 1, floor, Direction.UP, type);
+        if (this.isVerticalNeighborValid(neighbor, center)) {
+            assert neighbor != null;
+            neighbors[nodes++] = neighbor;
         }
-        Node lower = this.findAcceptedNode(center.x, center.y - 1, center.z, height, floor, Direction.DOWN, type);
-        if (this.isVerticalNeighborValid(lower, center)) {
-            neighbors[nodes++] = lower;
+        neighbor = this.findAcceptedNode(center.x, center.y - 1, center.z, height, floor, Direction.DOWN, type);
+        if (this.isVerticalNeighborValid(neighbor, center)) {
+            assert neighbor != null;
+            neighbors[nodes++] = neighbor;
         }
         // modification end
         return nodes;
     }
 
+    @Override
     @Nullable
     protected Node findAcceptedNode(int x, int y, int z, int height, double floor, Direction direction, PathType from) {
         Node node = null;
@@ -142,7 +150,8 @@ public class DragonNodeEvaluator extends WalkNodeEvaluator {
         return node;
     }
 
-    protected final boolean isVerticalNeighborValid(Node neighbor, Node center) {
+    protected final boolean isVerticalNeighborValid(@Nullable Node neighbor, Node center) {
+        //noinspection DataFlowIssue
         return this.isNeighborValid(neighbor, center) && switch (neighbor.type) {
             case WALKABLE, WATER -> true;
             case OPEN -> !this.dragon.isBaby();

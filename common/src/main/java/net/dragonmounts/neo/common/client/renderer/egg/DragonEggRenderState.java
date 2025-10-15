@@ -14,16 +14,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class DragonEggRenderState extends EntityRenderState implements BlockAndTintGetter {
     public float amplitude;
     public float axis;
     public int age;
-    public RandomSource random;
+    public @UnknownNullability RandomSource random;
     public BlockPos pos = BlockPos.ZERO;
-    public BlockState block;
+    public @UnknownNullability BlockState block;
     public @Nullable Holder<Biome> biome;
     public BlockAndTintGetter level = EmptyBlockAndTintGetter.INSTANCE;
 
@@ -33,7 +33,7 @@ public class DragonEggRenderState extends EntityRenderState implements BlockAndT
     }
 
     @Override
-    public @NotNull LevelLightEngine getLightEngine() {
+    public LevelLightEngine getLightEngine() {
         return this.level.getLightEngine();
     }
 
@@ -42,19 +42,18 @@ public class DragonEggRenderState extends EntityRenderState implements BlockAndT
         return this.biome == null ? -1 : resolver.getColor(this.biome.value(), pos.getX(), pos.getZ());
     }
 
-    @Nullable
     @Override
-    public BlockEntity getBlockEntity(BlockPos pos) {
+    public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
         return null;
     }
 
     @Override
-    public @NotNull BlockState getBlockState(BlockPos pos) {
+    public BlockState getBlockState(BlockPos pos) {
         return pos.equals(this.pos) ? this.block : Blocks.AIR.defaultBlockState();
     }
 
     @Override
-    public @NotNull FluidState getFluidState(BlockPos pos) {
+    public FluidState getFluidState(BlockPos pos) {
         return this.getBlockState(pos).getFluidState();
     }
 

@@ -5,6 +5,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.function.BiPredicate;
 
@@ -13,7 +15,7 @@ public class DispatchBehavior<E extends LivingEntity> implements BehaviorControl
     public final BiPredicate<ServerLevel, ? super E> condition;
     public final BehaviorControl<? super E> onSuccess;
     public final BehaviorControl<? super E> onFailure;
-    private BehaviorControl<? super E> impl;
+    private @UnknownNullability BehaviorControl<? super E> impl;
 
     public DispatchBehavior(
             BiPredicate<ServerLevel, ? super E> condition,
@@ -40,7 +42,7 @@ public class DispatchBehavior<E extends LivingEntity> implements BehaviorControl
     }
 
     @Override
-    public boolean tryStart(ServerLevel level, E entity, long time) {
+    public boolean tryStart(ServerLevel level, @NotNull E entity, long time) {
         this.status = Behavior.Status.RUNNING;
         this.updateBehavior(level, entity, time);
         BrainUtil.startBehavior(this.impl, level, entity, time);
@@ -48,7 +50,7 @@ public class DispatchBehavior<E extends LivingEntity> implements BehaviorControl
     }
 
     @Override
-    public void tickOrStop(ServerLevel level, E entity, long time) {
+    public void tickOrStop(ServerLevel level, @NotNull E entity, long time) {
         this.updateBehavior(level, entity, time);
         var behavior = this.impl;
         BrainUtil.startBehavior(behavior, level, entity, time);
@@ -63,7 +65,7 @@ public class DispatchBehavior<E extends LivingEntity> implements BehaviorControl
     }
 
     @Override
-    public void doStop(ServerLevel level, E entity, long time) {
+    public void doStop(ServerLevel level, @NotNull E entity, long time) {
         this.status = Behavior.Status.STOPPED;
         BrainUtil.stopBehavior(this.impl, level, entity, time);
         this.impl = null;

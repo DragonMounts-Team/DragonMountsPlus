@@ -28,6 +28,7 @@ import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.block.DispenserBlock;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -155,7 +156,7 @@ public class DMItems {
             new FluteItem(props.stacksTo(1))
     );
     // Dragon Amulets
-    public static final ItemHolder<AmuletItem<Entity>> AMULET = TOOL_TAB.register("amulet", props ->
+    public static final ItemHolder<AmuletItem<@NotNull Entity>> AMULET = TOOL_TAB.register("amulet", props ->
             new AmuletItem<>(Entity.class, props.overrideDescription(AmuletItem.TRANSLATION_KEY))
     );
     public static final ItemHolder<DragonAmuletItem> FOREST_DRAGON_AMULET = registerItem("forest_dragon_amulet", props -> makeDragonAmulet(DragonTypes.FOREST, props));

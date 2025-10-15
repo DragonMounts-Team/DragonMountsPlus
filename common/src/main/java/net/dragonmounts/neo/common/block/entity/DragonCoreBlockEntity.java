@@ -4,7 +4,6 @@ import net.dragonmounts.neo.common.block.DragonCoreBlock;
 import net.dragonmounts.neo.common.init.DMBlockEntities;
 import net.dragonmounts.neo.common.inventory.DragonCoreHandler;
 import net.dragonmounts.neo.compat.platform.MenuProvider;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -40,7 +39,6 @@ import static net.dragonmounts.neo.common.util.BlockUtil.updateNeighborStates;
 
 /// @see net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity
 @SuppressWarnings("UnstableApiUsage")
-@MethodsReturnNonnullByDefault
 @NotNullByDefault
 public class DragonCoreBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer, MenuProvider<BlockPos> {
     public static final int[] SLOTS = new int[]{0};
@@ -205,14 +203,17 @@ public class DragonCoreBlockEntity extends RandomizableContainerBlockEntity impl
         return false;
     }
 
+    @Override
     public int[] getSlotsForFace(Direction direction) {
         return SLOTS;
     }
 
+    @Override
     public boolean canPlaceItemThroughFace(int i, ItemStack stack, @Nullable Direction direction) {
         return false;
     }
 
+    @Override
     public boolean canTakeItemThroughFace(int i, ItemStack stack, Direction direction) {
         return false;
     }

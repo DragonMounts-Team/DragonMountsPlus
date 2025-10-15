@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
@@ -33,7 +34,7 @@ public class TryFindGround<E extends PathfinderMob & FlyingAnimal> extends OneSh
     }
 
     @Override
-    public boolean trigger(ServerLevel level, E entity, long time) {
+    public boolean trigger(ServerLevel level, @NotNull E entity, long time) {
         if (this.predicate.test(entity)) return false;
         var brain = entity.getBrain();
         if (brain.hasMemoryValue(WALK_TARGET) || brain.hasMemoryValue(ATTACK_TARGET)) return false;

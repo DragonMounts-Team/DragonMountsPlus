@@ -22,9 +22,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("UnstableApiUsage")
+@NotNullByDefault
 public class ClientDragonEntity extends TameableDragonEntity {
     public final DragonAnimator animator = new DragonAnimator(this);
     public int controlFlags;
@@ -36,12 +38,12 @@ public class ClientDragonEntity extends TameableDragonEntity {
     }
 
     @Override
-    protected @NotNull ClientBreathHelper createBreathHelper() {
+    protected ClientBreathHelper createBreathHelper() {
         return new ClientBreathHelper(this);
     }
 
     @Override
-    public final @NotNull Vec3 getHeadRelativeOffset(float x, float y, float z) {
+    public final Vec3 getHeadRelativeOffset(float x, float y, float z) {
         return this.animator.getHeadRelativeOffset(x, y, z);
     }
 
@@ -113,7 +115,7 @@ public class ClientDragonEntity extends TameableDragonEntity {
     }
 
     @Override
-    public @NotNull InteractionResult mobInteract(Player player, InteractionHand hand) {
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
         var stack = player.getItemInHand(hand);
         boolean notOwner = !this.isOwnedBy(player);
         if (!this.isBreathing()) {

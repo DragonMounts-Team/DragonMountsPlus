@@ -9,6 +9,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,7 @@ public enum DebugInfoRenderer implements DebugRenderer.SimpleDebugRenderer {
     private List<VoxelShape> pointShapes = Collections.emptyList();
 
     @Override
-    public void render(PoseStack matrices, MultiBufferSource buffers, double camX, double camY, double camZ) {
+    public void render(@NotNull PoseStack matrices, @NotNull MultiBufferSource buffers, double camX, double camY, double camZ) {
         var boxes = DebugInfo.DEBUG_BOXES;
         if (this.boxes != boxes) {
             this.boxes = boxes;

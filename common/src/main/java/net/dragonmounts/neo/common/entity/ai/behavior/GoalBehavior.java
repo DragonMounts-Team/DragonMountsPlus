@@ -4,6 +4,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class GoalBehavior<E extends LivingEntity> implements BehaviorControl<E> {
     private Behavior.Status status = Behavior.Status.STOPPED;
@@ -19,12 +20,12 @@ public abstract class GoalBehavior<E extends LivingEntity> implements BehaviorCo
     }
 
     @Override
-    public void doStop(ServerLevel level, E entity, long gameTime) {
+    public void doStop(ServerLevel level, @NotNull E entity, long gameTime) {
         this.status = Behavior.Status.STOPPED;
     }
 
     @Override
-    public boolean tryStart(ServerLevel level, E entity, long time) {
+    public boolean tryStart(ServerLevel level, @NotNull E entity, long time) {
         if (this.canUse(level, entity)) {
             this.doStart(level, entity);
             return true;
@@ -33,7 +34,7 @@ public abstract class GoalBehavior<E extends LivingEntity> implements BehaviorCo
     }
 
     @Override
-    public void tickOrStop(ServerLevel level, E dragon, long time) {
+    public void tickOrStop(ServerLevel level, @NotNull E dragon, long time) {
         if (!this.canContinueToUse(level, dragon)) {
             this.doStop(level, dragon, time);
         }

@@ -146,13 +146,12 @@ public class DragonType implements TooltipProvider, DragonTypified {
         return Dummy.get();
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public final <T> @Nullable T bindInstance(Class<T> clazz, T instance) {
         return null;
     }
 
     @Contract("_, !null -> !null")
-    public final <T> @Nullable T getInstance(Class<T> clazz, T fallback) {
+    public final <T> @Nullable T getInstance(Class<T> clazz, @Nullable T fallback) {
         return fallback;
     }
 

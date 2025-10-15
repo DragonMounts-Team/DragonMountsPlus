@@ -44,9 +44,7 @@ public abstract class EntityUtil extends /*to access protected methods*/ EntityT
         return new Vec2(rider.getXRot() * 0.5F, rider.getYRot());
     }
 
-    /**
-     * @see EntityType#create(ServerLevel, Consumer, BlockPos, EntitySpawnReason, boolean, boolean)
-     */
+    /// @see EntityType#create(ServerLevel, Consumer, BlockPos, EntitySpawnReason, boolean, boolean)
     public static void finalizeSpawn(ServerLevel level, Entity entity, BlockPos pos, EntitySpawnReason reason, boolean yOffset, boolean extraOffset) {
         double offset, x = pos.getX() + 0.5D, y = pos.getY(), z = pos.getZ() + 0.5D;
         if (yOffset) {
@@ -64,9 +62,7 @@ public abstract class EntityUtil extends /*to access protected methods*/ EntityT
         }
     }
 
-    /**
-     * @see EntityType#updateCustomEntityTag(Level, Player, Entity, CustomData)
-     */
+    /// @see EntityType#updateCustomEntityTag(Level, Player, Entity, CustomData)
     public static void mergeEntityData(Entity entity, ServerLevel level, Player player, CustomData data) {
         MinecraftServer server = level.getServer();
         EntityType<?> type = data.parseEntityType(server.registryAccess(), Registries.ENTITY_TYPE);
@@ -124,7 +120,7 @@ public abstract class EntityUtil extends /*to access protected methods*/ EntityT
             player.setItemInHand(hand, result);
             return result;
         }
-        if (!result.isEmpty() && !player.getInventory().add(result)) {//Inventory.getFreeSlot() won't check the offhand slot
+        if (!result.isEmpty() && !player.getInventory().add(result)) { // Inventory.getFreeSlot() won't check the offhand slot
             player.drop(result, false);
         }
         return stack;
@@ -260,6 +256,7 @@ public abstract class EntityUtil extends /*to access protected methods*/ EntityT
             var current = entity.position();
             entity.setPos(current.x + movement.x, current.y + movement.y, current.z + movement.z);
         }
+        @SuppressWarnings("SuspiciousNameCombination")
         boolean bl = !Mth.equal(motion.x, movement.x);
         boolean bl2 = !Mth.equal(motion.z, movement.z);
         entity.horizontalCollision = bl || bl2;
@@ -278,6 +275,7 @@ public abstract class EntityUtil extends /*to access protected methods*/ EntityT
         }
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private EntityUtil(EntityFactory<Entity> a, MobCategory b, boolean c, boolean d, boolean e, boolean f, ImmutableSet<Block> g, EntityDimensions h, float i, int j, int k, String l, Optional<ResourceKey<LootTable>> m, FeatureFlagSet n) {
         super(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
     }

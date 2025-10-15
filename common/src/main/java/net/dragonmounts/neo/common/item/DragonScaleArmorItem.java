@@ -8,14 +8,15 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.equipment.ArmorType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
 public class DragonScaleArmorItem extends ArmorItem implements DragonTypified {
     public final DragonType type;
-    public final DescribedArmorEffect effect;
+    public final @Nullable DescribedArmorEffect effect;
 
-    public DragonScaleArmorItem(DragonType type, DescribedArmorEffect effect, ArmorType slot, Properties props) {
+    public DragonScaleArmorItem(DragonType type, @Nullable DescribedArmorEffect effect, ArmorType slot, Properties props) {
         super(type.material, slot, props.component(DMDataComponents.DRAGON_TYPE, type));
         this.type = type;
         this.effect = effect;

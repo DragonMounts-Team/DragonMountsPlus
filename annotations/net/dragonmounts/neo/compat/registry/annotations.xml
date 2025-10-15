@@ -1,0 +1,5 @@
+<root>
+    <item name='net.dragonmounts.neo.compat.registry.DragonType T bindInstance(java.lang.Class&lt;T&gt;, T)'>
+        <annotation name='com.google.errorprone.annotations.CanIgnoreReturnValue'/>
+    </item>
+</root>

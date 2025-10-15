@@ -12,7 +12,6 @@ import net.dragonmounts.neo.common.entity.ai.control.DragonMoveControl;
 import net.dragonmounts.neo.common.entity.breath.DragonBreathHelper;
 import net.dragonmounts.neo.common.init.DMItems;
 import net.dragonmounts.neo.common.init.DMSounds;
-import net.dragonmounts.neo.common.init.DragonTypes;
 import net.dragonmounts.neo.common.init.DragonVariants;
 import net.dragonmounts.neo.common.inventory.DragonInventory;
 import net.dragonmounts.neo.common.inventory.DragonInventoryHandler;
@@ -64,6 +63,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
 
 import java.util.Optional;
@@ -125,9 +125,9 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     public static final String FLYING_DATA_PARAMETER_KEY = "Flying";
     public static final String SADDLE_DATA_PARAMETER_KEY = "Saddle";
     public static final String SHEARED_DATA_PARAMETER_KEY = "ShearCooldown";
-    protected DragonType lastType;
-    protected EndCrystal nearestCrystal;
-    protected DragonLifeStage stage;
+    protected @Nullable EndCrystal nearestCrystal;
+    protected @UnknownNullability DragonType lastType;
+    protected @UnknownNullability DragonLifeStage stage;
     protected boolean hasChest;
     protected boolean isSaddled;
     protected int flightTicks;
@@ -145,20 +145,20 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     @SuppressWarnings("unchecked")
     public <T extends Level, E extends TameableDragonEntity> TameableDragonEntity(
             EntityType<? extends TameableDragonEntity> type,
-            Level level,
+            T level,
             @Nullable BiConsumer<T, E> init
     ) {
         super(type, level);
         this.setPersistenceRequired();
         this.moveControl = new DragonMoveControl(this);
         if (init != null) {
-            init.accept((T) level, (E) this);
+            init.accept(level, (E) this);
         }
         if (this.stage == null) {
             this.setLifeStage(DragonLifeStage.ADULT, true, false);
         }
         if (this.lastType == null) {
-            this.applyType(DragonTypes.ENDER);
+            this.applyType(this.getDragonType());
         }
     }
 
@@ -311,6 +311,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         return DragonLifeStage.getSize(this.stage, this.age);
     }
 
+    @Override
     public EntityDimensions getDefaultDimensions(Pose pose) {
         return this.getType().getDimensions().scale(DragonLifeStage.getSizeAverage(this.stage));
     }
@@ -413,7 +414,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     }
 
     @Override
-    protected SoundEvent getHurtSound(DamageSource damageSource) {
+    protected SoundEvent getHurtSound(DamageSource source) {
         return SoundEvents.ENDER_DRAGON_HURT;
     }
 
@@ -465,7 +466,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         if (!this.isAgeLocked() && (old < 0 && (this.age += amount) >= 0 || old > 0 && (this.age -= amount) <= 0)) {
             this.ageBoundaryReached();
             if (forced) {
-                this.forcedAge += old < 0 ? -old : old;
+                this.forcedAge += Math.abs(old);
             }
         }
     }
@@ -560,7 +561,12 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData data) {
+    public SpawnGroupData finalizeSpawn(
+            ServerLevelAccessor level,
+            DifficultyInstance difficulty,
+            EntitySpawnReason reason,
+            @Nullable SpawnGroupData data
+    ) {
         if (data instanceof DragonSpawnData $data) {
             this.setLifeStage($data.stage, true, false);
         }

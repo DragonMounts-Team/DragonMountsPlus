@@ -3,7 +3,6 @@ package net.dragonmounts.neo.common.client.gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -25,7 +24,7 @@ public abstract class ToggleButton extends Button {
     }
 
     @Override
-    protected @NotNull MutableComponent createNarrationMessage() {
+    protected MutableComponent createNarrationMessage() {
         return this.narration.apply(this);
     }
 

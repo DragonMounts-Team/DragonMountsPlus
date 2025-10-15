@@ -23,8 +23,11 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnorePr
 import net.minecraft.world.level.levelgen.structure.templatesystem.ProtectedBlockProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import org.jetbrains.annotations.NotNullByDefault;
 
 /// @see net.minecraft.world.level.levelgen.structure.structures.RuinedPortalPiece
+@SuppressWarnings("UnstableApiUsage")
+@NotNullByDefault
 public class DragonNestPiece extends TemplateStructurePiece {
     private static StructurePlaceSettings makeSettings(StructureTemplateManager manager, CompoundTag tag, ResourceLocation structure) {
         return makeSettings(

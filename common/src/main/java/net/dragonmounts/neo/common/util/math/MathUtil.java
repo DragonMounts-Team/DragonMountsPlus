@@ -3,7 +3,6 @@ package net.dragonmounts.neo.common.util.math;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
-import org.joml.Vector3f;
 
 public class MathUtil {
     public static final AABB ZERO_AABB = new AABB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -19,14 +18,6 @@ public class MathUtil {
      * Found in 1.12.2 {@code RenderLivingBase::prepareScale}
      */
     public static final float MOJANG_MODEL_SCALE = 0.0625F;
-
-    public static Vector3f getColorVector(int color) {
-        return new Vector3f(
-                (color >> 16 & 255) / 255.0F,
-                (color >> 8 & 255) / 255.0F,
-                (color & 255) / 255.0F
-        );
-    }
 
     public static float clamp(float value) {
         return Mth.clamp(value, 0F, 1F);

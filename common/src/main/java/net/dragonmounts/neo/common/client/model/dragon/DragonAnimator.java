@@ -10,6 +10,7 @@ import net.dragonmounts.neo.common.util.math.LinearInterpolation;
 import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.dragonmounts.neo.compat.registry.DragonVariant;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -139,6 +140,9 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
         state.pitch = this.getPitch() * MathUtil.TO_RAD_FACTOR;
         state.head = this.head;
         state.jawRotX = (1.0F - Mth.sin(animBase)) * 0.1F * flutter + Mth.lerp(partialTicks, this.lastJawRotX, jawRotX);
+        if (state.pose == Pose.SLEEPING) {
+            state.pose = Pose.SITTING;
+        }
     }
 
     public void transitMouthState(MouthState mouth, boolean keep) {

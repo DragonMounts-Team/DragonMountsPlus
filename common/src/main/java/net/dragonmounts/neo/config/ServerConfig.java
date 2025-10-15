@@ -62,6 +62,7 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
         return Dummy.get();
     }
 
+    @Override
     public Collection<ConfigEntry<?>> getEntries() {
         return Dummy.get();
     }

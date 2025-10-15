@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.lang3.function.Suppliers;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BooleanSupplier;
@@ -15,15 +14,15 @@ import java.util.function.Supplier;
 public class ArmorEffectDescriptor {
     protected final Component description;
     protected final BooleanSupplier predicate;
-    protected final MutableComponent trigger;
-    protected final Supplier<Component> supplier;
-    private Component cooldown;
+    protected final @Nullable MutableComponent trigger;
+    protected final Supplier<@Nullable Component> supplier;
+    private @Nullable Component cooldown;
 
     public ArmorEffectDescriptor(
-            @NotNull Component description,
+            Component description,
             @Nullable Supplier<Component> cooldown,
             @Nullable MutableComponent trigger,
-            @NotNull BooleanSupplier predicate
+            BooleanSupplier predicate
     ) {
         this.description = description;
         this.supplier = cooldown == null ? Suppliers.nul() : cooldown;
