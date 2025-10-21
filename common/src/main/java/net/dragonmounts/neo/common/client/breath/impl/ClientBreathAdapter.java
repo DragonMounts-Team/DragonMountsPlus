@@ -2,15 +2,17 @@ package net.dragonmounts.neo.common.client.breath.impl;
 
 import net.dragonmounts.neo.common.client.ClientDragonEntity;
 import net.dragonmounts.neo.common.client.breath.BreathSound;
-import net.dragonmounts.neo.common.client.breath.BreathSoundHandler;
+import net.dragonmounts.neo.common.entity.ai.behavior.DragonBreath;
 import net.dragonmounts.neo.common.entity.breath.BreathParticleOption;
 import net.dragonmounts.neo.common.entity.breath.BreathState;
-import net.dragonmounts.neo.common.entity.breath.DragonBreathHelper;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
+import net.dragonmounts.neo.common.entity.dragon.MouthState;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.util.Mth.lerp;
 
-public class ClientBreathHelper extends DragonBreathHelper<ClientDragonEntity> {
-    private final BreathSoundHandler sound = new BreathSoundHandler();
+public class ClientBreathAdapter extends DragonBreath<@NotNull ClientDragonEntity> {
     private int previousTickCount = Integer.MIN_VALUE;
     private double throatX;
     private double throatY;
@@ -19,24 +21,16 @@ public class ClientBreathHelper extends DragonBreathHelper<ClientDragonEntity> {
     private double lookY;
     private double lookZ;
 
-    public ClientBreathHelper(ClientDragonEntity dragon) {
-        super(dragon);
+    public ClientBreathAdapter(DragonBreathSpec spec) {
+        super(spec);
     }
 
     @Override
-    public void tick() {
+    public void tick(ClientDragonEntity entity) {
         ++this.tickCounter;
-        var dragon = this.dragon;
-        var breath = this.breath;
-        if (breath == null) {
-            this.currentBreathState = BreathState.IDLE;
-            this.onBreathStop();
-            return;
-        }
-        var throat = breath.getSpawnPosition();
-        var stage = dragon.getLifeStage();
-        this.updateBreathState(dragon.isBreathing());
-        this.sound.update();
+        var throat = this.spec.getSpawnPosition(entity);
+        var stage = entity.getLifeStage();
+        this.updateBreathState(entity);
         if (this.currentBreathState == BreathState.SUSTAIN) {
             /*
              * Created by TGG on 21/06/2015.
@@ -44,9 +38,9 @@ public class ClientBreathHelper extends DragonBreathHelper<ClientDragonEntity> {
              * Spawn breath particles for this tick.  If the beam endpoints have moved, interpolate between them, unless
              * the beam stopped for a while (tickCount skipped one or more tick)
              */
-            var level = dragon.level();
-            var look = dragon.getLookAngle();
-            var motion = dragon.getDeltaMovement();
+            var level = entity.level();
+            var look = entity.getLookAngle();
+            var motion = entity.getDeltaMovement();
             double throatX = throat.x, throatY = throat.y, throatZ = throat.z,
                     lookX = look.x, lookY = look.y, lookZ = look.z,
                     motionX = motion.x, motionY = motion.y, motionZ = motion.z;
@@ -58,7 +52,7 @@ public class ClientBreathHelper extends DragonBreathHelper<ClientDragonEntity> {
                 this.lookY = lookY;
                 this.lookZ = lookZ;
             }
-            var option = new BreathParticleOption(dragon.getVariant(), stage.power);
+            var option = new BreathParticleOption(entity.getVariant(), stage.power);
             final int PARTICLES_PER_TICK = 4;
             for (int i = 0; i < PARTICLES_PER_TICK; ++i) {
                 double partialTickHeadStart = i / (double) PARTICLES_PER_TICK;
@@ -83,22 +77,24 @@ public class ClientBreathHelper extends DragonBreathHelper<ClientDragonEntity> {
     }
 
     @Override
-    protected void onBreathStart() {
-        this.sound.setTimeout();
-        var breath = this.breath;
-        if (breath == null) return;
-        var dragon = this.dragon;
+    protected void onBreathStart(ClientDragonEntity dragon) {
+        var spec = this.spec;
         var stage = dragon.getLifeStage();
-        var start = new BreathSound.Scheduled(dragon, breath.getStartSound(stage), 25);
-        start.next = new BreathSound(dragon, breath.getLoopSound(stage), true);
-        this.sound.play(start);
+        var start = new BreathSound.Scheduled(dragon, spec.getStartSound(stage), 25);
+        start.next = new BreathSound(dragon, spec.getLoopSound(stage), true);
+        dragon.sound.play(start);
     }
 
     @Override
-    protected void onBreathStop() {
-        this.sound.setTimeout();
-        var breath = this.breath;
-        if (breath == null) return;
-        this.sound.play(new BreathSound.Scheduled(this.dragon, breath.getStopSound(this.dragon.getLifeStage()), 60));
+    protected void onBreathStop(ClientDragonEntity dragon) {
+        dragon.sound.play(new BreathSound.Scheduled(dragon, this.spec.getStopSound(dragon.getLifeStage()), 60));
+    }
+
+    @Override
+    public @Nullable MouthState getMouthState() {
+        return switch (this.currentBreathState) {
+            case STARTING, SUSTAIN -> MouthState.BREATHING;
+            default -> null;
+        };
     }
 }

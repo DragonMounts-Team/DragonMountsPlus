@@ -2,7 +2,7 @@ package net.dragonmounts.neo.common.entity.breath.impl;
 
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedBlock;
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedEntity;
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.dragon.DragonLifeStage;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * Created by TGG on 7/12/2015.
  */
-public class AetherBreath extends DragonBreath {
+public class AetherBreath extends DragonBreathSpec {
     public static float getDestroyDensity(ServerLevel level, BlockPos pos, BlockState state) {
         var time = state.getDestroySpeed(level, pos);
         return time * time * 400;

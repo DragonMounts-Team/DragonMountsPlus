@@ -5,13 +5,17 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.dragonmounts.neo.common.entity.ai.behavior.DragonBreath;
 import net.dragonmounts.neo.common.entity.breath.*;
+import net.dragonmounts.neo.common.entity.dragon.MouthState;
 import net.dragonmounts.neo.common.entity.dragon.ServerDragonEntity;
 import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -29,27 +33,24 @@ import java.util.function.LongFunction;
  * (3) updateTick() every tick to update the area of effect, and implement breathweapon effects on the blocks &
  * entities within the area of effect
  */
-public class ServerBreathHelper extends DragonBreathHelper<ServerDragonEntity> {
+public class ServerBreathAdapter extends DragonBreath<@NotNull ServerDragonEntity> {
     private final ObjectArrayList<BreathNodeEntity> breathNodes = new ObjectArrayList<>();
     private final Long2ObjectOpenHashMap<BreathAffectedBlock> affectedBlocks = new Long2ObjectOpenHashMap<>();
     private final Reference2ObjectOpenHashMap<LivingEntity, BreathAffectedEntity> affectedEntities = new Reference2ObjectOpenHashMap<>();
 
-    public ServerBreathHelper(ServerDragonEntity dragon) {
-        super(dragon);
+    public ServerBreathAdapter(DragonBreathSpec spec) {
+        super(spec);
     }
 
     /**
      * updates the BreathAffectedArea, called once per tick
      */
     @Override
-    public void tick() {
+    public void tick(ServerDragonEntity entity) {
         ++this.tickCounter;
-        var breath = this.breath;
-        if (breath == null) return;
-        var dragon = this.dragon;
-        this.updateBreathState(dragon.isBreathing());
-        breath.collide(
-                dragon,
+        this.updateBreathState(entity);
+        this.spec.collide(
+                entity,
                 BreathState.SUSTAIN == this.currentBreathState,
                 this.breathNodes,
                 this.affectedBlocks,
@@ -57,13 +58,13 @@ public class ServerBreathHelper extends DragonBreathHelper<ServerDragonEntity> {
         );
     }
 
-    public static void implementEffectsOnBlocksTick(DragonBreath breath, ServerLevel level, Long2ObjectMap<BreathAffectedBlock> affectedBlocks) {
+    public static void implementEffectsOnBlocksTick(DragonBreathSpec breath, ServerLevel level, Long2ObjectMap<BreathAffectedBlock> affectedBlocks) {
         for (Long2ObjectMap.Entry<BreathAffectedBlock> entry : affectedBlocks.long2ObjectEntrySet()) {
             entry.setValue(breath.affectBlock(level, entry.getLongKey(), entry.getValue()));
         }
     }
 
-    public static void implementEffectsOnEntitiesTick(DragonBreath breath, ServerLevel level, Map<LivingEntity, BreathAffectedEntity> affectedEntities) {
+    public static void implementEffectsOnEntitiesTick(DragonBreathSpec breath, ServerLevel level, Map<LivingEntity, BreathAffectedEntity> affectedEntities) {
         for (var iterator = affectedEntities.entrySet().iterator(); iterator.hasNext(); ) {
             var entry = iterator.next();
             var target = entry.getKey();
@@ -91,7 +92,7 @@ public class ServerBreathHelper extends DragonBreathHelper<ServerDragonEntity> {
      */
     public static void updateBlockAndEntityHitDensities(
             Level world,
-            DragonBreath breath,
+            DragonBreathSpec breath,
             List<BreathNodeEntity> entityBreathNodes,
             Long2ObjectMap<BreathAffectedBlock> affectedBlocks,
             Map<LivingEntity, BreathAffectedEntity> affectedEntities
@@ -144,5 +145,11 @@ public class ServerBreathHelper extends DragonBreathHelper<ServerDragonEntity> {
             }
             checked.clear();
         }
+    }
+
+    /// Unnecessary to be implemented on server side
+    @Override
+    public @Nullable MouthState getMouthState() {
+        return null;
     }
 }

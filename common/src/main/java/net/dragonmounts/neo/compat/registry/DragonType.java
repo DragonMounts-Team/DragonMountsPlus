@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.mojang.serialization.Codec;
 import net.dragonmounts.neo.common.api.DragonTypified;
 import net.dragonmounts.neo.common.client.ClientDragonEntity;
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.ai.behavior.RangedAttack;
 import net.dragonmounts.neo.common.entity.dragon.ServerDragonEntity;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.compat.Dummy;
@@ -47,7 +47,7 @@ import static net.dragonmounts.neo.common.DragonMountsShared.DRAGON_TYPE;
 import static net.dragonmounts.neo.common.DragonMountsShared.makeId;
 
 @SuppressWarnings("unused")
-public class DragonType implements TooltipProvider, DragonTypified {
+public abstract class DragonType implements TooltipProvider, DragonTypified {
     public static final String DATA_PARAMETER_KEY = "DragonType";
     public static final ResourceLocation DEFAULT_KEY = makeId("ender");
     public static final DefaultedMappedRegistry<DragonType> REGISTRY = Dummy.get();
@@ -118,9 +118,9 @@ public class DragonType implements TooltipProvider, DragonTypified {
         return false;
     }
 
-    public @Nullable DragonBreath initBreath(TameableDragonEntity dragon) {
-        return Dummy.get();
-    }
+    public abstract @Nullable RangedAttack<? super ServerDragonEntity> initRangedAttack(ServerDragonEntity dragon);
+
+    public abstract @Nullable RangedAttack<? super ClientDragonEntity> initRangedAttack(ClientDragonEntity dragon);
 
     public SoundEvent getAmbientSound(TameableDragonEntity dragon) {
         return Dummy.get();

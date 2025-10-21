@@ -1,22 +1,21 @@
 package net.dragonmounts.neo.common.type;
 
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.breath.impl.EnderBreath;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
-import net.dragonmounts.neo.compat.registry.DragonType;
 import net.dragonmounts.neo.compat.registry.DragonTypeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 
-public class EnderType extends DragonType {
+public class EnderType extends BreathableType {
     public EnderType(ResourceLocation identifier, DragonTypeBuilder builder) {
         super(identifier, builder);
     }
 
     @Override
-    public DragonBreath initBreath(TameableDragonEntity dragon) {
+    public DragonBreathSpec initBreath(TameableDragonEntity dragon) {
         return new EnderBreath(dragon, 0.9F);
     }
 

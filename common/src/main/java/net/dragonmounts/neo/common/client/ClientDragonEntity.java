@@ -1,10 +1,11 @@
 package net.dragonmounts.neo.common.client;
 
-import net.dragonmounts.neo.common.client.breath.impl.ClientBreathHelper;
+import net.dragonmounts.neo.common.client.breath.BreathSoundHandler;
 import net.dragonmounts.neo.common.client.model.dragon.DragonAnimator;
-import net.dragonmounts.neo.common.client.model.dragon.MouthState;
 import net.dragonmounts.neo.common.component.DragonFood;
+import net.dragonmounts.neo.common.entity.ai.behavior.RangedAttack;
 import net.dragonmounts.neo.common.entity.dragon.DragonLifeStage;
+import net.dragonmounts.neo.common.entity.dragon.MouthState;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
 import net.dragonmounts.neo.common.inventory.DragonInventory;
@@ -29,17 +30,19 @@ import org.jetbrains.annotations.Nullable;
 @NotNullByDefault
 public class ClientDragonEntity extends TameableDragonEntity {
     public final DragonAnimator animator = new DragonAnimator(this);
+    public final BreathSoundHandler sound = new BreathSoundHandler();
     public int controlFlags;
     private float pendingJumpPower;
     private boolean wasOnGround;
+    private @Nullable RangedAttack<? super ClientDragonEntity> rangedAttack;
 
     public ClientDragonEntity(EntityType<? extends TameableDragonEntity> type, Level world) {
         super(type, world, null);
     }
 
     @Override
-    protected ClientBreathHelper createBreathHelper() {
-        return new ClientBreathHelper(this);
+    public @Nullable RangedAttack<? super ClientDragonEntity> getRangedAttack() {
+        return this.rangedAttack;
     }
 
     @Override
@@ -72,7 +75,11 @@ public class ClientDragonEntity extends TameableDragonEntity {
         }
         super.aiStep();
         this.animator.tick();
-        this.breathHelper.tick();
+        var attack = this.getRangedAttack();
+        if (attack != null) {
+            attack.tick(this);
+        }
+        this.sound.update();
         if (!this.isAgeLocked()) {
             if (this.age < 0) {
                 ++this.age;
@@ -110,7 +117,11 @@ public class ClientDragonEntity extends TameableDragonEntity {
             this.getAttributes().removeAttributeModifiers(this.lastType.attributes);
         }
         this.getAttributes().addTransientAttributeModifiers(type.attributes);
-        this.breathHelper.onTypeChange(type);
+        var attack = this.getRangedAttack();
+        if (attack != null) {
+            attack.onDetached(this);
+        }
+        this.rangedAttack = type.initRangedAttack(this);
         this.lastType = type;
     }
 

@@ -1,14 +1,13 @@
 package net.dragonmounts.neo.common.type;
 
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.breath.impl.DarkBreath;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
-import net.dragonmounts.neo.compat.registry.DragonType;
 import net.dragonmounts.neo.compat.registry.DragonTypeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
-public class DarkType extends DragonType {
+public class DarkType extends BreathableType {
     public DarkType(ResourceLocation identifier, DragonTypeBuilder builder) {
         super(identifier, builder);
     }
@@ -19,7 +18,7 @@ public class DarkType extends DragonType {
     }
 
     @Override
-    public DragonBreath initBreath(TameableDragonEntity dragon) {
+    public DragonBreathSpec initBreath(TameableDragonEntity dragon) {
         return new DarkBreath(dragon, 0.6F);
     }
 }

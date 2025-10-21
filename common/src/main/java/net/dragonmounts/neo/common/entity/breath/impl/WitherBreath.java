@@ -2,7 +2,7 @@ package net.dragonmounts.neo.common.entity.breath.impl;
 
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedBlock;
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedEntity;
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -13,7 +13,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.LivingEntity;
 
-public class WitherBreath extends DragonBreath {
+public class WitherBreath extends DragonBreathSpec {
     public WitherBreath(TameableDragonEntity dragon, float damage) {
         super(dragon, damage);
     }

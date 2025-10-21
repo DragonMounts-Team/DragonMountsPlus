@@ -7,9 +7,9 @@ import net.dragonmounts.neo.common.api.DragonTypified;
 import net.dragonmounts.neo.common.api.DynamicAttributeEntity;
 import net.dragonmounts.neo.common.client.ClientDragonEntity;
 import net.dragonmounts.neo.common.component.DragonFood;
+import net.dragonmounts.neo.common.entity.ai.behavior.RangedAttack;
 import net.dragonmounts.neo.common.entity.ai.control.DragonBodyControl;
 import net.dragonmounts.neo.common.entity.ai.control.DragonMoveControl;
-import net.dragonmounts.neo.common.entity.breath.DragonBreathHelper;
 import net.dragonmounts.neo.common.init.DMItems;
 import net.dragonmounts.neo.common.init.DMSounds;
 import net.dragonmounts.neo.common.init.DragonVariants;
@@ -140,7 +140,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
             DATA_SADDLE_ITEM,
             this::setSaddled
     );
-    public final DragonBreathHelper<?> breathHelper = this.createBreathHelper();
+
 
     @SuppressWarnings("unchecked")
     public <T extends Level, E extends TameableDragonEntity> TameableDragonEntity(
@@ -167,7 +167,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         return new DragonBodyControl(this);
     }
 
-    protected abstract DragonBreathHelper<?> createBreathHelper();
+    public abstract @Nullable RangedAttack<?> getRangedAttack();
 
     public abstract Vec3 getHeadRelativeOffset(float x, float y, float z);
 
@@ -235,7 +235,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     }
 
     public final void setBreathing(boolean breathing) {
-        this.entityData.set(DATA_BREATHING, breathing && this.getLifeStage().isOldEnough(DragonLifeStage.INFANT) && this.breathHelper.canBreathe());
+        this.entityData.set(DATA_BREATHING, breathing && this.getLifeStage().isOldEnough(DragonLifeStage.INFANT) && this.getRangedAttack() != null);
     }
 
     protected abstract void checkCrystals();

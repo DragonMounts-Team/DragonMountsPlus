@@ -1,7 +1,7 @@
 package net.dragonmounts.neo.common.entity.breath.impl;
 
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedBlock;
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
-public class EnderBreath extends DragonBreath {
+public class EnderBreath extends DragonBreathSpec {
     public EnderBreath(TameableDragonEntity dragon, float damage) {
         super(dragon, damage);
     }

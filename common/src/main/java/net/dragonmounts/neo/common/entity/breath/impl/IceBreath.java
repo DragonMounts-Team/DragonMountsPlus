@@ -2,7 +2,7 @@ package net.dragonmounts.neo.common.entity.breath.impl;
 
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedBlock;
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedEntity;
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.dragon.DragonLifeStage;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.material.Fluids;
 
-public class IceBreath extends DragonBreath {
+public class IceBreath extends DragonBreathSpec {
     public IceBreath(TameableDragonEntity dragon, float damage) {
         super(dragon, damage);
     }

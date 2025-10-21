@@ -3,6 +3,7 @@ package net.dragonmounts.neo.common.client.model.dragon;
 import net.dragonmounts.neo.common.client.ClientDragonEntity;
 import net.dragonmounts.neo.common.client.renderer.dragon.DragonRenderState;
 import net.dragonmounts.neo.common.entity.ai.control.DragonHeadLocator;
+import net.dragonmounts.neo.common.entity.dragon.MouthState;
 import net.dragonmounts.neo.common.init.DragonVariants;
 import net.dragonmounts.neo.common.util.CircularBuffer;
 import net.dragonmounts.neo.common.util.math.Interpolation;
@@ -13,6 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -24,9 +26,7 @@ import static net.dragonmounts.neo.common.util.math.Interpolation.clampedSmoothL
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
-    // constants
-    public static final int JAW_SPEED = 20;
+public class DragonAnimator extends DragonHeadLocator<@NotNull ClientDragonEntity> {
     // interpolate between folded and unfolded wing angles
     private static final float[] FOLDED_FINGER_ROT = {2.7F, 2.8F, 2.9F, 3.0F};
     private static final float[] UNFOLDED_FINGER_ROT = {0.1F, 0.9F, 1.7F, 2.5F};
@@ -89,10 +89,11 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
     private int hurtTime;
     private int maxDeathTime;
     public boolean renderCrystalBeams = true;
-    private float jawRotX;
+    public float jawRotX;
     private float lastJawRotX;
     private MouthState mouth = MouthState.IDLE;
     private int duration;
+    private boolean charging;
     public int remainingEating;
 
     public DragonAnimator(ClientDragonEntity dragon) {
@@ -139,33 +140,42 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
         // update pitch
         state.pitch = this.getPitch() * MathUtil.TO_RAD_FACTOR;
         state.head = this.head;
-        state.jawRotX = (1.0F - Mth.sin(animBase)) * 0.1F * flutter + Mth.lerp(partialTicks, this.lastJawRotX, jawRotX);
+        state.jawRotX = (1.0F - Mth.sin(animBase)) * 0.1F * flutter + Mth.lerp(partialTicks, this.lastJawRotX, this.jawRotX);
         if (state.pose == Pose.SLEEPING) {
             state.pose = Pose.SITTING;
         }
     }
 
     public void transitMouthState(MouthState mouth, boolean keep) {
+        this.charging = mouth.charging;
         if (keep && mouth == this.mouth) return;
         this.mouth = mouth;
         this.duration = 0;
     }
 
-    protected boolean updateBasicMouthRotX() {
+    protected boolean updateJawRotation() {
         var mouth = this.mouth;
-        if (++this.duration < mouth.turning) {
-            this.jawRotX = MathUtil.clamp(this.duration * JAW_SPEED) * mouth.amplitude;
-        } else if (this.duration < mouth.duration) {
-            this.jawRotX = MathUtil.clamp((mouth.duration - this.duration) * JAW_SPEED) * mouth.amplitude;
-        } else return false;
+        if (++this.duration >= mouth.duration) return false;
+        if (this.duration > mouth.turning) {
+            if (mouth.charging && this.charging) {
+                this.duration = mouth.turning;
+                this.jawRotX = mouth.amplitude;
+            } else {
+                this.jawRotX = mouth.amplitude * MathUtil.clamp(
+                        (mouth.duration - this.duration) / (float) (mouth.duration - mouth.turning)
+                );
+            }
+        } else {
+            this.jawRotX = mouth.amplitude * MathUtil.clamp(this.duration / (float) mouth.turning);
+        }
         return true;
     }
 
-    protected void updateMouthRotX() {
+    protected void updateMouthState() {
         switch (this.mouth) {
             case IDLE -> this.jawRotX = 0.0F;
             case EATING -> {
-                if (this.updateBasicMouthRotX()) break;
+                if (this.updateJawRotation()) break;
                 if (this.remainingEating < 0) {
                     this.transitMouthState(MouthState.IDLE, false);
                 } else {
@@ -174,7 +184,7 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
                 this.jawRotX = 0.0F;
             }
             default -> {
-                if (this.updateBasicMouthRotX()) break;
+                if (this.updateJawRotation()) break;
                 this.transitMouthState(MouthState.IDLE, false);
                 this.jawRotX = 0.0F;
             }
@@ -234,26 +244,16 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
 
         // update bite opening transition and breath transitions
         this.lastJawRotX = this.jawRotX;
-        switch (dragon.breathHelper.getCurrentBreathState()) {
-            case IDLE -> {
-                if (this.mouth == MouthState.BREATHING) {
-                    this.transitMouthState(MouthState.IDLE, false);
-                    this.jawRotX = 0.0F;
-                    break;
-                }
-                this.updateMouthRotX();
+        var attack = dragon.getRangedAttack();
+        if (attack != null) {
+            var mouth = attack.getMouthState();
+            if (mouth != null) {
+                this.transitMouthState(mouth, true);
+            } else {
+                this.charging = false;
             }
-            case STARTING -> {
-                this.transitMouthState(MouthState.BREATHING, true);
-                this.updateMouthRotX();
-            }
-            case SUSTAIN -> {
-                var mouth = this.mouth = MouthState.BREATHING;
-                this.duration = mouth.turning + 2;
-                this.jawRotX = mouth.amplitude;
-            }
-            case STOPPING -> this.updateMouthRotX();
         }
+        this.updateMouthState();
         // update speed transition
         speedTimer.add(!flying ||
                 speedEnt > speedMax ||

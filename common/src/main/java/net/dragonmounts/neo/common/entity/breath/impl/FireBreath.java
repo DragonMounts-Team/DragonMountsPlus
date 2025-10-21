@@ -2,7 +2,7 @@ package net.dragonmounts.neo.common.entity.breath.impl;
 
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedBlock;
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedEntity;
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.compat.platform.FlammableBlock;
 import net.dragonmounts.neo.config.ServerConfig;
@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT;
 
-public class FireBreath extends DragonBreath {
+public class FireBreath extends DragonBreathSpec {
     public FireBreath(TameableDragonEntity dragon, float damage) {
         super(dragon, damage);
     }

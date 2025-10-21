@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static net.dragonmounts.neo.common.entity.breath.impl.ServerBreathHelper.*;
+import static net.dragonmounts.neo.common.entity.breath.impl.ServerBreathAdapter.*;
 
 /**
  * Created by TGG on 5/08/2015.
  */
-public abstract class DragonBreath {
+public abstract class DragonBreathSpec {
     public static AreaEffectCloud createEffectCloud(ServerLevel level, BlockPos pos, float radius, int duration) {
         var cloud = new AreaEffectCloud(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         cloud.setRadius(radius);
@@ -33,13 +33,13 @@ public abstract class DragonBreath {
     protected final TameableDragonEntity dragon;
     public final float damage;
 
-    public DragonBreath(TameableDragonEntity dragon, float damage) {
+    public DragonBreathSpec(TameableDragonEntity dragon, float damage) {
         this.dragon = dragon;
         this.damage = damage;
     }
 
-    public Vec3 getSpawnPosition() {
-        return this.dragon.getHeadRelativeOffset(0.0F, -10.0F, 24.0F);
+    public Vec3 getSpawnPosition(TameableDragonEntity dragon) {
+        return dragon.getHeadRelativeOffset(0.0F, -10.0F, 24.0F);
     }
 
     public void collide(
@@ -50,7 +50,7 @@ public abstract class DragonBreath {
             Map<LivingEntity, BreathAffectedEntity> affectedEntities
     ) {
         if (breathing) {
-            nodes.add(new BreathNodeEntity(dragon, this.getSpawnPosition()));
+            nodes.add(new BreathNodeEntity(dragon, this.getSpawnPosition(dragon)));
         }
         if (nodes.isEmpty()) return;
         var level = (ServerLevel) dragon.level();

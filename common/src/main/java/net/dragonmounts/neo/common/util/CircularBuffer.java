@@ -25,7 +25,8 @@ public final class CircularBuffer {
     private int index = 0;
 
     public CircularBuffer(int size) {
-        if ((size & 1) == 1) throw new IllegalArgumentException(); // & with a mask only works if size is a power of 2
+        if ((size & (size - 1)) != 0)
+            throw new IllegalArgumentException(); // & with a mask only works if size is a power of 2
         this.buffer = new float[size];
     }
 
@@ -37,7 +38,7 @@ public final class CircularBuffer {
         // move forward
         this.index++;
         // restart pointer at the end to form a virtual ring
-        this.index %= this.buffer.length;
+        this.index &= this.buffer.length - 1;
         this.buffer[this.index] = value;
     }
 

@@ -2,7 +2,7 @@ package net.dragonmounts.neo.common.entity.breath.impl;
 
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedBlock;
 import net.dragonmounts.neo.common.entity.breath.BreathAffectedEntity;
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.dragon.DragonLifeStage;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.FarmBlock;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.MOISTURE;
 
-public class WaterBreath extends DragonBreath {
+public class WaterBreath extends DragonBreathSpec {
     public WaterBreath(TameableDragonEntity dragon, float damage) {
         super(dragon, damage);
     }

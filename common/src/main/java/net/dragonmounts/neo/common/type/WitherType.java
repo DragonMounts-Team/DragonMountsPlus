@@ -1,7 +1,11 @@
 package net.dragonmounts.neo.common.type;
 
-import net.dragonmounts.neo.common.entity.breath.DragonBreath;
+import net.dragonmounts.neo.common.client.ClientDragonEntity;
+import net.dragonmounts.neo.common.client.breath.impl.ClientBreathAdapter;
+import net.dragonmounts.neo.common.entity.ai.behavior.RangedAttack;
+import net.dragonmounts.neo.common.entity.breath.impl.ServerBreathAdapter;
 import net.dragonmounts.neo.common.entity.breath.impl.WitherBreath;
+import net.dragonmounts.neo.common.entity.dragon.ServerDragonEntity;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
 import net.dragonmounts.neo.compat.registry.DragonTypeBuilder;
@@ -14,8 +18,13 @@ public class WitherType extends SkeletonType {
     }
 
     @Override
-    public DragonBreath initBreath(TameableDragonEntity dragon) {
-        return new WitherBreath(dragon, 0.6F);
+    public RangedAttack<? super ServerDragonEntity> initRangedAttack(ServerDragonEntity dragon) {
+        return new ServerBreathAdapter(new WitherBreath(dragon, 0.6F));
+    }
+
+    @Override
+    public RangedAttack<? super ClientDragonEntity> initRangedAttack(ClientDragonEntity dragon) {
+        return new ClientBreathAdapter(new WitherBreath(dragon, 0.6F));
     }
 
     @Override

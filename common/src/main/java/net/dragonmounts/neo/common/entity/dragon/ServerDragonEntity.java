@@ -5,9 +5,9 @@ import it.unimi.dsi.fastutil.doubles.DoubleIterators;
 import net.dragonmounts.neo.common.api.BredDragonsTrigger;
 import net.dragonmounts.neo.common.block.DragonCoreBlock;
 import net.dragonmounts.neo.common.component.DragonFood;
+import net.dragonmounts.neo.common.entity.ai.behavior.RangedAttack;
 import net.dragonmounts.neo.common.entity.ai.control.DragonHeadLocator;
 import net.dragonmounts.neo.common.entity.ai.navigation.DragonPathNavigation;
-import net.dragonmounts.neo.common.entity.breath.impl.ServerBreathHelper;
 import net.dragonmounts.neo.common.init.*;
 import net.dragonmounts.neo.common.inventory.DragonInventory;
 import net.dragonmounts.neo.common.item.DragonEssenceItem;
@@ -62,6 +62,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 public class ServerDragonEntity extends TameableDragonEntity {
     private final Segment[] neckSegments = ArrayUtil.fillArray(new Segment[NECK_SEGMENTS], Segment::new);
     public final DragonHeadLocator<ServerDragonEntity> headLocator = new DragonHeadLocator<>(this);
+    private @Nullable RangedAttack<? super ServerDragonEntity> rangedAttack;
 
     public ServerDragonEntity(EntityType<? extends TameableDragonEntity> type, ServerLevel level) {
         super(type, level, null);
@@ -72,8 +73,8 @@ public class ServerDragonEntity extends TameableDragonEntity {
     }
 
     @Override
-    protected ServerBreathHelper createBreathHelper() {
-        return new ServerBreathHelper(this);
+    public @Nullable RangedAttack<? super ServerDragonEntity> getRangedAttack() {
+        return this.rangedAttack;
     }
 
     @Override
@@ -173,7 +174,11 @@ public class ServerDragonEntity extends TameableDragonEntity {
         }
         this.getAttributes().addTransientAttributeModifiers(type.attributes);
         this.setHealth(health * this.getMaxHealth());
-        this.breathHelper.onTypeChange(type);
+        var attack = this.getRangedAttack();
+        if (attack != null) {
+            attack.onDetached(this);
+        }
+        this.rangedAttack = type.initRangedAttack(this);
         this.lastType = type;
     }
 
@@ -214,7 +219,10 @@ public class ServerDragonEntity extends TameableDragonEntity {
                 this.getXRot(),
                 this.yHeadRot - this.yBodyRot
         );
-        this.breathHelper.tick();
+        var attack = this.getRangedAttack();
+        if (attack != null) {
+            attack.tick(this);
+        }
         if (this.isAgeLocked()) {
             int age = this.age;
             this.age = 0;

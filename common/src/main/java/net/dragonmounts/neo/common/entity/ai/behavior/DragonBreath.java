@@ -1,7 +1,8 @@
-package net.dragonmounts.neo.common.entity.breath;
+package net.dragonmounts.neo.common.entity.ai.behavior;
 
+import net.dragonmounts.neo.common.entity.breath.BreathState;
+import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
-import net.dragonmounts.neo.compat.registry.DragonType;
 
 /**
  * Created by TGG on 8/07/2015.
@@ -28,37 +29,22 @@ import net.dragonmounts.neo.compat.registry.DragonType;
  * 4) getCurrentBreathState() and getBreathStateFractionComplete() should be called by animation routines for
  * the dragon during breath weapon (eg jaw opening)
  */
-public abstract class DragonBreathHelper<T extends TameableDragonEntity> {
+public abstract class DragonBreath<T extends TameableDragonEntity> implements RangedAttack<T> {
     public static final int BREATH_START_DURATION = 5; // ticks
     public static final int BREATH_STOP_DURATION = 5; // ticks
-    public final T dragon;
+    public final DragonBreathSpec spec;
     protected BreathState currentBreathState = BreathState.IDLE;
-    protected DragonBreath breath;
     protected int transitionStartTick;
     protected int tickCounter = 0;
 
-    public DragonBreathHelper(T dragon) {
-        this.dragon = dragon;
+    public DragonBreath(DragonBreathSpec spec) {
+        this.spec = spec;
     }
 
-    public abstract void tick();
-
-    public BreathState getCurrentBreathState() {
-        return currentBreathState;
-    }
-
-    public void onTypeChange(DragonType type) {
-        this.breath = type.initBreath(this.dragon);
-    }
-
-    public boolean canBreathe() {
-        return this.breath != null;
-    }
-
-    protected void updateBreathState(boolean isBreathing) {
+    protected void updateBreathState(T dragon) {
         switch (currentBreathState) {
             case IDLE -> {
-                if (isBreathing) {
+                if (dragon.isBreathing()) {
                     transitionStartTick = tickCounter;
                     currentBreathState = BreathState.STARTING;
                 }
@@ -66,20 +52,20 @@ public abstract class DragonBreathHelper<T extends TameableDragonEntity> {
             case STARTING -> {
                 if (tickCounter - transitionStartTick >= BREATH_START_DURATION) {
                     transitionStartTick = tickCounter;
-                    if (isBreathing) {
+                    if (dragon.isBreathing()) {
                         currentBreathState = BreathState.SUSTAIN;
-                        this.onBreathStart();
+                        this.onBreathStart(dragon);
                     } else {
                         currentBreathState = BreathState.STOPPING;
-                        this.onBreathStop();
+                        this.onBreathStop(dragon);
                     }
                 }
             }
             case SUSTAIN -> {
-                if (!isBreathing) {
+                if (!dragon.isBreathing()) {
                     transitionStartTick = tickCounter;
                     currentBreathState = BreathState.STOPPING;
-                    this.onBreathStop();
+                    this.onBreathStop(dragon);
                 }
             }
             case STOPPING -> {
@@ -90,7 +76,12 @@ public abstract class DragonBreathHelper<T extends TameableDragonEntity> {
         }
     }
 
-    protected void onBreathStart() {}
+    protected void onBreathStart(T dragon) {}
 
-    protected void onBreathStop() {}
+    protected void onBreathStop(T dragon) {}
+
+    @Override
+    public void onDetached(T entity) {
+        this.onBreathStop(entity);
+    }
 }
