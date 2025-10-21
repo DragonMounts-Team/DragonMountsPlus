@@ -243,9 +243,7 @@ public class ServerDragonEntity extends TameableDragonEntity {
         if (!this.isBreathing()) {
             var food = DragonFood.getInstance(stack);
             if (food != null) {
-                if ((food.requiresOwner() && !isOwner) || (
-                        !food.canAlwaysFeed() && this.getHealth() >= this.getMaxHealth() && this.isTame()
-                )) return InteractionResult.FAIL;
+                if ((food.requiresOwner() && !isOwner) || this.shouldRefuseFood(food)) return InteractionResult.FAIL;
                 var level = this.level();
                 var locked = this.isAgeLocked();
                 for (var effect : food.effects()) {

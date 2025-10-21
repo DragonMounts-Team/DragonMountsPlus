@@ -321,6 +321,11 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         return !stack.isEmpty() && DragonFood.isDragonFood(stack);
     }
 
+    protected boolean shouldRefuseFood(DragonFood food) {
+        return (food.age() == 0 || this.getLifeStage() == DragonLifeStage.ADULT)
+                && !food.canAlwaysFeed() && this.getHealth() >= this.getMaxHealth() && this.isTame();
+    }
+
     @Override
     protected void dropEquipment(ServerLevel level) {
         this.inventory.dropContents(false, 0);

@@ -121,9 +121,9 @@ public class ClientDragonEntity extends TameableDragonEntity {
         if (!this.isBreathing()) {
             var food = DragonFood.getInstance(stack);
             if (food != null) {
-                return (food.requiresOwner() && notOwner) || (
-                        !food.canAlwaysFeed() && this.getHealth() >= this.getMaxHealth() && this.isTame()
-                ) ? InteractionResult.FAIL : InteractionResult.CONSUME;
+                return (food.requiresOwner() && notOwner) || this.shouldRefuseFood(food)
+                        ? InteractionResult.FAIL
+                        : InteractionResult.CONSUME;
             }
         }
         if (notOwner) return InteractionResult.PASS;
