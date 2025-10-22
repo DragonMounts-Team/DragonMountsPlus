@@ -3,6 +3,7 @@ package net.dragonmounts.neo.common.client.model.dragon;
 import net.dragonmounts.neo.common.client.ClientDragonEntity;
 import net.dragonmounts.neo.common.client.renderer.dragon.DragonRenderState;
 import net.dragonmounts.neo.common.entity.ai.control.DragonHeadLocator;
+import net.dragonmounts.neo.common.entity.dragon.BuiltinMouthState;
 import net.dragonmounts.neo.common.entity.dragon.MouthState;
 import net.dragonmounts.neo.common.init.DragonVariants;
 import net.dragonmounts.neo.common.util.CircularBuffer;
@@ -89,9 +90,9 @@ public class DragonAnimator extends DragonHeadLocator<@NotNull ClientDragonEntit
     private int hurtTime;
     private int maxDeathTime;
     public boolean renderCrystalBeams = true;
-    public float jawRotX;
+    private float jawRotX;
     private float lastJawRotX;
-    private MouthState mouth = MouthState.IDLE;
+    private MouthState mouth = BuiltinMouthState.IDLE;
     private int duration;
     private boolean charging;
     public int remainingEating;
@@ -147,48 +148,31 @@ public class DragonAnimator extends DragonHeadLocator<@NotNull ClientDragonEntit
     }
 
     public void transitMouthState(MouthState mouth, boolean keep) {
-        this.charging = mouth.charging;
+        this.charging = mouth.isCharging();
         if (keep && mouth == this.mouth) return;
-        this.mouth = mouth;
-        this.duration = 0;
+        this.forceMouthState(mouth, 0);
     }
 
-    protected boolean updateJawRotation() {
-        var mouth = this.mouth;
-        if (++this.duration >= mouth.duration) return false;
-        if (this.duration > mouth.turning) {
-            if (mouth.charging && this.charging) {
-                this.duration = mouth.turning;
-                this.jawRotX = mouth.amplitude;
-            } else {
-                this.jawRotX = mouth.amplitude * MathUtil.clamp(
-                        (mouth.duration - this.duration) / (float) (mouth.duration - mouth.turning)
-                );
-            }
-        } else {
-            this.jawRotX = mouth.amplitude * MathUtil.clamp(this.duration / (float) mouth.turning);
-        }
-        return true;
+    public void forceMouthState(MouthState mouth, int duration) {
+        this.mouth = mouth;
+        this.duration = duration;
+    }
+
+    public boolean isCharging() {
+        return this.charging;
     }
 
     protected void updateMouthState() {
-        switch (this.mouth) {
-            case IDLE -> this.jawRotX = 0.0F;
-            case EATING -> {
-                if (this.updateJawRotation()) break;
-                if (this.remainingEating < 0) {
-                    this.transitMouthState(MouthState.IDLE, false);
-                } else {
-                    this.duration = 0;
-                }
-                this.jawRotX = 0.0F;
-            }
-            default -> {
-                if (this.updateJawRotation()) break;
-                this.transitMouthState(MouthState.IDLE, false);
-                this.jawRotX = 0.0F;
+        var attack = dragon.getRangedAttack();
+        if (attack != null) {
+            var mouth = attack.getMouthState();
+            if (mouth != null) {
+                this.transitMouthState(mouth, true);
+            } else {
+                this.charging = false;
             }
         }
+        this.jawRotX = this.mouth.updateJawRotation(this, ++this.duration);
     }
 
     @Override
@@ -244,15 +228,6 @@ public class DragonAnimator extends DragonHeadLocator<@NotNull ClientDragonEntit
 
         // update bite opening transition and breath transitions
         this.lastJawRotX = this.jawRotX;
-        var attack = dragon.getRangedAttack();
-        if (attack != null) {
-            var mouth = attack.getMouthState();
-            if (mouth != null) {
-                this.transitMouthState(mouth, true);
-            } else {
-                this.charging = false;
-            }
-        }
         this.updateMouthState();
         // update speed transition
         speedTimer.add(!flying ||

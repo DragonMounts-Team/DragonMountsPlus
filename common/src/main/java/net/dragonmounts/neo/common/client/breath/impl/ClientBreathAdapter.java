@@ -6,7 +6,7 @@ import net.dragonmounts.neo.common.entity.ai.behavior.DragonBreath;
 import net.dragonmounts.neo.common.entity.breath.BreathParticleOption;
 import net.dragonmounts.neo.common.entity.breath.BreathState;
 import net.dragonmounts.neo.common.entity.breath.DragonBreathSpec;
-import net.dragonmounts.neo.common.entity.dragon.MouthState;
+import net.dragonmounts.neo.common.entity.dragon.BuiltinMouthState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,9 +91,9 @@ public class ClientBreathAdapter extends DragonBreath<@NotNull ClientDragonEntit
     }
 
     @Override
-    public @Nullable MouthState getMouthState() {
+    public @Nullable BuiltinMouthState getMouthState() {
         return switch (this.currentBreathState) {
-            case STARTING, SUSTAIN -> MouthState.BREATHING;
+            case STARTING, SUSTAIN -> BuiltinMouthState.BREATHING;
             default -> null;
         };
     }

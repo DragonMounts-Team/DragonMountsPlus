@@ -12,7 +12,7 @@ import net.dragonmounts.neo.compat.registry.DragonType;
 import net.dragonmounts.neo.compat.registry.DragonTypeBuilder;
 import net.minecraft.resources.ResourceLocation;
 
-public abstract class BreathableType extends DragonType {
+public class BreathableType extends DragonType {
     public BreathableType(ResourceLocation identifier, DragonTypeBuilder builder) {
         super(identifier, builder);
     }

@@ -25,8 +25,8 @@ public final class CircularBuffer {
     private int index = 0;
 
     public CircularBuffer(int size) {
-        if ((size & (size - 1)) != 0)
-            throw new IllegalArgumentException(); // & with a mask only works if size is a power of 2
+        // & with a mask only works if size is a power of 2
+        if ((size & (size - 1)) != 0) throw new IllegalArgumentException();
         this.buffer = new float[size];
     }
 

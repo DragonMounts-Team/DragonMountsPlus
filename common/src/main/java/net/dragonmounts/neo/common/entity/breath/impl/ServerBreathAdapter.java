@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.dragonmounts.neo.common.entity.ai.behavior.DragonBreath;
 import net.dragonmounts.neo.common.entity.breath.*;
-import net.dragonmounts.neo.common.entity.dragon.MouthState;
+import net.dragonmounts.neo.common.entity.dragon.BuiltinMouthState;
 import net.dragonmounts.neo.common.entity.dragon.ServerDragonEntity;
 import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.minecraft.core.BlockPos;
@@ -149,7 +149,7 @@ public class ServerBreathAdapter extends DragonBreath<@NotNull ServerDragonEntit
 
     /// Unnecessary to be implemented on server side
     @Override
-    public @Nullable MouthState getMouthState() {
+    public @Nullable BuiltinMouthState getMouthState() {
         return null;
     }
 }

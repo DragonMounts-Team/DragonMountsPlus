@@ -4,8 +4,8 @@ import net.dragonmounts.neo.common.client.breath.BreathSoundHandler;
 import net.dragonmounts.neo.common.client.model.dragon.DragonAnimator;
 import net.dragonmounts.neo.common.component.DragonFood;
 import net.dragonmounts.neo.common.entity.ai.behavior.RangedAttack;
+import net.dragonmounts.neo.common.entity.dragon.BuiltinMouthState;
 import net.dragonmounts.neo.common.entity.dragon.DragonLifeStage;
-import net.dragonmounts.neo.common.entity.dragon.MouthState;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
 import net.dragonmounts.neo.common.inventory.DragonInventory;
@@ -152,13 +152,13 @@ public class ClientDragonEntity extends TameableDragonEntity {
         switch (id) {
             case ON_ATTACK -> {
                 this.playSound(SoundEvents.GENERIC_EAT.value(), 1.0F, 0.7F);
-                this.animator.transitMouthState(MouthState.ATTACKING, false);
+                this.animator.transitMouthState(BuiltinMouthState.ATTACKING, false);
             }
             case ON_ROAR -> {
                 SoundEvent sound = this.getVariant().type.getRoarSound(this);
                 if (sound == null) break;
                 this.playSound(sound, Mth.clamp(this.getAgeScale(), 0.3F, 0.6F), 1.0F);
-                this.animator.transitMouthState(MouthState.ROARING, false);
+                this.animator.transitMouthState(BuiltinMouthState.ROARING, false);
             }
             default -> super.handleEntityEvent(id);
         }
