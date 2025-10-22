@@ -1,10 +1,12 @@
 package net.dragonmounts.neo.common.client;
 
+import net.dragonmounts.neo.common.DragonMountsShared;
 import net.dragonmounts.neo.common.client.breath.impl.ClientBreathHelper;
 import net.dragonmounts.neo.common.client.model.dragon.DragonAnimator;
 import net.dragonmounts.neo.common.client.model.dragon.MouthState;
 import net.dragonmounts.neo.common.component.DragonFood;
 import net.dragonmounts.neo.common.entity.dragon.DragonLifeStage;
+import net.dragonmounts.neo.common.entity.dragon.Relation;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
 import net.dragonmounts.neo.common.inventory.DragonInventory;
@@ -116,24 +118,32 @@ public class ClientDragonEntity extends TameableDragonEntity {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        var relation = Relation.checkRelation(this, player);
         var stack = player.getItemInHand(hand);
-        boolean notOwner = !this.isOwnedBy(player);
         if (!this.isBreathing()) {
             var food = DragonFood.getInstance(stack);
             if (food != null) {
-                return (food.requiresOwner() && notOwner) || this.shouldRefuseFood(food)
-                        ? InteractionResult.FAIL
-                        : InteractionResult.CONSUME;
+                if (!relation.isTrusted && this.isTame()) {
+                    relation.onDeny(player);
+                    return InteractionResult.FAIL;
+                }
+                if (food.requiresOwner() && Relation.OWNER != relation) {
+                    player.displayClientMessage(DragonMountsShared.REQUIRES_OWNER, true);
+                    return InteractionResult.FAIL;
+                }
+                return this.shouldRefuseFood(food) ? InteractionResult.PASS : InteractionResult.SUCCESS;
             }
         }
-        if (notOwner) return InteractionResult.PASS;
-        if (DragonInventory.isDragonArmor(stack)
+        if (relation.isTrusted && (DragonInventory.isDragonArmor(stack)
                 || DragonInventory.isDragonSaddle(stack)
                 || DragonInventory.isChest(stack)
                 || stack.is(DMItemTags.BATONS)
-        ) return InteractionResult.CONSUME;
+        )) return InteractionResult.SUCCESS;
         var result = stack.interactLivingEntity(player, this, hand);
-        return result.consumesAction() ? result : InteractionResult.CONSUME;
+        if (result.consumesAction()) return result;
+        if (relation.isTrusted) return InteractionResult.SUCCESS;
+        relation.onDeny(player);
+        return InteractionResult.FAIL;
     }
 
     @Override

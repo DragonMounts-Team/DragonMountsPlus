@@ -238,12 +238,15 @@ public class ServerDragonEntity extends TameableDragonEntity {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        boolean isOwner = this.isOwnedBy(player);
+        var relation = Relation.checkRelation(this, player);
         var stack = player.getItemInHand(hand);
         if (!this.isBreathing()) {
             var food = DragonFood.getInstance(stack);
             if (food != null) {
-                if ((food.requiresOwner() && !isOwner) || this.shouldRefuseFood(food)) return InteractionResult.FAIL;
+                if (!relation.isTrusted && this.isTame()
+                        || food.requiresOwner() && Relation.OWNER != relation
+                ) return InteractionResult.FAIL;
+                if (this.shouldRefuseFood(food)) return InteractionResult.PASS;
                 var level = this.level();
                 var locked = this.isAgeLocked();
                 for (var effect : food.effects()) {
@@ -254,7 +257,7 @@ public class ServerDragonEntity extends TameableDragonEntity {
                     this.ageUp(food.age(), false);
                 }
                 this.heal(food.health());
-                if (isOwner) {
+                if (relation.isTrusted) {
                     if (this.getLifeStage() == DragonLifeStage.ADULT && this.canFallInLove()) {
                         this.setInLove(player);
                     }
@@ -282,14 +285,19 @@ public class ServerDragonEntity extends TameableDragonEntity {
                 return InteractionResult.SUCCESS_SERVER;
             }
         }
-        if (!isOwner) return InteractionResult.PASS;
-        if (this.inventory.onInteract(stack)) return InteractionResult.SUCCESS_SERVER;
-        if (stack.is(DMItemTags.BATONS)) {
-            this.setOrderedToSit(!this.isOrderedToSit());
-            return InteractionResult.SUCCESS_SERVER;
+        if (relation.isTrusted) {
+            if (this.inventory.onInteract(stack)) return InteractionResult.SUCCESS_SERVER;
+            if (stack.is(DMItemTags.BATONS)) {
+                this.setOrderedToSit(!this.isOrderedToSit());
+                return InteractionResult.SUCCESS_SERVER;
+            }
         }
         var result = stack.interactLivingEntity(player, this, hand);
         if (result.consumesAction()) return result;
+        if (!relation.isTrusted) {
+            relation.onDeny(player);
+            return InteractionResult.FAIL;
+        }
         if (player.isSecondaryUseActive()) {
             this.openCustomInventoryScreen(player);
         } else if (this.isBaby()) {

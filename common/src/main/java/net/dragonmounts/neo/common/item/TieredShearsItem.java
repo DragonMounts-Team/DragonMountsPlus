@@ -1,13 +1,13 @@
 package net.dragonmounts.neo.common.item;
 
 import com.google.common.collect.ImmutableList;
+import net.dragonmounts.neo.common.entity.dragon.Relation;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.util.ShearsDispenseItemBehaviorEx;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -148,11 +148,8 @@ public class TieredShearsItem extends ShearsItem {
                         return InteractionResult.SUCCESS;
                     }
                     return InteractionResult.FAIL;
-                } else if (dragon.isOwnedBy(player)) {
-                    return InteractionResult.SUCCESS;
                 }
-                player.displayClientMessage(Component.translatable("message.neodragonmounts.not_owner"), true);
-                return InteractionResult.FAIL;
+                return Relation.denyIfNotOwner(dragon, player) ? InteractionResult.FAIL : InteractionResult.SUCCESS;
             case Wolf wolf:
                 ItemStack armor;
                 if (wolf.isOwnedBy(player) && wolf.isWearingBodyArmor() && (!EnchantmentHelper.has(

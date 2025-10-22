@@ -66,14 +66,14 @@ public class ServerNetworkHandler {
 
     public static void handleToggleSitting(ToggleSittingByIDPayload payload, IPayloadContext context) {
         var player = (ServerPlayer) context.player();
-        if (player.serverLevel().getEntity(payload.dragon()) instanceof ServerDragonEntity dragon && Relation.checkRelation(dragon, player).isTrusted) {
+        if (player.serverLevel().getEntity(payload.dragon()) instanceof ServerDragonEntity dragon && !Relation.denyIfUntrusted(dragon, player)) {
             dragon.setOrderedToSit(!dragon.isOrderedToSit());
         }
     }
 
     public static void handleToggleTrust(ToggleTrustPayload payload, IPayloadContext context) {
         var player = (ServerPlayer) context.player();
-        if (player.serverLevel().getEntity(payload.dragon()) instanceof ServerDragonEntity dragon && dragon.isOwnedBy(player)) {
+        if (player.serverLevel().getEntity(payload.dragon()) instanceof ServerDragonEntity dragon && !Relation.denyIfNotOwner(dragon, player)) {
             dragon.setTrustingAnyPlayer(!dragon.isTrustingAnyPlayer());
         }
     }

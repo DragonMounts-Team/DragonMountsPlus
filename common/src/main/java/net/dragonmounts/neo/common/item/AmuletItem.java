@@ -1,6 +1,7 @@
 package net.dragonmounts.neo.common.item;
 
 import net.dragonmounts.neo.common.api.ScoreboardAccessor;
+import net.dragonmounts.neo.common.entity.dragon.Relation;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMDataComponents;
 import net.dragonmounts.neo.common.init.DMItems;
@@ -10,7 +11,6 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -91,27 +91,24 @@ public class AmuletItem<T extends Entity> extends Item implements EntityContaine
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof TameableDragonEntity dragon)) return InteractionResult.PASS;
-        if (dragon.isOwnedBy(player)) {
-            var amulet = dragon.getDragonType().getInstance(DragonAmuletItem.class, null);
-            if (amulet == null) return InteractionResult.FAIL;
-            if (!(dragon.level() instanceof ServerLevel level)) return InteractionResult.SUCCESS;
-            if (!this.isEmpty(stack)) {
-                var pos = dragon.blockPosition();
-                var entity = this.loadEntity(level, stack, player, pos, EntitySpawnReason.BUCKET, false, false);
-                if (entity != null) {
-                    level.addFreshEntityWithPassengers(entity);
-                    level.gameEvent(player, GameEvent.ENTITY_PLACE, pos);
-                }
+        if (Relation.denyIfNotOwner(dragon, player)) return InteractionResult.FAIL;
+        var amulet = dragon.getDragonType().getInstance(DragonAmuletItem.class, null);
+        if (amulet == null) return InteractionResult.FAIL;
+        if (!(dragon.level() instanceof ServerLevel level)) return InteractionResult.SUCCESS;
+        if (!this.isEmpty(stack)) {
+            var pos = dragon.blockPosition();
+            var entity = this.loadEntity(level, stack, player, pos, EntitySpawnReason.BUCKET, false, false);
+            if (entity != null) {
+                level.addFreshEntityWithPassengers(entity);
+                level.gameEvent(player, GameEvent.ENTITY_PLACE, pos);
             }
-            dragon.inventory.dropContents(true, 0);
-            dragon.ejectPassengers();
-            consumeStack(player, hand, stack, amulet.saveEntity(dragon, DataComponentPatch.EMPTY));
-            player.awardStat(Stats.ITEM_USED.get(this));
-            dragon.discard();
-            return InteractionResult.SUCCESS;
         }
-        player.displayClientMessage(Component.translatable("message.neodragonmounts.not_owner"), true);
-        return InteractionResult.FAIL;
+        dragon.inventory.dropContents(true, 0);
+        dragon.ejectPassengers();
+        consumeStack(player, hand, stack, amulet.saveEntity(dragon, DataComponentPatch.EMPTY));
+        player.awardStat(Stats.ITEM_USED.get(this));
+        dragon.discard();
+        return InteractionResult.SUCCESS; // TODO: check heldItemTransformedTo
     }
 
     @Override
@@ -142,7 +139,7 @@ public class AmuletItem<T extends Entity> extends Item implements EntityContaine
             }
             return InteractionResult.SUCCESS;
         }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;// TODO: check heldItemTransformedTo
     }
 
     @Override
@@ -161,7 +158,7 @@ public class AmuletItem<T extends Entity> extends Item implements EntityContaine
             consumeStack(player, hand, stack, new ItemStack(DMItems.AMULET));
             world.gameEvent(player, GameEvent.ENTITY_PLACE, pos);
             player.awardStat(Stats.ITEM_USED.get(this));
-            return InteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS; // TODO: check heldItemTransformedTo
         }
         return InteractionResult.FAIL;
     }

@@ -1,23 +1,29 @@
 package net.dragonmounts.neo.common.entity.dragon;
 
 import com.mojang.logging.LogUtils;
+import net.dragonmounts.neo.common.DragonMountsShared;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public enum Relation {
-    STRANGER(false, "message.neodragonmounts.dragon.untamed"),
-    UNTRUSTED(false, "message.neodragonmounts.dragon.locked"),
-    TRUSTED(true, "message.neodragonmounts.dragon.not_owner"),
+    STRANGER(false, Component.translatable("message.neodragonmounts.dragon.untamed")),
+    UNTRUSTED(false, Component.translatable("message.neodragonmounts.dragon.locked")),
+    TRUSTED(true, DragonMountsShared.REQUIRES_OWNER),
     OWNER(true, null);
     private static final Logger LOGGER = LogUtils.getLogger();
     public final boolean isTrusted;
     private final @Nullable Component reason;
 
-    Relation(boolean isTrusted, @Nullable String reason) {
+    Relation(boolean isTrusted, @Nullable Component reason) {
         this.isTrusted = isTrusted;
-        this.reason = reason == null ? null : Component.translatable(reason);
+        this.reason = reason;
+    }
+
+    public static boolean isOwner(TameableDragonEntity dragon, Player player) {
+        return player.getUUID().equals(dragon.getOwnerUUID());
     }
 
     public final void onDeny(Player player) {
@@ -30,15 +36,22 @@ public enum Relation {
 
     public static Relation checkRelation(TameableDragonEntity dragon, Player player) {
         if (!dragon.isTame()) return STRANGER;
-        if (player.getUUID().equals(dragon.getOwnerUUID())) return OWNER;
+        if (isOwner(dragon, player)) return OWNER;
         return dragon.isPlayerTrusted(player) ? TRUSTED : UNTRUSTED;
     }
 
     /// @return if the player is denied
-    public static boolean denyIfNotOwner(TameableDragonEntity dragon, Player player) {
+    public static boolean denyIfUntrusted(TameableDragonEntity dragon, Player player) {
         Relation relation = checkRelation(dragon, player);
-        if (OWNER == relation) return false;
+        if (relation.isTrusted) return false;
         relation.onDeny(player);
+        return true;
+    }
+
+    /// @return if the player is denied
+    public static boolean denyIfNotOwner(TameableDragonEntity dragon, Player player) {
+        if (isOwner(dragon, player)) return false;
+        player.displayClientMessage(DragonMountsShared.REQUIRES_OWNER, true);
         return true;
     }
 }

@@ -1,11 +1,11 @@
 package net.dragonmounts.neo.common.item;
 
 import net.dragonmounts.neo.common.block.DragonHeadBlock;
+import net.dragonmounts.neo.common.entity.dragon.Relation;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
 import net.dragonmounts.neo.common.init.DragonVariants;
 import net.dragonmounts.neo.compat.registry.DragonVariant;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -35,14 +35,11 @@ public class VariationOrbItem extends Item {
         if (entity instanceof TameableDragonEntity dragon) {
             var level = dragon.level();
             if (level.isClientSide) return InteractionResult.SUCCESS;
-            if (dragon.isOwnedBy(player)) {
-                level.playSound(player, dragon, DMSounds.VARIATION_ORB_ACTIVATE, SoundSource.PLAYERS, 1.0F, 1.0F);
-                dragon.setVariant(draw(dragon.getRandom(), dragon.getVariant()));
-                stack.shrink(1);
-                return InteractionResult.SUCCESS;
-            }
-            player.displayClientMessage(Component.translatable("message.neodragonmounts.not_owner"), true);
-            return InteractionResult.FAIL;
+            if (Relation.denyIfNotOwner(dragon, player)) return InteractionResult.FAIL;
+            level.playSound(player, dragon, DMSounds.VARIATION_ORB_ACTIVATE, SoundSource.PLAYERS, 1.0F, 1.0F);
+            dragon.setVariant(draw(dragon.getRandom(), dragon.getVariant()));
+            stack.shrink(1);
+            return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }

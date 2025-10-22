@@ -2,6 +2,7 @@ package net.dragonmounts.neo.common;
 
 import net.dragonmounts.neo.compat.registry.*;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
@@ -17,6 +18,7 @@ public class DragonMountsShared {
     public static final ResourceKey<Registry<DragonType>> DRAGON_TYPE = createRegistryKey(makeId("dragon_type"));
     public static final ResourceKey<Registry<DragonVariant>> DRAGON_VARIANT = createRegistryKey(makeId("dragon_variant"));
     public static final ResourceKey<Registry<CooldownCategory>> COOLDOWN_CATEGORY = createRegistryKey(makeId("cooldown_category"));
+    public static final Component REQUIRES_OWNER = Component.translatable("message.neodragonmounts.dragon.requires_owner");
 
     /// to skip namespace checking
     public static ResourceLocation makeId(String name) {

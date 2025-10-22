@@ -21,8 +21,8 @@ public class DragonTargetSensor extends NearestLivingEntitySensor<ServerDragonEn
             ServerLevel level,
             Brain<?> brain,
             ServerDragonEntity dragon,
-            @Nullable LivingEntity target,
-            @Nullable LivingEntity owner
+            @Nullable LivingEntity owner,
+            @Nullable LivingEntity target
     ) {
         if (target != null && dragon.wantsToAttack(target, owner) && Sensor.isEntityAttackable(level, dragon, target)) {
             brain.setMemory(MemoryModuleType.NEAREST_ATTACKABLE, target);
