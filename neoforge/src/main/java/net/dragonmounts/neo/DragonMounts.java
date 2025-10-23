@@ -64,7 +64,7 @@ public class DragonMounts {
         modbus.addListener(EntryUtil::onReload);
         DMEntities.init();
         DMDataComponents.init();
-        DMItems.init();
+        DMItems.initStatics();
         DMBlocks.init();
         DMBlockEntities.init();
         DMSounds.init();
@@ -98,6 +98,7 @@ public class DragonMounts {
     }
 
     static void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(DMItems::setup);
         var play = NeoForge.EVENT_BUS;
         play.addListener(DragonMounts::registerCommands);
         play.addListener(DragonMounts::onPlayReady);

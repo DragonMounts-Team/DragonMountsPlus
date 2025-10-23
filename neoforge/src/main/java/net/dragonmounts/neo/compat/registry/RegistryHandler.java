@@ -76,10 +76,12 @@ public class RegistryHandler {
             StreamCodec<? super RegistryFriendlyByteBuf, T> packetCodec
     ) {
         return register(PARTICLES, makeId(name), new ParticleType<T>(overrideLimiter) {
+            @Override
             public MapCodec<T> codec() {
                 return codec;
             }
 
+            @Override
             public StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
                 return packetCodec;
             }

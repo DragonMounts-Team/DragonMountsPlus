@@ -110,7 +110,7 @@ public abstract class EntityUtil extends /*to access protected methods*/ EntityT
         return entity.addEffect(new MobEffectInstance(holder, duration, amplifier, ambient, visible, showIcon, null));
     }
 
-    public static ItemStack consumeStack(Player player, InteractionHand hand, ItemStack stack, ItemStack result) {
+    public static void consumeStack(Player player, InteractionHand hand, ItemStack stack, ItemStack result) {
         var remainder = stack.getComponents().get(DataComponents.USE_REMAINDER);
         if (remainder != null) {
             remainder.convertIntoRemainder(stack, 1, player.hasInfiniteMaterials(), player::handleExtraItemsCreatedOnUse);
@@ -118,12 +118,9 @@ public abstract class EntityUtil extends /*to access protected methods*/ EntityT
         stack.shrink(1);
         if (stack.isEmpty()) {
             player.setItemInHand(hand, result);
-            return result;
-        }
-        if (!result.isEmpty() && !player.getInventory().add(result)) { // Inventory.getFreeSlot() won't check the offhand slot
+        } else if (!result.isEmpty() && !player.getInventory().add(result)) { // Inventory.getFreeSlot() won't check the offhand slot
             player.drop(result, false);
         }
-        return stack;
     }
 
     public static CompoundTag saveWithId(Entity entity, CompoundTag tag) {

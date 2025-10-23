@@ -16,11 +16,13 @@ import static net.dragonmounts.neo.compat.registry.RegistryHandler.registerMenu;
 public class DMScreenHandlers {
     public static final MenuType<DragonCoreHandler> DRAGON_CORE = registerMenu("dragon_core", DragonCoreHandler::new, BlockPos.STREAM_CODEC);
     public static final MenuType<DragonInventoryHandler> DRAGON_INVENTORY = registerMenu("dragon_inventory", DragonInventoryHandler::new, new StreamCodec<ByteBuf, TameableDragonEntity>() {
+        @Override
         public @NotNull TameableDragonEntity decode(ByteBuf buffer) {
             if (getLevel().getEntity(VarInt.read(buffer)) instanceof TameableDragonEntity dragon) return dragon;
             throw new NullPointerException();
         }
 
+        @Override
         public void encode(ByteBuf buffer, TameableDragonEntity dragon) {
             VarInt.write(buffer, dragon.getId());
         }

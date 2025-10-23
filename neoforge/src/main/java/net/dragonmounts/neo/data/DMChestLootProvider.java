@@ -21,6 +21,7 @@ import static net.minecraft.world.level.storage.loot.providers.number.UniformGen
 public class DMChestLootProvider implements LootTableSubProvider {
     public DMChestLootProvider(HolderLookup.Provider ignored) {}
 
+    @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output) {
         output.accept(makeKey(Registries.LOOT_TABLE, "chests/undead_dragon_nest"), lootTable()
                 .withPool(lootPool().add(lootTableReference(ResourceKey.create(Registries.LOOT_TABLE, withDefaultNamespace("chests/nether_bridge")))))

@@ -68,7 +68,9 @@ public class DragonEssenceItem extends Item implements DragonTypified, EntityCon
             ));
             level.gameEvent(player, GameEvent.ENTITY_PLACE, spawnPos);
             stack.shrink(1);
-            // stat will be awarded at `ItemStack#useOn`
+            if (player != null) {
+                player.awardStat(Stats.ITEM_USED.get(this));
+            }
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.SUCCESS;

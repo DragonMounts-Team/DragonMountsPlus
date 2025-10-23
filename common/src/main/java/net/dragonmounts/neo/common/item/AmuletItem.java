@@ -37,9 +37,7 @@ import static net.dragonmounts.neo.common.DragonMountsShared.ITEM_TRANSLATION_KE
 import static net.dragonmounts.neo.common.component.ScoreboardInfo.applyScores;
 import static net.dragonmounts.neo.common.util.EntityUtil.*;
 
-/**
- * @see net.minecraft.world.item.SpawnEggItem
- */
+/// @see net.minecraft.world.item.SpawnEggItem
 public class AmuletItem<T extends Entity> extends Item implements EntityContainer<T> {
     public static final String TRANSLATION_KEY = ITEM_TRANSLATION_KEY_PREFIX + "dragon_amulet";
     public final Class<T> contentType;
@@ -108,7 +106,7 @@ public class AmuletItem<T extends Entity> extends Item implements EntityContaine
         consumeStack(player, hand, stack, amulet.saveEntity(dragon, DataComponentPatch.EMPTY));
         player.awardStat(Stats.ITEM_USED.get(this));
         dragon.discard();
-        return InteractionResult.SUCCESS; // TODO: check heldItemTransformedTo
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -134,12 +132,12 @@ public class AmuletItem<T extends Entity> extends Item implements EntityContaine
                 level.gameEvent(player, GameEvent.ENTITY_PLACE, spawnPos);
                 if (player != null) {
                     consumeStack(player, context.getHand(), stack, new ItemStack(DMItems.AMULET));
+                    player.awardStat(Stats.ITEM_USED.get(this));
                 }
-                // stat will be awarded at `ItemStack#useOn`
             }
             return InteractionResult.SUCCESS;
         }
-        return InteractionResult.SUCCESS;// TODO: check heldItemTransformedTo
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -158,7 +156,7 @@ public class AmuletItem<T extends Entity> extends Item implements EntityContaine
             consumeStack(player, hand, stack, new ItemStack(DMItems.AMULET));
             world.gameEvent(player, GameEvent.ENTITY_PLACE, pos);
             player.awardStat(Stats.ITEM_USED.get(this));
-            return InteractionResult.SUCCESS; // TODO: check heldItemTransformedTo
+            return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
     }

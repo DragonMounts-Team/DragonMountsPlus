@@ -274,12 +274,12 @@ public class ServerDragonEntity extends TameableDragonEntity {
                 var remainder = stack.get(DataComponents.USE_REMAINDER);
                 stack.consume(1, player);
                 if (remainder != null) {
-                    player.setItemInHand(hand, remainder.convertIntoRemainder(
+                    remainder.convertIntoRemainder(
                             stack,
                             count,
                             player.hasInfiniteMaterials(),
                             player::handleExtraItemsCreatedOnUse
-                    ));
+                    );
                 }
                 ServerNetworkHandler.sendTracking(this, new FeedDragonPayload(this.getId(), this.age, this.stage, stack));
                 return InteractionResult.SUCCESS_SERVER;

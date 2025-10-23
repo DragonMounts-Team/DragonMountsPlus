@@ -38,11 +38,12 @@ public class DragonMounts implements ModInitializer, ServerPlayConnectionEvents.
         return RUNNING_SERVER;
     }
 
+    @Override
     public void onInitialize() {
         ServerConfig.init();
         DMDataComponents.init();
         DMEntities.init();
-        DMItems.init();
+        DMItems.setup();
         DMBlocks.init();
         DMBlockEntities.init();
         DMScreenHandlers.init();

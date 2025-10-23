@@ -146,10 +146,10 @@ public class DMItems {
     public static final ItemHolder<DragonScalesItem> DARK_DRAGON_SCALES = MISC_TAB.register("dark_dragon_scales", props -> makeDragonScales(DragonTypes.DARK, props));
     // Shears
     public static final ItemHolder<TieredShearsItem> DIAMOND_SHEARS = TOOL_TAB.register("diamond_shears", props ->
-            makeTieredShears(ToolMaterial.DIAMOND, props)
+            new TieredShearsItem(ToolMaterial.DIAMOND, props)
     );
     public static final ItemHolder<TieredShearsItem> NETHERITE_SHEARS = TOOL_TAB.register("netherite_shears", props ->
-            makeTieredShears(ToolMaterial.NETHERITE, props.fireResistant())
+            new TieredShearsItem(ToolMaterial.NETHERITE, props.fireResistant())
     );
     // Flute
     public static final ItemHolder<FluteItem> FLUTE = TOOL_TAB.register("flute", props ->
@@ -640,12 +640,6 @@ public class DMItems {
         return item;
     }
 
-    static TieredShearsItem makeTieredShears(ToolMaterial tier, Properties props) {
-        var item = new TieredShearsItem(tier, props);
-        DispenserBlock.registerBehavior(item, TieredShearsItem.DISPENSE_ITEM_BEHAVIOR);
-        return item;
-    }
-
     static BlockItem makeDragonEggBlock(HatchableDragonEggBlock block, Properties props) {
         return new BlockItem(block, props.component(DMDataComponents.DRAGON_TYPE, block.type).overrideDescription(HatchableDragonEggBlock.TRANSLATION_KEY));
     }
@@ -654,5 +648,19 @@ public class DMItems {
         return new BlockItem(block, props.component(DMDataComponents.DRAGON_TYPE, block.type).overrideDescription(DragonScaleBlock.TRANSLATION_KEY));
     }
 
-    public static void init() {}
+    /// To finish all common stuff about item registries (and trigger the static initialization by the way).
+    public static void setup() {
+        DRAGON_SPAWN_EGGS.items.forEach(holder -> {
+            var item = holder.asItem();
+            if (item instanceof DragonSpawnEggItem) {
+                if (DispenserBlock.DISPENSER_REGISTRY.containsKey(item)) return;
+                DispenserBlock.registerBehavior(item, ((DragonSpawnEggItem) item).createDispenseBehavior());
+            }
+        });
+        DispenserBlock.registerBehavior(DIAMOND_SHEARS, TieredShearsItem.DISPENSE_ITEM_BEHAVIOR);
+        DispenserBlock.registerBehavior(NETHERITE_SHEARS, TieredShearsItem.DISPENSE_ITEM_BEHAVIOR);
+    }
+
+    /// To trigger the static initialization only.
+    public static void initStatics() {}
 }

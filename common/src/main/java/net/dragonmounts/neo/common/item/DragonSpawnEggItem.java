@@ -10,6 +10,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -30,6 +33,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.Spawner;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.entity.TrialSpawnerBlockEntity;
@@ -47,6 +51,34 @@ import static net.dragonmounts.neo.common.util.EntityUtil.mergeEntityData;
 import static net.dragonmounts.neo.common.util.EntityUtil.saveWithId;
 
 public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<Entity>, DragonTypified {
+    public static final DispenseItemBehavior DISPENSE_ITEM_BEHAVIOR = new DefaultDispenseItemBehavior() {
+        @Override
+        public ItemStack execute(BlockSource dispenser, ItemStack stack) {
+            var direction = dispenser.state().getValue(DispenserBlock.FACING);
+            try {
+                var entity = ((DragonSpawnEggItem) stack.getItem()).loadEntity(
+                        dispenser.level(),
+                        stack,
+                        null,
+                        dispenser.pos().relative(direction),
+                        EntitySpawnReason.DISPENSER,
+                        direction != Direction.UP,
+                        false
+                );
+                if (entity == null) return stack;
+                dispenser.level().addFreshEntityWithPassengers(entity);
+                if (entity instanceof Mob) {
+                    ((Mob) entity).playAmbientSound();
+                }
+            } catch (Exception exception) {
+                LOGGER.error("Error while dispensing spawn egg from dispenser at {}", dispenser.pos(), exception);
+                return ItemStack.EMPTY;
+            }
+            stack.shrink(1);
+            dispenser.level().gameEvent(null, GameEvent.ENTITY_PLACE, dispenser.pos());
+            return stack;
+        }
+    };
     public static final String TRANSLATION_KEY = ITEM_TRANSLATION_KEY_PREFIX + "dragon_spawn_egg";
     public final TranslatableContents name;
     public final DragonType type;
@@ -108,13 +140,12 @@ public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<
                 var player = context.getPlayer();
                 var entity = this.loadEntity(level, stack, player, spawnPos, EntitySpawnReason.SPAWN_ITEM_USE, true, !Objects.equals(pos, spawnPos) && direction == Direction.UP);
                 if (entity != null) {
-                    if (entity instanceof TameableDragonEntity dragon) {
-                        dragon.setDragonType(this.type, true);
-                    }
                     level.addFreshEntityWithPassengers(entity);
+                    if (entity instanceof Mob) {
+                        ((Mob) entity).playAmbientSound();
+                    }
                     stack.shrink(1);
                     level.gameEvent(player, GameEvent.ENTITY_PLACE, spawnPos);
-                    // stat will be awarded at `ItemStack#useOn`
                 }
                 return InteractionResult.SUCCESS;
         }
@@ -135,10 +166,10 @@ public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<
         if (world.mayInteract(player, pos) && player.mayUseItemAt(pos, hit.getDirection(), stack)) {
             var entity = this.loadEntity(world, stack, player, pos, EntitySpawnReason.SPAWN_ITEM_USE, false, false);
             if (entity == null) return InteractionResult.PASS;
-            if (entity instanceof TameableDragonEntity dragon) {
-                dragon.setDragonType(this.type, true);
-            }
             world.addFreshEntityWithPassengers(entity);
+            if (entity instanceof Mob) {
+                ((Mob) entity).playAmbientSound();
+            }
             stack.consume(1, player);
             player.awardStat(Stats.ITEM_USED.get(this));
             world.gameEvent(player, GameEvent.ENTITY_PLACE, entity.position());
@@ -198,6 +229,9 @@ public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<
         var type = this.getType(level.registryAccess(), stack);
         var entity = type.create(level, null, pos, reason, yOffset, extraOffset);
         if (entity == null) return null;
+        if (entity instanceof TameableDragonEntity) {
+            ((TameableDragonEntity) entity).setDragonType(this.type, true);
+        }
         mergeEntityData(entity, level, player, stack.getOrDefault(DataComponents.ENTITY_DATA, CustomData.EMPTY));
         entity.setCustomName(stack.get(DataComponents.CUSTOM_NAME));
         applyScores(level.getScoreboard(), stack, entity);
@@ -212,5 +246,10 @@ public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<
     @Override
     public boolean isEmpty(ItemStack stack) {
         return false;
+    }
+
+    /// Override the extension on NeoForge
+    public DispenseItemBehavior createDispenseBehavior() {
+        return DISPENSE_ITEM_BEHAVIOR;
     }
 }
