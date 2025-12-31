@@ -19,7 +19,8 @@ public class DMBlockLootProvider extends BlockLootSubProvider {
     private final ObjectArrayList<Block> blocks = new ObjectArrayList<>();
 
     public DMBlockLootProvider(HolderLookup.Provider lookup) {
-        super(Stream.concat(DMBlocks.BUILTIN_DRAGON_EGGS.stream().map(ItemLike::asItem),
+        super(Stream.concat(
+                DMBlocks.BUILTIN_DRAGON_EGGS.stream().map(ItemLike::asItem),
                 DragonVariants.BUILTIN_VALUES.stream().map(variant -> variant.head.item.get())
         ).collect(Collectors.toSet()), FeatureFlags.REGISTRY.allFlags(), lookup);
     }

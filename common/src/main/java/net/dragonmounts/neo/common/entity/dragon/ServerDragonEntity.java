@@ -16,6 +16,7 @@ import net.dragonmounts.neo.common.network.s2c.SyncDragonAgePayload;
 import net.dragonmounts.neo.common.tag.DMItemTags;
 import net.dragonmounts.neo.common.util.ArrayUtil;
 import net.dragonmounts.neo.common.util.Segment;
+import net.dragonmounts.neo.compat.platform.PlatformCompat;
 import net.dragonmounts.neo.compat.platform.ServerNetworkHandler;
 import net.dragonmounts.neo.compat.registry.DragonType;
 import net.dragonmounts.neo.compat.registry.DragonVariant;
@@ -262,10 +263,10 @@ public class ServerDragonEntity extends TameableDragonEntity {
                         this.setInLove(player);
                     }
                 } else if (!this.isTame()) {
-                    if (this.random.nextFloat() < food.tamingProbability()) {
-                        level.broadcastEntityEvent(this, ON_TAMING_SUCCEED);
+                    if (this.random.nextFloat() < food.tamingProbability() && PlatformCompat.allowTaming(this, player)) {
                         this.tame(player);
                         this.setOrderedToSit(true);
+                        level.broadcastEntityEvent(this, ON_TAMING_SUCCEED);
                     } else {
                         level.broadcastEntityEvent(this, ON_TAMING_FAIL);
                     }

@@ -182,12 +182,12 @@ public class DMModelProvider extends ModelProvider {
     public static void generateDragonHeads(BlockModelGenerators gen, Collection<DragonVariant> variants) {
         var state = gen.blockStateOutput;
         var item = gen.itemModelOutput;
-        variants.forEach(variant -> {
+        for (DragonVariant variant : variants) {
             var head = variant.head;
             state.accept(createSimpleBlock(head.standing.get(), VANILLA_SKULL));
             state.accept(createSimpleBlock(head.wall.get(), VANILLA_SKULL));
             item.accept(head.item.get(), specialModel(VANILLA_DRAGON_HEAD, new DragonHeadRenderer.Unbaked(variant, 0.0F)));
-        });
+        }
     }
 
     public static void generateFlatItem(ItemModelGenerators gen, DragonType type, Class<? extends Item> clazz) {

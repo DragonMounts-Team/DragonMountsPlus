@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.NoSuchElementException;
-import java.util.function.Function;
 
 import static net.dragonmounts.neo.common.DragonMountsShared.makeId;
 import static net.dragonmounts.neo.common.client.variant.DefaultAppearance.registerArmorTexture;
@@ -206,8 +205,8 @@ public class VariantAppearances {
         registerArmorTextures("skeleton", makeId("textures/entity/equipment/skeleton_dragon_body"));
     }
 
-    public static Function<String, VariantAppearance> getBuiltinSupplier() {
-        return key -> switch (key) {
+    public static VariantAppearance getBuiltinAppearance(String variant) {
+        return switch (variant) {
             case "aether_female" -> AETHER_FEMALE;
             case "aether_male" -> AETHER_MALE;
             case "breeze" -> BREEZE;
@@ -255,7 +254,7 @@ public class VariantAppearances {
             case "wither" -> WITHER;
             case "zombie" -> ZOMBIE;
             default -> throw new NoSuchElementException(
-                    "There is no built-in variant appearance named \"" + key + "\". Please create a custom supplier."
+                    "There is no built-in variant appearance named \"" + variant + "\". Please create a custom supplier."
             );
         };
     }

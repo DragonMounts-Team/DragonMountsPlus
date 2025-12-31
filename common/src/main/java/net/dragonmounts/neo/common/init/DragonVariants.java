@@ -1,5 +1,6 @@
 package net.dragonmounts.neo.common.init;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import net.dragonmounts.neo.common.block.DragonHeadBlock;
 import net.dragonmounts.neo.common.block.DragonHeadStandingBlock;
@@ -95,7 +96,7 @@ public class DragonVariants {
         ));
     }
 
-    static DragonVariant make(Function<String, VariantAppearance> supplier, DragonType type, String name) {
+    static DragonVariant make(Function<? super String, VariantAppearance> supplier, DragonType type, String name) {
         return new DragonVariant(type, makeId(name), supplier.apply(name), variant -> {
             var wall = variant.identifier.getPath() + "_dragon_head_wall";
             return new DragonHead(
@@ -110,9 +111,9 @@ public class DragonVariants {
     }
 
     static {
-        Function<String, VariantAppearance> supplier = PlatformCompat.isClientSide()
-                ? VariantAppearances.getBuiltinSupplier()
-                : ignored -> null;
+        Function<? super String, VariantAppearance> supplier = PlatformCompat.isClientSide()
+                ? VariantAppearances::getBuiltinAppearance
+                : Functions.constant(null);
         var variants = ImmutableList.<DragonVariant>builderWithExpectedSize(46);
         variants.add(AETHER_FEMALE = make(supplier, DragonTypes.AETHER, "aether_female"));
         variants.add(AETHER_MALE = make(supplier, DragonTypes.AETHER, "aether_male"));

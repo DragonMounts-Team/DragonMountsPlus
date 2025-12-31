@@ -3,7 +3,6 @@ package net.dragonmounts.neo.config;
 import com.google.common.collect.HashBiMap;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.dragonmounts.neo.DragonMounts;
 import net.dragonmounts.neo.common.DragonMountsShared;
 import net.dragonmounts.neo.common.entity.dragon.HatchableDragonEggEntity;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
@@ -11,6 +10,7 @@ import net.dragonmounts.neo.compat.platform.ServerNetworkHandler;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 
@@ -129,9 +129,7 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
         return this.entries.keySet();
     }
 
-    public void broadcast(ConfigEntry<?> entry) {
-        var server = DragonMounts.getRunningServer();
-        if (server == null) return;
+    public void broadcast(MinecraftServer server, ConfigEntry<?> entry) {
         Integer id = this.entries.get(entry);
         if (id == null) return;
         ServerNetworkHandler.sendToAll(server, entry.wrap(id));
@@ -145,7 +143,7 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
         }).then(Commands.argument("value", entry.getArgument()).executes(context -> {
             if (entry.set(entry.parse(context, "value"))) {
                 this.save();
-                this.broadcast(entry);
+                this.broadcast(context.getSource().getServer(), entry);
             }
             context.getSource().sendSuccess(() -> Component.translatable("commands.neodragonmounts.config.modify", entry.getDisplayName(), entry.getAsString()), true);
             return 1;

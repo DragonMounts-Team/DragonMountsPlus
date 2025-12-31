@@ -33,6 +33,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -48,6 +49,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import org.jetbrains.annotations.Nullable;
 
 import static net.dragonmounts.neo.common.DragonMountsShared.makeId;
+import static net.fabricmc.fabric.api.resource.ResourceManagerHelper.registerBuiltinResourcePack;
 
 @Environment(EnvType.CLIENT)
 public class DragonMountsClient implements
@@ -56,6 +58,10 @@ public class DragonMountsClient implements
         ClientTickEvents.StartTick,
         SimpleSynchronousResourceReloadListener {
     public static final ResourceLocation MODEL_RELOADER = makeId("model_reloader");
+
+    static void registerResourcePacks(ModContainer mod) {
+        registerBuiltinResourcePack(makeId("classic_amulet"), mod, Component.translatable("resourcePack.neodragonmounts.classic_amulet.name"), ResourcePackActivationType.NORMAL);
+    }
 
     @Override
     public void onInitializeClient() {
@@ -91,14 +97,9 @@ public class DragonMountsClient implements
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(this);
         ParticleFactoryRegistry.getInstance().register(DMParticles.DRAGON_BREATH, BreathParticleProvider::new);
         ClientCommandRegistrationCallback.EVENT.register(DMClientCommand::register);
-        FabricLoader.getInstance().getModContainer(DragonMountsShared.NAMESPACE).ifPresent(mod ->
-                ResourceManagerHelper.registerBuiltinResourcePack(
-                        makeId("classic_amulet"),
-                        mod,
-                        Component.translatable("resourcePack.neodragonmounts.classic_amulet.name"),
-                        ResourcePackActivationType.NORMAL
-                )
-        );
+        FabricLoader.getInstance()
+                .getModContainer(DragonMountsShared.NAMESPACE)
+                .ifPresent(DragonMountsClient::registerResourcePacks);
     }
 
     @Override

@@ -12,13 +12,11 @@ import net.dragonmounts.neo.compat.platform.ServerNetworkHandler;
 import net.dragonmounts.neo.compat.registry.DragonType;
 import net.dragonmounts.neo.compat.registry.DragonVariant;
 import net.dragonmounts.neo.compat.registry.RegistryHandler;
-import net.dragonmounts.neo.config.ConfigEntry;
 import net.dragonmounts.neo.config.S2CSyncConfigPayload;
 import net.dragonmounts.neo.config.ServerConfig;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -26,18 +24,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import org.jetbrains.annotations.Nullable;
 
 import static net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.registerGlobalReceiver;
 
-public class DragonMounts implements ModInitializer, ServerPlayConnectionEvents.Join, ServerLifecycleEvents.ServerStarting, ServerLifecycleEvents.ServerStopped {
-    private static MinecraftServer RUNNING_SERVER;
-
-    public static @Nullable MinecraftServer getRunningServer() {
-        return RUNNING_SERVER;
-    }
-
+public class DragonMounts implements ModInitializer, ServerPlayConnectionEvents.Join, ServerPlayerEvents.CopyFrom {
     @Override
     public void onInitialize() {
         ServerConfig.init();
@@ -61,13 +53,9 @@ public class DragonMounts implements ModInitializer, ServerPlayConnectionEvents.
         EntityDataSerializers.registerSerializer(DragonType.SERIALIZER);
         EntityDataSerializers.registerSerializer(DragonVariant.SERIALIZER);
         CommandRegistrationCallback.EVENT.register(DMCommands::register);
-        ServerPlayerEvents.COPY_FROM.register((player, priorPlayer, $) ->
-                ArmorEffectManagerImpl.onPlayerClone(player, priorPlayer)
-        );
+        ServerPlayerEvents.COPY_FROM.register(this);
         AttackEntityCallback.EVENT.register(DMArmorEffects::meleeChanneling);
         ServerPlayConnectionEvents.JOIN.register(this);
-        ServerLifecycleEvents.SERVER_STARTING.register(this);
-        ServerLifecycleEvents.SERVER_STOPPED.register(this);
     }
 
     static void initNetwork() {
@@ -110,13 +98,7 @@ public class DragonMounts implements ModInitializer, ServerPlayConnectionEvents.
     }
 
     @Override
-    public void onServerStarting(MinecraftServer server) {
-        RUNNING_SERVER = server;
-        ServerConfig.INSTANCE.getEntries().forEach(ConfigEntry::revert);
-    }
-
-    @Override
-    public void onServerStopped(MinecraftServer server) {
-        RUNNING_SERVER = null;
+    public void copyFromPlayer(ServerPlayer player, ServerPlayer priorPlayer, boolean alive) {
+        ArmorEffectManagerImpl.onPlayerClone(player, priorPlayer);
     }
 }

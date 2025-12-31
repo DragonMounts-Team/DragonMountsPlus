@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Mixin(DebugPackets.class)
 public class DebugPacketsMixin {
@@ -46,7 +45,7 @@ public class DebugPacketsMixin {
                         var target = path.getEndNode();
                         path.setDebug(temp, temp, target == null
                                 ? Collections.emptySet()
-                                : Set.of(new Target(target))
+                                : Collections.singleton(new Target(target))
                         );
                         return path;
                     }).orElse(null),
