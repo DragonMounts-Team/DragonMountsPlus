@@ -19,7 +19,6 @@ build
 .gradle
 
 # other
-eclipse
 run
 runs
 
