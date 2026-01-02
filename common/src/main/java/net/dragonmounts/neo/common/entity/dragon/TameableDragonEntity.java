@@ -25,7 +25,13 @@ import net.dragonmounts.neo.compat.registry.DragonType;
 import net.dragonmounts.neo.compat.registry.DragonVariant;
 import net.dragonmounts.neo.config.ServerConfig;
 import net.dragonmounts.neo.mixin.MobAccessor;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -34,6 +40,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -67,7 +74,10 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiConsumer;
+
+import static net.minecraft.resources.ResourceLocation.tryParse;
 
 /**
  * @see Mule
@@ -256,6 +266,54 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     protected abstract void applyType(DragonType type);
 
     //----------Entity----------
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        if (tag.contains(DragonLifeStage.DATA_PARAMETER_KEY)) {
+            this.setLifeStage(DragonLifeStage.byName(tag.getString(DragonLifeStage.DATA_PARAMETER_KEY)), false, false);
+        }
+        if (tag.contains(DragonVariant.DATA_PARAMETER_KEY)) {
+            this.setVariant(DragonVariant.REGISTRY.getValue(tryParse(tag.getString(DragonVariant.DATA_PARAMETER_KEY))));
+        } else if (tag.contains(DragonType.DATA_PARAMETER_KEY)) {
+            this.setVariant(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.DATA_PARAMETER_KEY))).variants.draw(this.random, DragonVariants.ENDER_FEMALE, true));
+        } else {
+            this.applyType(this.getDragonType());
+        }
+        /// to skip {@link OldUsersConverter#convertMobOwnerIfNecessary} and prevent error when invoked on client side
+        Tag owner = tag.get("Owner");
+        tag.putUUID("Owner", Util.NIL_UUID);
+        super.readAdditionalSaveData(tag);
+        UUID uuid;
+        if (owner == null) {
+            tag.remove("Owner");
+            uuid = null;
+        } else if (owner.getType() == IntArrayTag.TYPE && ((IntArrayTag) owner).getAsIntArray().length == 4) {
+            tag.put("Owner", owner);
+            uuid = NbtUtils.loadUUID(owner);
+        } else {
+            tag.put("Owner", owner);
+            var server = this.getServer();
+            try {
+                uuid = server == null
+                        ? UUIDUtil.createOfflinePlayerUUID(owner.getAsString())
+                        : OldUsersConverter.convertMobOwnerIfNecessary(server, owner.getAsString());
+            } catch (Throwable throwable) {
+                uuid = null;
+                LOGGER.warn("Failed to resolve owner by uuid", throwable);
+            }
+        }
+        if (uuid == null) {
+            this.setOwnerUUID(null);
+            this.setTame(false, true);
+        } else {
+            try {
+                this.setOwnerUUID(uuid);
+                this.setTame(true, false);
+            } catch (Throwable throwable) {
+                this.setTame(false, true);
+            }
+        }
+    }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {

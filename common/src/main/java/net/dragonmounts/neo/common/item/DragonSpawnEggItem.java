@@ -1,11 +1,12 @@
 package net.dragonmounts.neo.common.item;
 
 import net.dragonmounts.neo.common.api.DragonTypified;
+import net.dragonmounts.neo.common.api.TrialSpawnerExtension;
+import net.dragonmounts.neo.common.entity.dragon.HatchableDragonEggEntity;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMDataComponents;
 import net.dragonmounts.neo.common.init.DMEntities;
 import net.dragonmounts.neo.compat.registry.DragonType;
-import net.dragonmounts.neo.compat.registry.DragonVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
@@ -13,14 +14,12 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
@@ -31,7 +30,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.Spawner;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -93,15 +91,10 @@ public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<
         this(DMEntities.TAMEABLE_DRAGON.get(), type, props);
     }
 
-    protected void putDragonData(SpawnData data, EntityType<?> type, RandomSource random) {
-        var tag = data.entityToSpawn();
-        var id = BuiltInRegistries.ENTITY_TYPE.getKey(type).toString();
-        if (id.equals(tag.getString("id"))) {
-            tag.putString(DragonVariant.DATA_PARAMETER_KEY, DragonVariant.draw(this.type, random, tag.getString(DragonVariant.DATA_PARAMETER_KEY)).identifier.toString());
-        } else {
-            tag.putString("id", id);
-            tag.putString(DragonVariant.DATA_PARAMETER_KEY, DragonVariant.draw(this.type, random).identifier.toString());
-        }
+    protected void writeDragonSpec(CompoundTag root) {
+        root.putString("id", DMEntities.HATCHABLE_DRAGON_EGG.key.location().toString());
+        root.putString(DragonType.DATA_PARAMETER_KEY, this.type.identifier.toString());
+        root.putBoolean(HatchableDragonEggEntity.SPAWNER_DATA_PARAMETER_KEY, true);
     }
 
     @Override
@@ -117,8 +110,11 @@ public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<
             case TrialSpawnerBlockEntity spawner:
                 type = this.getType(level.registryAccess(), stack);
                 if (DMEntities.TAMEABLE_DRAGON.is(type)) {
-                    var impl = spawner.getTrialSpawner();
-                    this.putDragonData(impl.getData().getOrCreateNextSpawnData(impl, random), type, random);
+                    var entity = new CompoundTag();
+                    this.writeDragonSpec(entity);
+                    ((TrialSpawnerExtension) ((Object) spawner.getTrialSpawner()))
+                            .neodragonmounts$overrideEntityToSpawn(level, entity);
+                    spawner.setChanged();
                 } else {
                     spawner.setEntityId(type, random);
                 }
@@ -126,7 +122,8 @@ public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<
             case SpawnerBlockEntity spawner:
                 type = this.getType(level.registryAccess(), stack);
                 if (DMEntities.TAMEABLE_DRAGON.is(type)) {
-                    this.putDragonData(spawner.getSpawner().getOrCreateNextSpawnData(level, random, pos), type, random);
+                    this.writeDragonSpec(spawner.getSpawner().getOrCreateNextSpawnData(level, random, pos).entityToSpawn());
+                    spawner.setChanged();
                 } else {
                     spawner.setEntityId(type, random);
                 }

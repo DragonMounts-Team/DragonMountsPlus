@@ -15,6 +15,7 @@ import net.dragonmounts.neo.compat.platform.ServerNetworkHandler;
 import net.dragonmounts.neo.compat.registry.DragonType;
 import net.dragonmounts.neo.compat.registry.DragonVariant;
 import net.dragonmounts.neo.config.ServerConfig;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -44,12 +45,10 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.entity.EntityInLevelCallback;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.Objects;
 import java.util.UUID;
 
 import static net.dragonmounts.neo.common.util.math.MathUtil.TO_RAD_FACTOR;
@@ -77,6 +76,7 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     public static final int EGG_CRACK_THRESHOLD = (int) (EGG_CRACK_PROCESS_THRESHOLD * MIN_HATCHING_TIME);
     public static final int EGG_SHAKE_THRESHOLD = (int) (EGG_SHAKE_PROCESS_THRESHOLD * MIN_HATCHING_TIME);
     public static final String VANILLA_DATA_PARAMETER_KEY = "IsVanilla";
+    public static final String SPAWNER_DATA_PARAMETER_KEY = "FromSpawner";
     protected @Nullable String variant;
     protected @Nullable UUID owner;
     protected boolean hatched;
@@ -142,8 +142,17 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
         }
         if (tag.hasUUID("Owner")) {
             this.owner = tag.getUUID("Owner");
+        } else if (tag.contains("Owner")) {
+            var name = tag.getString("Owner");
+            var server = this.getServer();
+            this.owner = server == null
+                    ? UUIDUtil.createOfflinePlayerUUID(name)
+                    : OldUsersConverter.convertMobOwnerIfNecessary(server, name);
         } else {
-            this.owner = OldUsersConverter.convertMobOwnerIfNecessary(Objects.requireNonNull(this.getServer()), tag.getString("Owner"));
+            this.owner = null;
+        }
+        if (tag.getBoolean(SPAWNER_DATA_PARAMETER_KEY)) {
+            this.hatched = true;
         }
     }
 
@@ -161,12 +170,11 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     }
 
     @Override
-    public void setLevelCallback(EntityInLevelCallback callback) {
-        if (this.hatched && callback == EntityInLevelCallback.NULL && this.level() instanceof ServerLevel level) {
+    public void onRemoval(RemovalReason reason) {
+        if (this.hatched && this.level() instanceof ServerLevel level) {
             level.addFreshEntity(hatch(level, this, DragonLifeStage.HATCHLING));
             this.makeSound(DMSounds.DRAGON_EGG_SHATTER);
         }
-        super.setLevelCallback(callback);
     }
 
     public void hatch() {
@@ -207,6 +215,10 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
 
     @Override
     public void tick() {
+        if (this.hatched) {
+            this.discard();
+            return;
+        }
         var level = this.level();
         var random = this.random;
         super.tick();

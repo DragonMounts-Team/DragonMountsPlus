@@ -8,7 +8,10 @@ import net.dragonmounts.neo.common.component.DragonFood;
 import net.dragonmounts.neo.common.entity.ai.control.DragonHeadLocator;
 import net.dragonmounts.neo.common.entity.ai.navigation.DragonPathNavigation;
 import net.dragonmounts.neo.common.entity.breath.impl.ServerBreathHelper;
-import net.dragonmounts.neo.common.init.*;
+import net.dragonmounts.neo.common.init.DMBlocks;
+import net.dragonmounts.neo.common.init.DMEntities;
+import net.dragonmounts.neo.common.init.DMItems;
+import net.dragonmounts.neo.common.init.DMMemories;
 import net.dragonmounts.neo.common.inventory.DragonInventory;
 import net.dragonmounts.neo.common.item.DragonEssenceItem;
 import net.dragonmounts.neo.common.network.s2c.FeedDragonPayload;
@@ -57,7 +60,6 @@ import java.util.function.BiConsumer;
 import static net.dragonmounts.neo.common.entity.dragon.DragonModelContracts.NECK_SEGMENTS;
 import static net.dragonmounts.neo.common.util.EntityUtil.addOrResetEffect;
 import static net.dragonmounts.neo.common.util.EntityUtil.addOrUpdateTransientModifier;
-import static net.minecraft.resources.ResourceLocation.tryParse;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 public class ServerDragonEntity extends TameableDragonEntity {
@@ -106,16 +108,6 @@ public class ServerDragonEntity extends TameableDragonEntity {
     public void readAdditionalSaveData(CompoundTag tag) {
         int age = this.age;
         var stage = this.stage;
-        if (tag.contains(DragonLifeStage.DATA_PARAMETER_KEY)) {
-            this.setLifeStage(DragonLifeStage.byName(tag.getString(DragonLifeStage.DATA_PARAMETER_KEY)), false, false);
-        }
-        if (tag.contains(DragonVariant.DATA_PARAMETER_KEY)) {
-            this.setVariant(DragonVariant.REGISTRY.getValue(tryParse(tag.getString(DragonVariant.DATA_PARAMETER_KEY))));
-        } else if (tag.contains(DragonType.DATA_PARAMETER_KEY)) {
-            this.setVariant(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.DATA_PARAMETER_KEY))).variants.draw(this.random, DragonVariants.ENDER_FEMALE, true));
-        } else {
-            this.applyType(this.getDragonType());
-        }
         super.readAdditionalSaveData(tag);
         this.setInSittingPose(this.isOrderedToSit() && this.onGround());
         if (!this.firstTick && (this.age != age || stage != this.stage)) {

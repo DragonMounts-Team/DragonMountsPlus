@@ -24,7 +24,7 @@ public class ShearsDispenseItemBehaviorEx extends ShearsDispenseItemBehavior {
     @Override
     protected @NotNull ItemStack execute(BlockSource block, @NotNull ItemStack stack) {
         var level = block.level();
-        if (!level.isClientSide()) {
+        if (!level.isClientSide) {
             var pos = block.pos().relative(block.state().getValue(DispenserBlock.FACING));
             this.setSuccess(tryShearBeehive(level, pos) || tryShearLivingEntity(level, pos, stack));
             if (this.isSuccess()) {

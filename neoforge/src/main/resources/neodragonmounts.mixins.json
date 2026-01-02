@@ -16,7 +16,8 @@
     "MobAccessor",
     "NoiseColumnMixin",
     "PlayerEntityMixin",
-    "ScoreboardMixin"
+    "ScoreboardMixin",
+    "TrialSpawnerMixin"
   ],
   "client": [
     "CustomHeadLayerMixin",
