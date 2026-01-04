@@ -23,7 +23,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 
 public class VariationOrbItem extends Item {
     public static DragonVariant draw(RandomSource random, DragonVariant current) {
-        return current.type.variants.draw(random, current, false);
+        return current.type.variants.draw(random, current);
     }
 
     public VariationOrbItem(Properties props) {

@@ -194,8 +194,10 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         return this.entityData.get(DATA_DRAGON_VARIANT);
     }
 
-    public final void setVariant(DragonVariant variant) {
-        this.entityData.set(DATA_DRAGON_VARIANT, variant);
+    public final void setVariant(@Nullable DragonVariant variant) {
+        if (variant != null) {
+            this.entityData.set(DATA_DRAGON_VARIANT, variant);
+        }
     }
 
     public boolean isNearGround(double factor) {
@@ -275,7 +277,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         if (tag.contains(DragonVariant.DATA_PARAMETER_KEY)) {
             this.setVariant(DragonVariant.REGISTRY.getValue(tryParse(tag.getString(DragonVariant.DATA_PARAMETER_KEY))));
         } else if (tag.contains(DragonType.DATA_PARAMETER_KEY)) {
-            this.setVariant(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.DATA_PARAMETER_KEY))).variants.draw(this.random, DragonVariants.ENDER_FEMALE, true));
+            this.overrideType(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.DATA_PARAMETER_KEY))), false);
         } else {
             this.applyType(this.getDragonType());
         }
@@ -564,11 +566,19 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     //----------IDragonTypified.Mutable----------
 
     @Override
-    public final void setDragonType(DragonType type, boolean reset) {
-        var previous = this.getVariant();
-        if (previous.type != type || reset) {
-            this.setVariant(type.variants.draw(this.random, previous, true));
+    public final void convertTo(DragonType type, boolean reset) {
+        var variant = this.getVariant();
+        if (this.getDragonType() != type) {
+            this.setVariant(type.variants.draw(this.random, variant));
         }
+        if (reset) {
+            this.setHealth(this.getMaxHealth());
+        }
+    }
+
+    @Override
+    public final void overrideType(DragonType type, boolean reset) {
+        this.setVariant(type.variants.draw(this.random, null));
         if (reset) {
             this.setHealth(this.getMaxHealth());
         }

@@ -237,7 +237,7 @@ public class DragonType implements TooltipProvider, DragonTypified {
     }
 
     public static <T extends LivingEntity & DragonTypified.Mutable> void convertByLightning(T entity, DragonType type) {
-        entity.setDragonType(type, false);
+        entity.convertTo(type, false);
         entity.playSound(SoundEvents.END_PORTAL_SPAWN, 2, 1);
         entity.playSound(SoundEvents.PORTAL_TRIGGER, 2, 1);
     }

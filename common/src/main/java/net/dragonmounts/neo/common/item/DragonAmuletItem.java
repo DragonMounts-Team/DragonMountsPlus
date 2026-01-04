@@ -94,9 +94,9 @@ public class DragonAmuletItem extends AmuletItem<TameableDragonEntity> implement
             CustomData data = stack.get(DataComponents.ENTITY_DATA);
             if (data != null) {
                 mergeEntityData(dragon, level, player, data);
-                dragon.setDragonType(this.type, false);
+                dragon.convertTo(this.type, false);
             } else {
-                dragon.setDragonType(this.type, true);
+                dragon.overrideType(this.type, true);
             }
             applyScores(level.getScoreboard(), stack, dragon);
         });

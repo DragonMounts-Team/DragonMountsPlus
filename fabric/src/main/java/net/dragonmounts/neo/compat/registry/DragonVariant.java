@@ -3,7 +3,6 @@ package net.dragonmounts.neo.compat.registry;
 import com.mojang.serialization.Codec;
 import net.dragonmounts.neo.common.api.DragonTypified;
 import net.dragonmounts.neo.common.client.variant.VariantAppearance;
-import net.dragonmounts.neo.common.init.DragonVariants;
 import net.dragonmounts.neo.common.util.DragonHead;
 import net.minecraft.core.DefaultedMappedRegistry;
 import net.minecraft.core.Registry;
@@ -30,18 +29,6 @@ public class DragonVariant implements DragonTypified {
     public static final Codec<DragonVariant> CODEC = REGISTRY.byNameCodec();
     public static final StreamCodec<RegistryFriendlyByteBuf, DragonVariant> STREAM_CODEC = ByteBufCodecs.registry(DRAGON_VARIANT);
     public static final EntityDataSerializer<DragonVariant> SERIALIZER = EntityDataSerializer.forValueType(STREAM_CODEC);
-
-    public static DragonVariant draw(DragonType type, RandomSource random) {
-        return type.variants.draw(random, DragonVariants.ENDER_FEMALE, true);
-    }
-
-    public static DragonVariant draw(DragonType type, RandomSource random, String current) {
-        if (current.isEmpty()) return type.variants.draw(random, DragonVariants.ENDER_FEMALE, true);
-        var variant = DragonVariant.REGISTRY.getOptional(ResourceLocation.tryParse(current)).orElse(null);
-        return variant == null
-                ? type.variants.draw(random, DragonVariants.ENDER_FEMALE, true)
-                : type.variants.draw(random, variant, false);
-    }
 
     int index = -1;// non-private to simplify nested class access
     public final DragonType type;
@@ -100,15 +87,15 @@ public class DragonVariant implements DragonTypified {
             return true;
         }
 
-        @Contract("!null, !null, _ -> !null")
-        public @Nullable DragonVariant draw(RandomSource random, @Nullable DragonVariant current, boolean acceptSelf) {
+        @Contract("!null, !null -> !null")
+        public @Nullable DragonVariant draw(RandomSource random, @Nullable DragonVariant current) {
             switch (this.size) {
                 case 0:
                     return current;
                 case 1:
                     return this.variants[0];
             }
-            if (acceptSelf || current == null || current.type != this.type) {
+            if (current == null || current.type != this.type) {
                 return this.variants[random.nextInt(this.size)];
             }
             if (this.size == 2) return this.variants[(current.index ^ 1) & 1];//current.index == 0 ? 1 : 0
@@ -126,9 +113,7 @@ public class DragonVariant implements DragonTypified {
         }
 
         public void register(DragonVariant variant) {
-            if (variant.type == this.type) {
-                this.add(Registry.register(REGISTRY, variant.identifier, variant));
-            }
+            this.add(Registry.register(REGISTRY, variant.identifier, variant));
         }
     }
 }

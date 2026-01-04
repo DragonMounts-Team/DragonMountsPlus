@@ -227,7 +227,7 @@ public class DragonSpawnEggItem extends SpawnEggItem implements EntityContainer<
         var entity = type.create(level, null, pos, reason, yOffset, extraOffset);
         if (entity == null) return null;
         if (entity instanceof TameableDragonEntity) {
-            ((TameableDragonEntity) entity).setDragonType(this.type, true);
+            ((TameableDragonEntity) entity).overrideType(this.type, true);
         }
         mergeEntityData(entity, level, player, stack.getOrDefault(DataComponents.ENTITY_DATA, CustomData.EMPTY));
         entity.setCustomName(stack.get(DataComponents.CUSTOM_NAME));

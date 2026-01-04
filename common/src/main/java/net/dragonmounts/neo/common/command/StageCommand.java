@@ -34,7 +34,7 @@ public class StageCommand {
                         ))
                 );
         for (var stage : DragonLifeStage.values()) {
-            target.then(Commands.literal(stage.name)
+            target.then(Commands.literal(stage.identifier)
                     .requires(permission)
                     .executes(context -> set(
                             context.getSource(),
@@ -55,7 +55,7 @@ public class StageCommand {
             tag.remove(AGE_DATA_PARAMETER_KEY);
             tag.remove(DragonType.DATA_PARAMETER_KEY);
             egg.load(tag);
-            egg.setDragonType(dragon.getDragonType(), false);
+            egg.overrideType(dragon.getDragonType(), false);
             ((ScoreboardAccessor) level.getScoreboard()).neodragonmounts$preventRemoval(dragon);
             dragon.discard();
             level.addFreshEntity(egg);

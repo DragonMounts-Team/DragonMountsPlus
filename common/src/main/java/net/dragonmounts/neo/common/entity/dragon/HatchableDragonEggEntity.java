@@ -36,7 +36,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -61,7 +60,7 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
             data.remove(HatchableDragonEggEntity.AGE_DATA_PARAMETER_KEY);
             data.remove(DragonLifeStage.DATA_PARAMETER_KEY);
             dragon.load(data);
-            dragon.setDragonType(egg.getDragonType(), false);
+            dragon.overrideType(egg.getDragonType(), false);
             dragon.setLifeStage(stage, true, false);
             dragon.setHealth(dragon.getMaxHealth() + egg.getHealth() - egg.getMaxHealth());
         });
@@ -129,7 +128,7 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains(DragonType.DATA_PARAMETER_KEY)) {
-            this.setDragonType(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.DATA_PARAMETER_KEY))), false);
+            this.overrideType(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.DATA_PARAMETER_KEY))), false);
         }
         if (tag.contains(DragonVariant.DATA_PARAMETER_KEY)) {
             this.variant = tag.getString(DragonVariant.DATA_PARAMETER_KEY);
@@ -417,8 +416,14 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
                 : this.getDragonType().getInstance(HatchableDragonEggBlock.class, fallback);
     }
 
+    @Deprecated
     @Override
-    public final void setDragonType(DragonType type, boolean reset) {
+    public final void convertTo(DragonType type, boolean reset) {
+        this.overrideType(type, reset);
+    }
+
+    @Override
+    public final void overrideType(DragonType type, boolean reset) {
         var manager = this.getAttributes();
         manager.removeAttributeModifiers(this.getDragonType().attributes);
         this.entityData.set(DATA_DRAGON_TYPE, type);
@@ -427,9 +432,7 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
             this.setVanilla(false);
         }
         if (reset) {
-            AttributeInstance health = this.getAttribute(Attributes.MAX_HEALTH);
-            assert health != null;
-            this.setHealth((float) health.getValue());
+            this.setHealth(this.getMaxHealth());
         }
     }
 

@@ -28,14 +28,6 @@ public class DragonVariant implements DragonTypified {
     public static final StreamCodec<RegistryFriendlyByteBuf, DragonVariant> STREAM_CODEC = ByteBufCodecs.registry(DRAGON_VARIANT);
     public static final EntityDataSerializer<DragonVariant> SERIALIZER = EntityDataSerializer.forValueType(STREAM_CODEC);
 
-    public static DragonVariant draw(DragonType type, RandomSource random) {
-        return Dummy.get();
-    }
-
-    public static DragonVariant draw(DragonType type, RandomSource random, String current) {
-        return Dummy.get();
-    }
-
     int index = -1;// non-private to simplify nested class access
     public final DragonType type;
     public final ResourceLocation identifier;
@@ -69,13 +61,8 @@ public class DragonVariant implements DragonTypified {
             this.type = type;
         }
 
-        @SuppressWarnings("UnusedReturnValue")
-        boolean add(final DragonVariant variant) {
-            return Dummy.get();
-        }
-
-        @Contract("!null, !null, _ -> !null")
-        public @Nullable DragonVariant draw(RandomSource random, @Nullable DragonVariant current, boolean acceptSelf) {
+        @Contract("!null, !null -> !null")
+        public @Nullable DragonVariant draw(RandomSource random, @Nullable DragonVariant current) {
             return current;
         }
 
@@ -87,7 +74,5 @@ public class DragonVariant implements DragonTypified {
         public DragonType getDragonType() {
             return this.type;
         }
-
-        public void register(DragonVariant variant) {}
     }
 }

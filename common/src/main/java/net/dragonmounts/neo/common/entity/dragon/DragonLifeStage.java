@@ -32,14 +32,14 @@ public enum DragonLifeStage implements StringRepresentable {
     public final int duration;
     public final float startSize;
     public final float endSize;
-    public final String name;
+    public final String identifier;
     public final String text;
 
     DragonLifeStage(int duration, float startSize, float endSize, BreathPower power) {
         this.duration = duration;
         this.startSize = startSize;
         this.endSize = endSize;
-        this.text = "neodragonmounts.life_stage." + (this.name = this.name().toLowerCase());
+        this.text = "neodragonmounts.life_stage." + (this.identifier = this.name().toLowerCase());
         this.power = power;
     }
 
@@ -57,7 +57,7 @@ public enum DragonLifeStage implements StringRepresentable {
 
     @Override
     public String getSerializedName() {
-        return this.name;
+        return this.identifier;
     }
 
     public static DragonLifeStage byId(int id) {

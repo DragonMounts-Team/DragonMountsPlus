@@ -78,11 +78,11 @@ public class TypeCommand {
 
         public static final Setter SETTER_DRAGON_EEG = (block, level, pos, state, type) -> type.ifPresent(HatchableDragonEggBlock.class, HatchableDragonEggBlock::defaultBlockState, state);
         public static final Setter SETTER_DRAGON_HEAD = (block, level, pos, state, type) -> {
-            var variant = type.variants.draw(level.random, block == Blocks.DRAGON_HEAD ? ENDER_FEMALE : block instanceof DragonHeadBlock head ? head.variant : null, false);
+            var variant = type.variants.draw(level.random, block == Blocks.DRAGON_HEAD ? ENDER_FEMALE : block instanceof DragonHeadBlock head ? head.variant : null);
             return variant == null ? state : variant.head.standing.defaultBlockState().setValue(ROTATION_16, state.getValue(ROTATION_16));
         };
         public static final Setter SETTER_DRAGON_HEAD_WALL = (block, level, pos, state, type) -> {
-            var variant = type.variants.draw(level.random, block == Blocks.DRAGON_WALL_HEAD ? ENDER_FEMALE : block instanceof DragonHeadBlock head ? head.variant : null, false);
+            var variant = type.variants.draw(level.random, block == Blocks.DRAGON_WALL_HEAD ? ENDER_FEMALE : block instanceof DragonHeadBlock head ? head.variant : null);
             return variant == null ? state : variant.head.wall.defaultBlockState().setValue(HORIZONTAL_FACING, state.getValue(HORIZONTAL_FACING));
         };
 
@@ -168,7 +168,7 @@ public class TypeCommand {
         protected int setType(CommandContext<CommandSourceStack> context, Entity entity, DragonType type) {
             if (entity instanceof DragonTypified.Mutable) {
                 var name = entity.getDisplayName();// name may get changed after setting a new type
-                ((DragonTypified.Mutable) entity).setDragonType(type, false);
+                ((DragonTypified.Mutable) entity).convertTo(type, false);
                 context.getSource().sendSuccess(() -> Component.translatable("commands.neodragonmounts.type.entity.set", name, type.getName()), true);
                 return 1;
             }

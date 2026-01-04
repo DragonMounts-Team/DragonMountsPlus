@@ -6,6 +6,8 @@ public interface DragonTypified {
     DragonType getDragonType();
 
     interface Mutable extends DragonTypified {
-        void setDragonType(DragonType type, boolean reset);
+        void convertTo(DragonType type, boolean reset);
+
+        void overrideType(DragonType type, boolean reset);
     }
 }

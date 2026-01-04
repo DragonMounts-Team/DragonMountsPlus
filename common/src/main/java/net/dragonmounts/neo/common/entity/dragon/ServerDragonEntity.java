@@ -411,7 +411,7 @@ public class ServerDragonEntity extends TameableDragonEntity {
     public void spawnChildFromBreeding(ServerLevel level, Animal other) {
         if (!(other instanceof ServerDragonEntity mate)) return;
         var egg = new HatchableDragonEggEntity(level);
-        egg.setDragonType(this.getDragonType(), true);
+        egg.overrideType(this.getDragonType(), true);
         var pos = this.position();
         egg.moveTo(pos.x, pos.y, pos.z, 0.0F, 0.0F);
         var cause = this.getLoveCause();
