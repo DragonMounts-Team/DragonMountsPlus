@@ -424,6 +424,7 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
                 : this.getDragonType().getInstance(HatchableDragonEggBlock.class, fallback);
     }
 
+    /// @deprecated use {@link #overrideType(DragonType, boolean)}
     @Deprecated
     @Override
     public final void convertTo(DragonType type, boolean reset) {

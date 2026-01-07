@@ -1,5 +1,6 @@
 package net.dragonmounts.neo.common.entity.dragon;
 
+import com.google.common.base.Predicates;
 import com.mojang.logging.LogUtils;
 import net.dragonmounts.neo.common.api.AutoJumpRideable;
 import net.dragonmounts.neo.common.api.ConditionalShearable;
@@ -255,7 +256,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     protected @Nullable EndCrystal findCrystal() {
         EndCrystal result = null;
         double min = Double.MAX_VALUE;
-        for (var crystal : this.level().getEntitiesOfClass(EndCrystal.class, this.getBoundingBox().inflate(32.0))) {
+        for (var crystal : this.level().getEntitiesOfClass(EndCrystal.class, this.getBoundingBox().inflate(32.0), Predicates.alwaysTrue())) {
             double distance = crystal.distanceToSqr(this);
             if (distance < min) {
                 min = distance;

@@ -1,5 +1,6 @@
 package net.dragonmounts.neo.common.item;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import net.dragonmounts.neo.common.entity.dragon.Relation;
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
@@ -98,7 +99,7 @@ public class TieredShearsItem extends ShearsItem {
                 }
                 if (level.getBlockEntity(pos) instanceof BeehiveBlockEntity entity && !entity.isEmpty()) {
                     var aabb = new AABB(pos).inflate(8.0, 6.0, 8.0);
-                    var bees = level.getEntitiesOfClass(Bee.class, aabb);
+                    var bees = level.getEntitiesOfClass(Bee.class, aabb, Predicates.alwaysTrue());
                     if (!bees.isEmpty()) {
                         var players = level.getEntitiesOfClass(Player.class, aabb);
                         if (!players.isEmpty()) {

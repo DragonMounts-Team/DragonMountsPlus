@@ -52,7 +52,7 @@ public class FollowOwner extends OneShot<TamableAnimal> {
         brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(
                 new EntityTracker(owner, false),
                 owner.isFallFlying() ? this.speedModifier * 1.5F : this.speedModifier,
-                this.stopDist
+                Math.max((int) (this.stopDist * animal.getAgeScale()), 1)
         ));
         return true;
     }
