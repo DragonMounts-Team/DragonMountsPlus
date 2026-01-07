@@ -16,8 +16,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
-import static net.dragonmounts.neo.config.EntryUtil.config;
-import static net.dragonmounts.neo.config.EntryUtil.formatName;
+import static net.dragonmounts.neo.common.util.TimeUtil.TICKS_PER_GAME_HOUR;
+import static net.dragonmounts.neo.config.EntryUtil.*;
+import static net.minecraft.SharedConstants.TICKS_PER_MINUTE;
 
 public class ServerConfig extends ConfigHolder<CommandSourceStack> {
     public static final ServerConfig INSTANCE = new ServerConfig();
@@ -45,77 +46,97 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
     public final DoubleEntry baseStepHeight;
     public final DoubleEntry baseTemptRange;
     public final DoubleEntry baseWaterMovementEfficiency;
+    public final IntEntry minIncubationDuration;
+    public final IntEntry hatchlingStageDuration;
+    public final IntEntry infantStageDuration;
+    public final IntEntry fledglingStageDuration;
+    public final IntEntry juvenileStageDuration;
     private AttributeSupplier dragonAttributes;
     private AttributeSupplier dragonEggAttributes;
 
     private ServerConfig() {
         var registry = HashBiMap.<ConfigEntry<?>, Integer>create();
         var builder = new ModConfigSpec.Builder();
-        EntryUtil.register(registry, this.debug =
+        register(registry, this.debug =
                 config(builder.worldRestart(), "debug", false, "Debug mode. You need to restart Minecraft for the change to take effect. Unless you're a developer or are told to activate it, you don't want to set this to true.")
         );
-        EntryUtil.register(registry, this.isEggPushable =
+        register(registry, this.isEggPushable =
                 config(builder, "isEggPushable", false, "Whether an egg is pushable on collision")
         );
-        EntryUtil.register(registry, this.isEggOverridden =
+        register(registry, this.isEggOverridden =
                 config(builder, "isEggOverridden", true, "Whether interaction hook about vanilla dragon egg is enabled")
         );
-        EntryUtil.register(registry, this.ignitingBreath =
+        register(registry, this.ignitingBreath =
                 config(builder, "ignitingBreath", true, "Whether fire-like dragon breath can ignite the hit blocks")
         );
-        EntryUtil.register(registry, this.destructiveBreath =
+        register(registry, this.destructiveBreath =
                 config(builder, "destructiveBreath", true, "Whether airflow-like dragon breath can destroy the hit blocks")
         );
-        EntryUtil.register(registry, this.smeltingBreath =
+        register(registry, this.smeltingBreath =
                 config(builder, "smeltingBreath", false, "Whether fire-like dragon breath can smelt the hit blocks")
         );
-        EntryUtil.register(registry, this.quenchingBreath =
+        register(registry, this.quenchingBreath =
                 config(builder, "quenchingBreath", true, "Whether mist-like dragon breath can put out fire and solidify lava")
         );
-        EntryUtil.register(registry, this.frostyBreath =
+        register(registry, this.frostyBreath =
                 config(builder, "frostyBreath", false, "Whether blizzard-like dragon breath can leave snow on ground")
         );
-        EntryUtil.register(registry, this.baseArmor =
+        register(registry, this.baseArmor =
                 config(builder, "baseArmor", 8.0, 0.0, 30.0, "The base armor of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseArmorToughness =
+        register(registry, this.baseArmorToughness =
                 config(builder, "baseArmorToughness", 20.0, 0.0, 20.0, "The base armor toughness of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseBodySize =
+        register(registry, this.baseBodySize =
                 config(builder, "baseBodySize", 1.0, 0.0625, 16.0, "The base Body Size of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseDamage =
+        register(registry, this.baseDamage =
                 config(builder, "baseDamage", 12.0, 0.0, 2048.0, "The base damage of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseFlyingSpeed =
+        register(registry, this.baseFlyingSpeed =
                 config(builder, "baseFlyingSpeed", 0.25, 0.0, 1024.0, "The base flying speed of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseFollowRange =
+        register(registry, this.baseFollowRange =
                 config(builder, "baseFollowRange", 64.0, 0.0, 2048.0, "The base follow range of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseHealth =
+        register(registry, this.baseHealth =
                 config(builder, "baseHealth", 90.0, 1.0, 1024.0, "The base health of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseJumpStrength =
+        register(registry, this.baseJumpStrength =
                 config(builder, "baseJumpStrength", 1.0, 0.0, 32.0, "The base jump strength of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseKnockback =
+        register(registry, this.baseKnockback =
                 config(builder, "baseKnockback", 0.0, 0.0, 5.0, "The base knockback of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseKnockbackResistance =
+        register(registry, this.baseKnockbackResistance =
                 config(builder, "baseKnockbackResistance", 1.0, 0.0, 1.0, "The base knockback resistance of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseMovementSpeed =
+        register(registry, this.baseMovementSpeed =
                 config(builder, "baseMovementSpeed", 0.3, 0.0, 1024.0, "The base movement speed of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseStepHeight =
+        register(registry, this.baseStepHeight =
                 config(builder, "baseStepHeight", 1.25, 0.0, 10, "The base step height of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseTemptRange =
+        register(registry, this.baseTemptRange =
                 config(builder, "baseTemptRange", 16.0, 0.0, 2048.0, "The base tempt range of a newly spawned dragon at adulthood", this::invalidateAttributes)
         );
-        EntryUtil.register(registry, this.baseWaterMovementEfficiency =
+        register(registry, this.baseWaterMovementEfficiency =
                 config(builder, "baseWaterMovementEfficiency", 0.25, 0.0, 1.0, "The base water movement efficiency of a newly spawned dragon at adulthood", this::invalidateAttributes)
+        );
+        register(registry, this.minIncubationDuration =
+                config(builder, "minIncubationDuration", 20 * TICKS_PER_MINUTE, 0, Integer.MAX_VALUE, "How long does a dragon egg take to hatch at least")
+        );
+        register(registry, this.hatchlingStageDuration =
+                config(builder, "hatchlingStageDuration", 48 * TICKS_PER_GAME_HOUR, 0, Integer.MAX_VALUE, "How long does the hatchling stage last")
+        );
+        register(registry, this.infantStageDuration =
+                config(builder, "infantStageDuration", 24 * TICKS_PER_GAME_HOUR, 0, Integer.MAX_VALUE, "How long does the infant stage last")
+        );
+        register(registry, this.fledglingStageDuration =
+                config(builder, "fledglingStageDuration", 32 * TICKS_PER_GAME_HOUR, 0, Integer.MAX_VALUE, "How long does the fledgling stage last")
+        );
+        register(registry, this.juvenileStageDuration =
+                config(builder, "juvenileStageDuration", 60 * TICKS_PER_GAME_HOUR, 0, Integer.MAX_VALUE, "How long does the juvenile stage last")
         );
         this.entries = registry;
         this.spec = builder.build();
@@ -171,12 +192,12 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
         this.dragonEggAttributes = null;
     }
 
-    public void register(ModContainer mod) {
-        mod.registerConfig(ModConfig.Type.SERVER, this.spec);
-    }
-
     @Override
     public ModConfigSpec getSpec() {
         return this.spec;
+    }
+
+    public static void registerConfig(ModContainer mod) {
+        mod.registerConfig(ModConfig.Type.SERVER, INSTANCE.spec);
     }
 }

@@ -1,9 +1,9 @@
 package net.dragonmounts.neo.config;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.dragonmounts.neo.common.network.s2c.DoubleConfigPayload;
+import net.dragonmounts.neo.common.network.s2c.IntegerConfigPayload;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
@@ -11,26 +11,26 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 
-public class DoubleEntry extends ConfigEntry<Double> {
-    public static final double MIN_DOUBLE = -Double.MAX_VALUE;
-    public final double fallback;
-    public final double min;
-    public final double max;
-    protected final DoubleConsumer onChanged;
-    protected double saved;
-    protected double value;
-    protected double effective;
+public class IntEntry extends ConfigEntry<Integer> implements IntSupplier {
+    public final int fallback;
+    public final int min;
+    public final int max;
+    protected final IntConsumer onChanged;
+    protected int saved;
+    protected int value;
+    protected int effective;
 
-    public DoubleEntry(
+    public IntEntry(
             String key,
             String name,
             String tooltip,
-            double fallback,
-            double min,
-            double max,
-            DoubleConsumer onChanged
+            int fallback,
+            int min,
+            int max,
+            IntConsumer onChanged
     ) {
         super(key, name, tooltip);
         this.min = min;
@@ -39,15 +39,12 @@ public class DoubleEntry extends ConfigEntry<Double> {
         this.set(this.saved = this.fallback = fallback);
     }
 
-    public double get() {
+    @Override
+    public int getAsInt() {
         return this.effective;
     }
 
-    public float getAsFloat() {
-        return (float) this.effective;
-    }
-
-    protected void overrideImpl(double value) {
+    protected void overrideImpl(int value) {
         if (value == this.effective) return;
         this.effective = value;
         if (this.onChanged == null) return;
@@ -55,13 +52,13 @@ public class DoubleEntry extends ConfigEntry<Double> {
     }
 
     @Override
-    public void override(Double wrapped) {
+    public void override(Integer wrapped) {
         this.overrideImpl(Mth.clamp(wrapped, this.min, this.max));
     }
 
     @Override
-    public boolean set(Double wrapped) {
-        double value = Mth.clamp(wrapped, this.min, this.max);
+    public boolean set(Integer wrapped) {
+        int value = Mth.clamp(wrapped, this.min, this.max);
         this.overrideImpl(value);
         if (this.value == value) return false;
         this.value = value;
@@ -70,7 +67,7 @@ public class DoubleEntry extends ConfigEntry<Double> {
 
     @Override
     public String getAsString() {
-        return Double.toString(this.get());
+        return Integer.toString(this.getAsInt());
     }
 
     @Override
@@ -79,8 +76,8 @@ public class DoubleEntry extends ConfigEntry<Double> {
     }
 
     @Override
-    public Double load(@Nullable Tag data) {
-        return data instanceof NumericTag ? ((NumericTag) data).getAsDouble() : this.fallback;
+    public Integer load(@Nullable Tag data) {
+        return data instanceof NumericTag ? ((NumericTag) data).getAsInt() : this.fallback;
     }
 
     @Override
@@ -110,16 +107,16 @@ public class DoubleEntry extends ConfigEntry<Double> {
 
     @Override
     public CustomPacketPayload wrap(int id) {
-        return new DoubleConfigPayload(id, this.get());
+        return new IntegerConfigPayload(id, this.getAsInt());
     }
 
     @Override
-    public ArgumentType<Double> getArgument() {
-        return DoubleArgumentType.doubleArg(this.min, this.max);
+    public ArgumentType<Integer> getArgument() {
+        return IntegerArgumentType.integer(this.min, this.max);
     }
 
     @Override
-    public Double parse(CommandContext<?> context, String name) {
-        return DoubleArgumentType.getDouble(context, name);
+    public Integer parse(CommandContext<?> context, String name) {
+        return IntegerArgumentType.getInteger(context, name);
     }
 }

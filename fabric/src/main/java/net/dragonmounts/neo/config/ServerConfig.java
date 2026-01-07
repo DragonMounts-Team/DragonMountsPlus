@@ -16,8 +16,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 
 import java.util.Collection;
 
+import static net.dragonmounts.neo.common.util.TimeUtil.TICKS_PER_GAME_HOUR;
 import static net.dragonmounts.neo.config.EntryUtil.config;
 import static net.dragonmounts.neo.config.EntryUtil.register;
+import static net.minecraft.SharedConstants.TICKS_PER_MINUTE;
 
 public class ServerConfig extends ConfigHolder<CommandSourceStack> {
     public static final ServerConfig INSTANCE = new ServerConfig(DragonMountsShared.NAMESPACE, "server.dat");
@@ -44,6 +46,11 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
     public final DoubleEntry baseStepHeight;
     public final DoubleEntry baseTemptRange;
     public final DoubleEntry baseWaterMovementEfficiency;
+    public final IntEntry minIncubationDuration;
+    public final IntEntry hatchlingStageDuration;
+    public final IntEntry infantStageDuration;
+    public final IntEntry fledglingStageDuration;
+    public final IntEntry juvenileStageDuration;
     private AttributeSupplier dragonAttributes;
     private AttributeSupplier dragonEggAttributes;
 
@@ -115,6 +122,21 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
         );
         register(registry, this.baseWaterMovementEfficiency =
                 config("baseWaterMovementEfficiency", 0.25, 0.0, 1.0, this::invalidateAttributes)
+        );
+        register(registry, this.minIncubationDuration =
+                config("minIncubationDuration", 20 * TICKS_PER_MINUTE, 0, Integer.MAX_VALUE)
+        );
+        register(registry, this.hatchlingStageDuration =
+                config("hatchlingStageDuration", 48 * TICKS_PER_GAME_HOUR, 0, Integer.MAX_VALUE)
+        );
+        register(registry, this.infantStageDuration =
+                config("infantStageDuration", 24 * TICKS_PER_GAME_HOUR, 0, Integer.MAX_VALUE)
+        );
+        register(registry, this.fledglingStageDuration =
+                config("fledglingStageDuration", 32 * TICKS_PER_GAME_HOUR, 0, Integer.MAX_VALUE)
+        );
+        register(registry, this.juvenileStageDuration =
+                config("juvenileStageDuration", 60 * TICKS_PER_GAME_HOUR, 0, Integer.MAX_VALUE)
         );
         this.entries = registry;
         this.load();

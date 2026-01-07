@@ -6,6 +6,7 @@ import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
 
 public class EntryUtil {
     public static String formatName(ModConfigSpec.ConfigValue<?> entry) {
@@ -56,6 +57,29 @@ public class EntryUtil {
             DoubleConsumer onChanged
     ) {
         return new DoubleEntry(builder.translation(translate(key)).comment(desc).defineInRange(key, fallback, min, max), min, max, onChanged);
+    }
+
+    public static IntEntry config(
+            ModConfigSpec.Builder builder,
+            String key,
+            int fallback,
+            int min,
+            int max,
+            String desc
+    ) {
+        return config(builder, key, fallback, min, max, desc, (IntConsumer) null);
+    }
+
+    public static IntEntry config(
+            ModConfigSpec.Builder builder,
+            String key,
+            int fallback,
+            int min,
+            int max,
+            String desc,
+            IntConsumer onChanged
+    ) {
+        return new IntEntry(builder.translation(translate(key)).comment(desc).defineInRange(key, fallback, min, max), min, max, onChanged);
     }
 
     public static void register(HashBiMap<ConfigEntry<?>, Integer> registry, ConfigEntry<?> entry) {

@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 
 import static net.dragonmounts.neo.common.command.DMCommands.createClassCastException;
 import static net.dragonmounts.neo.common.entity.dragon.DragonLifeStage.EGG_TRANSLATION_KEY;
-import static net.dragonmounts.neo.common.entity.dragon.HatchableDragonEggEntity.AGE_DATA_PARAMETER_KEY;
+import static net.dragonmounts.neo.common.entity.dragon.HatchableDragonEggEntity.SERIALIZATION_KEY_AGE;
 
 public class StageCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register(Predicate<CommandSourceStack> permission) {
@@ -52,8 +52,8 @@ public class StageCommand {
             var level = source.getLevel();
             var egg = new HatchableDragonEggEntity(level);
             var tag = dragon.saveWithoutId(new CompoundTag());
-            tag.remove(AGE_DATA_PARAMETER_KEY);
-            tag.remove(DragonType.DATA_PARAMETER_KEY);
+            tag.remove(SERIALIZATION_KEY_AGE);
+            tag.remove(DragonType.SERIALIZATION_KEY);
             egg.load(tag);
             egg.overrideType(dragon.getDragonType(), false);
             ((ScoreboardAccessor) level.getScoreboard()).neodragonmounts$preventRemoval(dragon);

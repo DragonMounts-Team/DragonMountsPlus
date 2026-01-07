@@ -131,10 +131,10 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     private static final EntityDataAccessor<ItemStack> DATA_CHEST_ITEM = SynchedEntityData.defineId(TameableDragonEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<ItemStack> DATA_SADDLE_ITEM = SynchedEntityData.defineId(TameableDragonEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<DragonVariant> DATA_DRAGON_VARIANT = SynchedEntityData.defineId(TameableDragonEntity.class, DragonVariant.SERIALIZER);
-    public static final String AGE_LOCKED_DATA_PARAMETER_KEY = "AgeLocked";
-    public static final String FLYING_DATA_PARAMETER_KEY = "Flying";
-    public static final String SADDLE_DATA_PARAMETER_KEY = "Saddle";
-    public static final String SHEARED_DATA_PARAMETER_KEY = "ShearCooldown";
+    public static final String SERIALIZATION_KEY_AGE_LOCKED = "AgeLocked";
+    public static final String SERIALIZATION_KEY_FLYING = "Flying";
+    public static final String SERIALIZATION_KEY_SADDLE = "Saddle";
+    public static final String SERIALIZATION_KEY_SHEARED = "ShearCooldown";
     protected @Nullable EndCrystal nearestCrystal;
     protected @UnknownNullability DragonType lastType;
     protected @UnknownNullability DragonLifeStage stage;
@@ -271,13 +271,13 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
-        if (tag.contains(DragonLifeStage.DATA_PARAMETER_KEY)) {
-            this.setLifeStage(DragonLifeStage.byName(tag.getString(DragonLifeStage.DATA_PARAMETER_KEY)), false, false);
+        if (tag.contains(DragonLifeStage.SERIALIZATION_KEY)) {
+            this.setLifeStage(DragonLifeStage.byName(tag.getString(DragonLifeStage.SERIALIZATION_KEY)), false, false);
         }
-        if (tag.contains(DragonVariant.DATA_PARAMETER_KEY)) {
-            this.setVariant(DragonVariant.REGISTRY.getValue(tryParse(tag.getString(DragonVariant.DATA_PARAMETER_KEY))));
-        } else if (tag.contains(DragonType.DATA_PARAMETER_KEY)) {
-            this.overrideType(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.DATA_PARAMETER_KEY))), false);
+        if (tag.contains(DragonVariant.SERIALIZATION_KEY)) {
+            this.setVariant(DragonVariant.REGISTRY.getValue(tryParse(tag.getString(DragonVariant.SERIALIZATION_KEY))));
+        } else if (tag.contains(DragonType.SERIALIZATION_KEY)) {
+            this.overrideType(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.SERIALIZATION_KEY))), false);
         } else {
             this.applyType(this.getDragonType());
         }
@@ -368,12 +368,12 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
 
     @Override
     public float getAgeScale() {
-        return DragonLifeStage.getSize(this.stage, this.age);
+        return this.stage.getScale(this.age);
     }
 
     @Override
     public EntityDimensions getDefaultDimensions(Pose pose) {
-        return this.getType().getDimensions().scale(DragonLifeStage.getSizeAverage(this.stage));
+        return this.getType().getDimensions().scale(this.stage.getAverageScale());
     }
 
     @Override
@@ -497,14 +497,14 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     //----------AgeableEntity----------
 
     protected void refreshAge() {
-        switch (this.stage.ordinal()) {
-            case 0:// NEWBORN
-            case 1:// INFANT
-                this.age = -this.stage.duration;
+        switch (this.stage) {
+            case HATCHLING:
+            case INFANT:
+                this.age = -this.stage.duration.getAsInt();
                 return;
-            case 2:// JUVENILE
-            case 3:// PREJUVENILE
-                this.age = this.stage.duration;
+            case FLEDGLING:
+            case JUVENILE:
+                this.age = this.stage.duration.getAsInt();
                 return;
             default:
                 this.age = 0;
@@ -519,6 +519,12 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         return this.entityData.get(DATA_AGE_LOCKED);
     }
 
+    public void refreshForcedAgeTimer() {
+        if (this.forcedAgeTimer <= 0) {
+            this.forcedAgeTimer = 40;
+        }
+    }
+
     @Override
     protected void ageBoundaryReached() {
         this.setLifeStage(DragonLifeStage.byId(this.stage.ordinal() + 1), true, false);
@@ -531,7 +537,8 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         if (!this.isAgeLocked() && (old < 0 && (this.age += amount) >= 0 || old > 0 && (this.age -= amount) <= 0)) {
             this.ageBoundaryReached();
             if (forced) {
-                this.forcedAge += Math.abs(old);
+                this.forcedAge += old;
+                this.refreshForcedAgeTimer();
             }
         }
     }
@@ -649,6 +656,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
     @Override
     public boolean wantsToAttack(@Nullable LivingEntity target, @Nullable LivingEntity owner) {
         return switch (target) {
+            case HatchableDragonEggEntity ignored -> false;
             case ArmorStand ignored -> false;
             case TamableAnimal other -> !other.isTame() || other.getOwner() != owner;
             case AbstractHorse horse -> !horse.isTamed();

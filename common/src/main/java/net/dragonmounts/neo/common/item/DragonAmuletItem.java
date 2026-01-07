@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import static net.dragonmounts.neo.common.component.ScoreboardInfo.applyScores;
-import static net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity.FLYING_DATA_PARAMETER_KEY;
+import static net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity.SERIALIZATION_KEY_FLYING;
 import static net.dragonmounts.neo.common.util.EntityUtil.*;
 
 public class DragonAmuletItem extends AmuletItem<TameableDragonEntity> implements DragonTypified {
@@ -67,7 +67,7 @@ public class DragonAmuletItem extends AmuletItem<TameableDragonEntity> implement
         var level = entity.level();
         var stack = new ItemStack(this);
         var tag = saveWithId(entity, new CompoundTag());
-        tag.remove(FLYING_DATA_PARAMETER_KEY);
+        tag.remove(SERIALIZATION_KEY_FLYING);
         tag.remove("UUID");
         stack.set(DataComponents.ENTITY_DATA, EntityContainer.simplifyData(tag));
         LivingEntity owner = entity.getOwner();

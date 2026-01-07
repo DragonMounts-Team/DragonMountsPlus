@@ -4,6 +4,7 @@ import com.google.common.collect.HashBiMap;
 import net.minecraft.nbt.Tag;
 
 import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
 
 public class EntryUtil {
     public static String translate(String key) {
@@ -32,6 +33,14 @@ public class EntryUtil {
 
     public static DoubleEntry config(String key, double fallback, double min, double max, DoubleConsumer onChanged) {
         return new DoubleEntry(key, translate(key), tooltip(key), fallback, min, max, onChanged);
+    }
+
+    public static IntEntry config(String key, int fallback, int min, int max) {
+        return config(key, fallback, min, max, (IntConsumer) null);
+    }
+
+    public static IntEntry config(String key, int fallback, int min, int max, IntConsumer onChanged) {
+        return new IntEntry(key, translate(key), tooltip(key), fallback, min, max, onChanged);
     }
 
     public static void register(HashBiMap<ConfigEntry<?>, Integer> registry, ConfigEntry<?> entry) {

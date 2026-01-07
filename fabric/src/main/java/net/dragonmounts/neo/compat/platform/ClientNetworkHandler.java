@@ -17,8 +17,6 @@ import net.dragonmounts.neo.config.ServerConfig;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.DoubleTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -65,12 +63,13 @@ public class ClientNetworkHandler {
         ((Provider) context.player()).neodragonmounts$getManager().setCooldown(category, payload.cd());
     }
 
-    public static void handleEggShake(ShakeEggPayload payload, ClientPlayNetworking.Context context) {
+    public static void handleEggWobble(WobbleEggPayload payload, ClientPlayNetworking.Context context) {
         if (context.player().clientLevel.getEntity(payload.id()) instanceof HatchableDragonEggEntity egg) {
             int flag = payload.flag();
-            egg.syncShake(
+            egg.applyWobble(
                     payload.amplitude(),
-                    (flag & 0b10) == 0b10 ? -payload.axis() : payload.axis(),
+                    // -0 == +0, so offset all non-negative numbers by +1
+                    (flag & 0b10) == 0b10 ? -payload.axis() : payload.axis() + 1,
                     (flag & 0b01) == 0b01
             );
         }
@@ -121,7 +120,7 @@ public class ClientNetworkHandler {
         }
     }
 
-    public static void handleSyncConfig(S2CSyncConfigPayload payload, ClientPlayNetworking.Context ignored) {
+    public static void handleConfigSync(S2CSyncConfigPayload payload, ClientPlayNetworking.Context ignored) {
         if (ClientUtil.isRemoteServer()) {
             ServerConfig.INSTANCE.getEntries().forEach(ConfigEntry::reset);
             for (var config : payload.entries()) {
@@ -132,29 +131,24 @@ public class ClientNetworkHandler {
         }
     }
 
-    public static void handleBooleanConfig(BooleanConfigPayload payload, ClientPlayNetworking.Context ignored) {
+    public static void handleConfig(ConfigPayloadEntry<?> payload, ClientPlayNetworking.Context ignored) {
         var entry = ServerConfig.INSTANCE.getEntry(payload.id());
-        if (entry == null) return;
-        override(entry, ByteTag.valueOf(payload.value()));
+        if (entry != null) {
+            override(entry, payload.getAsTag());
+        }
     }
-
-    public static void handleDoubleConfig(DoubleConfigPayload payload, ClientPlayNetworking.Context ignored) {
-        var entry = ServerConfig.INSTANCE.getEntry(payload.id());
-        if (entry == null) return;
-        override(entry, DoubleTag.valueOf(payload.value()));
-    }
-
 
     public static void initClient() {
         registerGlobalReceiver(SyncCooldownPayload.TYPE, ClientNetworkHandler::handleCooldownSync);
         registerGlobalReceiver(ArmorRipostePayload.TYPE, ClientNetworkHandler::handleArmorRiposte);
         registerGlobalReceiver(InitCooldownPayload.TYPE, ClientNetworkHandler::handleCooldownInit);
-        registerGlobalReceiver(ShakeEggPayload.TYPE, ClientNetworkHandler::handleEggShake);
+        registerGlobalReceiver(WobbleEggPayload.TYPE, ClientNetworkHandler::handleEggWobble);
         registerGlobalReceiver(SyncDragonAgePayload.TYPE, ClientNetworkHandler::handleDragonSync);
         registerGlobalReceiver(FeedDragonPayload.TYPE, ClientNetworkHandler::handleFeedDragon);
         registerGlobalReceiver(SyncEggAgePayload.TYPE, ClientNetworkHandler::handleEggSync);
-        registerGlobalReceiver(S2CSyncConfigPayload.TYPE, ClientNetworkHandler::handleSyncConfig);
-        registerGlobalReceiver(BooleanConfigPayload.TYPE, ClientNetworkHandler::handleBooleanConfig);
-        registerGlobalReceiver(DoubleConfigPayload.TYPE, ClientNetworkHandler::handleDoubleConfig);
+        registerGlobalReceiver(S2CSyncConfigPayload.TYPE, ClientNetworkHandler::handleConfigSync);
+        registerGlobalReceiver(BooleanConfigPayload.TYPE, ClientNetworkHandler::handleConfig);
+        registerGlobalReceiver(DoubleConfigPayload.TYPE, ClientNetworkHandler::handleConfig);
+        registerGlobalReceiver(IntegerConfigPayload.TYPE, ClientNetworkHandler::handleConfig);
     }
 }

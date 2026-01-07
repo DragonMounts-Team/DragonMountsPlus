@@ -66,8 +66,7 @@ public abstract class ConfigEntry<T> {
     public static <T> T forcedGet(ModConfigSpec.ConfigValue<T> entry) {
         try {
             return entry.get();
-        } catch (Exception ignored) {
-            return entry.getDefault();
-        }
+        } catch (Exception ignored) {}
+        return entry.getDefault();
     }
 }

@@ -23,7 +23,7 @@ import static net.dragonmounts.neo.common.DragonMountsShared.makeId;
 import static net.dragonmounts.neo.compat.registry.RegistryHandler.makeDefaultedRegistry;
 
 public class DragonVariant implements DragonTypified {
-    public static final String DATA_PARAMETER_KEY = "Variant";
+    public static final String SERIALIZATION_KEY = "Variant";
     public static final ResourceLocation DEFAULT_KEY = makeId("ender_female");
     public static final DefaultedMappedRegistry<DragonVariant> REGISTRY = makeDefaultedRegistry(DRAGON_VARIANT, DEFAULT_KEY);
     public static final Codec<DragonVariant> CODEC = REGISTRY.byNameCodec();

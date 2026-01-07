@@ -32,6 +32,11 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
     public final DoubleEntry baseStepHeight;
     public final DoubleEntry baseTemptRange;
     public final DoubleEntry baseWaterMovementEfficiency;
+    public final IntEntry minIncubationDuration;
+    public final IntEntry hatchlingStageDuration;
+    public final IntEntry infantStageDuration;
+    public final IntEntry fledglingStageDuration;
+    public final IntEntry juvenileStageDuration;
 
     private ServerConfig() {
         this.debug = Dummy.get();
@@ -56,6 +61,11 @@ public class ServerConfig extends ConfigHolder<CommandSourceStack> {
         this.baseStepHeight = Dummy.get();
         this.baseTemptRange = Dummy.get();
         this.baseWaterMovementEfficiency = Dummy.get();
+        this.minIncubationDuration = Dummy.get();
+        this.hatchlingStageDuration = Dummy.get();
+        this.infantStageDuration = Dummy.get();
+        this.fledglingStageDuration = Dummy.get();
+        this.juvenileStageDuration = Dummy.get();
     }
 
     public ConfigEntry<?> getEntry(int id) {

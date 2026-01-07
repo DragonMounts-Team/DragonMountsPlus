@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.Nullable;
 
-import static net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity.FLYING_DATA_PARAMETER_KEY;
+import static net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity.SERIALIZATION_KEY_FLYING;
 
 public interface EntityContainer<T extends Entity> {
     static CustomData simplifyData(CompoundTag tag) {
@@ -43,7 +43,7 @@ public interface EntityContainer<T extends Entity> {
 
     static ItemStack saveEntityData(Item item, CompoundTag tag, DataComponentPatch patch) {
         var stack = new ItemStack(item);
-        tag.remove(FLYING_DATA_PARAMETER_KEY);
+        tag.remove(SERIALIZATION_KEY_FLYING);
         tag.remove("UUID");
         stack.set(DataComponents.ENTITY_DATA, EntityContainer.simplifyData(tag));
         stack.applyComponents(patch);

@@ -12,9 +12,6 @@ public class BooleanEntry extends ConfigEntry<Boolean> {
     protected boolean saved;
     protected boolean effective;
 
-    public BooleanEntry() {
-    }
-
     public boolean get() {
         return this.effective;
     }

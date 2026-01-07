@@ -47,7 +47,7 @@ public class DragonInventory implements Container, StackedContentsCompatible {
         return stack;
     }
 
-    public static final String DATA_PARAMETER_KEY = "Items";
+    public static final String SERIALIZATION_KEY = "Items";
     public static final int SLOT_ARMOR_INDEX = 0;
     public static final int SLOT_CHEST_INDEX = 1;
     public static final int SLOT_SADDLE_INDEX = 2;

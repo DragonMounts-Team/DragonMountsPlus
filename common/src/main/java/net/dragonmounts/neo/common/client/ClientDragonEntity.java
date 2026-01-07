@@ -187,12 +187,6 @@ public class ClientDragonEntity extends TameableDragonEntity {
         this.setAge(data >>> 3);
     }
 
-    public void refreshForcedAgeTimer() {
-        if (this.forcedAgeTimer <= 0) {
-            this.forcedAgeTimer = 40;
-        }
-    }
-
     @Override
     protected void tickDeath() {
         ++this.deathTime;

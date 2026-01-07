@@ -51,7 +51,7 @@ import static net.dragonmounts.neo.common.util.EntityUtil.addOrMergeEffect;
 @Mod(DragonMountsShared.NAMESPACE)
 public class DragonMounts {
     public DragonMounts(IEventBus modbus, ModContainer container) {
-        ServerConfig.INSTANCE.register(container);
+        ServerConfig.registerConfig(container);
         modbus.addListener(DragonMounts::commonSetup);
         modbus.addListener(RegistryHandler::registerRegistries);
         modbus.addListener(RegistryHandler::registerEntries);
@@ -89,12 +89,13 @@ public class DragonMounts {
         registrar.playToClient(SyncCooldownPayload.TYPE, SyncCooldownPayload.CODEC, ClientNetworkHandler::handleCooldownSync);
         registrar.playToClient(ArmorRipostePayload.TYPE, ArmorRipostePayload.CODEC, ClientNetworkHandler::handleArmorRiposte);
         registrar.playToClient(InitCooldownPayload.TYPE, InitCooldownPayload.CODEC, ClientNetworkHandler::handleCooldownInit);
-        registrar.playToClient(ShakeEggPayload.TYPE, ShakeEggPayload.CODEC, ClientNetworkHandler::handleEggShake);
+        registrar.playToClient(WobbleEggPayload.TYPE, WobbleEggPayload.CODEC, ClientNetworkHandler::handleEggWobble);
         registrar.playToClient(SyncDragonAgePayload.TYPE, SyncDragonAgePayload.CODEC, ClientNetworkHandler::handleDragonSync);
         registrar.playToClient(FeedDragonPayload.TYPE, FeedDragonPayload.CODEC, ClientNetworkHandler::handleFeedDragon);
         registrar.playToClient(SyncEggAgePayload.TYPE, SyncEggAgePayload.CODEC, ClientNetworkHandler::handleEggSync);
-        registrar.playToClient(BooleanConfigPayload.TYPE, BooleanConfigPayload.CODEC, ClientNetworkHandler::handleBooleanConfig);
-        registrar.playToClient(DoubleConfigPayload.TYPE, DoubleConfigPayload.CODEC, ClientNetworkHandler::handleDoubleConfig);
+        registrar.playToClient(BooleanConfigPayload.TYPE, BooleanConfigPayload.CODEC, ClientNetworkHandler::handleConfig);
+        registrar.playToClient(DoubleConfigPayload.TYPE, DoubleConfigPayload.CODEC, ClientNetworkHandler::handleConfig);
+        registrar.playToClient(IntegerConfigPayload.TYPE, IntegerConfigPayload.CODEC, ClientNetworkHandler::handleConfig);
     }
 
     static void commonSetup(FMLCommonSetupEvent event) {

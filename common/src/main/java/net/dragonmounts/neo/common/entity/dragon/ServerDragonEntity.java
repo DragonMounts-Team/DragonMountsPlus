@@ -65,6 +65,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 public class ServerDragonEntity extends TameableDragonEntity {
     private final Segment[] neckSegments = ArrayUtil.fillArray(new Segment[NECK_SEGMENTS], Segment::new);
     public final DragonHeadLocator<ServerDragonEntity> headLocator = new DragonHeadLocator<>(this);
+    private boolean asyncAging;
 
     public ServerDragonEntity(EntityType<? extends TameableDragonEntity> type, ServerLevel level) {
         super(type, level, null);
@@ -92,38 +93,33 @@ public class ServerDragonEntity extends TameableDragonEntity {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putString(DragonVariant.DATA_PARAMETER_KEY, this.getVariant().identifier.toString());
+        tag.putString(DragonVariant.SERIALIZATION_KEY, this.getVariant().identifier.toString());
         if (this.stage != null) {
-            tag.putString(DragonLifeStage.DATA_PARAMETER_KEY, this.stage.getSerializedName());
+            tag.putString(DragonLifeStage.SERIALIZATION_KEY, this.stage.getSerializedName());
         }
-        tag.putBoolean(AGE_LOCKED_DATA_PARAMETER_KEY, this.isAgeLocked());
-        tag.putInt(SHEARED_DATA_PARAMETER_KEY, this.isSheared() ? this.shearCooldown : 0);
+        tag.putBoolean(SERIALIZATION_KEY_AGE_LOCKED, this.isAgeLocked());
+        tag.putInt(SERIALIZATION_KEY_SHEARED, this.isSheared() ? this.shearCooldown : 0);
         var items = this.inventory.saveItems(this.registryAccess());
         if (!items.isEmpty()) {
-            tag.put(DragonInventory.DATA_PARAMETER_KEY, items);
+            tag.put(DragonInventory.SERIALIZATION_KEY, items);
         }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
-        int age = this.age;
-        var stage = this.stage;
         super.readAdditionalSaveData(tag);
         this.setInSittingPose(this.isOrderedToSit() && this.onGround());
-        if (!this.firstTick && (this.age != age || stage != this.stage)) {
-            ServerNetworkHandler.sendTracking(this, new SyncDragonAgePayload(this.getId(), this.age, this.stage));
+        if (tag.contains(SERIALIZATION_KEY_SADDLE)) {
+            this.inventory.saddle.setLocal(ItemStack.parseOptional(this.registryAccess(), tag.getCompound(SERIALIZATION_KEY_SADDLE)), true);
         }
-        if (tag.contains(SADDLE_DATA_PARAMETER_KEY)) {
-            this.inventory.saddle.setLocal(ItemStack.parseOptional(this.registryAccess(), tag.getCompound(SADDLE_DATA_PARAMETER_KEY)), true);
+        if (tag.contains(SERIALIZATION_KEY_SHEARED)) {
+            this.setSheared(tag.getInt(SERIALIZATION_KEY_SHEARED));
         }
-        if (tag.contains(SHEARED_DATA_PARAMETER_KEY)) {
-            this.setSheared(tag.getInt(SHEARED_DATA_PARAMETER_KEY));
+        if (tag.contains(SERIALIZATION_KEY_AGE_LOCKED)) {
+            this.setAgeLocked(tag.getBoolean(SERIALIZATION_KEY_AGE_LOCKED));
         }
-        if (tag.contains(AGE_LOCKED_DATA_PARAMETER_KEY)) {
-            this.setAgeLocked(tag.getBoolean(AGE_LOCKED_DATA_PARAMETER_KEY));
-        }
-        if (tag.contains(DragonInventory.DATA_PARAMETER_KEY)) {
-            this.inventory.loadItems(tag.getList(DragonInventory.DATA_PARAMETER_KEY, 10), this.registryAccess());
+        if (tag.contains(DragonInventory.SERIALIZATION_KEY)) {
+            this.inventory.loadItems(tag.getList(DragonInventory.SERIALIZATION_KEY, 10), this.registryAccess());
         }
     }
 
@@ -214,7 +210,10 @@ public class ServerDragonEntity extends TameableDragonEntity {
             super.aiStep();
             this.age = age;
         } else {
+            // sync age every 128 ticks after 64 ticks
+            this.asyncAging = (this.tickCount & 0x7F) != 0x3F;
             super.aiStep();
+            this.asyncAging = false;
         }
         if (this.isNearGround(0.25)) {
             this.flightTicks = 0;
@@ -386,6 +385,7 @@ public class ServerDragonEntity extends TameableDragonEntity {
         } else {
             this.age = age;
         }
+        if (this.asyncAging) return;
         ServerNetworkHandler.sendTracking(this, new SyncDragonAgePayload(this.getId(), age, this.stage));
     }
 

@@ -1,9 +1,7 @@
 package net.dragonmounts.neo.common.command;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -21,27 +19,14 @@ import static net.dragonmounts.neo.common.command.DMCommands.getSingleProfileOrE
 
 public class FreeCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register(Predicate<CommandSourceStack> permission) {
-        return Commands.literal("free").requires(permission).then(Commands.argument("targets", EntityArgument.entities())
-                .executes(context -> free(context, EntityArgument.getEntities(context, "targets")))
-                .then(Commands.argument("owner", GameProfileArgument.gameProfile())
-                        .executes(context -> free(context, EntityArgument.getEntities(context, "targets"), getSingleProfileOrException(context, "owner").getId()))
-                )
-                .then(Commands.argument("forced", BoolArgumentType.bool())
-                        .executes(context -> free(context, BoolArgumentType.getBool(context, "forced")))
-                )
-        );
-    }
-
-    private static int free(CommandContext<CommandSourceStack> context, Collection<? extends Entity> targets) throws CommandSyntaxException {
-        return free(context, targets, context.getSource().getPlayerOrException().getUUID(), targets.size() == 1);
-    }
-
-    private static int free(CommandContext<CommandSourceStack> context, Collection<? extends Entity> targets, UUID owner) {
-        return free(context, targets, owner, false);
-    }
-
-    private static int free(CommandContext<CommandSourceStack> context, boolean forced) throws CommandSyntaxException {
-        return free(context, EntityArgument.getEntities(context, "targets"), null, forced);
+        return Commands.literal("free").requires(permission).then(Commands.argument("targets", EntityArgument.entities()).executes(context -> {
+            var targets = EntityArgument.getEntities(context, "targets");
+            return free(context, targets, context.getSource().getPlayerOrException().getUUID(), targets.size() == 1);
+        }).then(Commands.literal("forced").executes(context ->
+                free(context, EntityArgument.getEntities(context, "targets"), null, true)
+        )).then(Commands.literal("owned_by").then(Commands.argument("owner", GameProfileArgument.gameProfile()).executes(context ->
+                free(context, EntityArgument.getEntities(context, "targets"), getSingleProfileOrException(context, "owner").getId(), false)
+        ))));
     }
 
     public static int free(CommandContext<CommandSourceStack> context, Collection<? extends Entity> targets, UUID owner, boolean forced) {

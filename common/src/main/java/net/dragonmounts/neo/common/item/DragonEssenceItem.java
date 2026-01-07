@@ -18,6 +18,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +37,7 @@ import java.util.Objects;
 
 import static net.dragonmounts.neo.common.DragonMountsShared.ITEM_TRANSLATION_KEY_PREFIX;
 import static net.dragonmounts.neo.common.component.ScoreboardInfo.applyScores;
-import static net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity.FLYING_DATA_PARAMETER_KEY;
+import static net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity.SERIALIZATION_KEY_FLYING;
 import static net.dragonmounts.neo.common.util.EntityUtil.*;
 
 public class DragonEssenceItem extends Item implements DragonTypified, EntityContainer<TameableDragonEntity> {
@@ -108,15 +109,15 @@ public class DragonEssenceItem extends Item implements DragonTypified, EntityCon
     public ItemStack saveEntity(TameableDragonEntity entity, DataComponentPatch patch) {
         var stack = new ItemStack(this);
         var tag = saveWithId(entity, new CompoundTag());
-        tag.remove(FLYING_DATA_PARAMETER_KEY);
-        tag.remove(DragonInventory.DATA_PARAMETER_KEY);
+        tag.remove(SERIALIZATION_KEY_FLYING);
+        tag.remove(DragonInventory.SERIALIZATION_KEY);
         tag.remove("UUID");
         tag.remove("AbsorptionAmount");
         tag.remove("Age");
         tag.remove("AgeLocked");
         tag.remove("ArmorDropChances");
         tag.remove("ArmorItems");
-        tag.remove("Attributes");
+        tag.remove(LivingEntity.ATTRIBUTES_FIELD);
         tag.remove("Brain");
         tag.remove("ForcedAge");
         tag.remove("HandDropChances");

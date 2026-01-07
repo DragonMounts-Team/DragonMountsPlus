@@ -9,8 +9,8 @@ import net.dragonmounts.neo.common.init.DMEntities;
 import net.dragonmounts.neo.common.init.DMSounds;
 import net.dragonmounts.neo.common.init.DragonTypes;
 import net.dragonmounts.neo.common.item.DragonScalesItem;
-import net.dragonmounts.neo.common.network.s2c.ShakeEggPayload;
 import net.dragonmounts.neo.common.network.s2c.SyncEggAgePayload;
+import net.dragonmounts.neo.common.network.s2c.WobbleEggPayload;
 import net.dragonmounts.neo.compat.platform.ServerNetworkHandler;
 import net.dragonmounts.neo.compat.registry.DragonType;
 import net.dragonmounts.neo.compat.registry.DragonVariant;
@@ -57,8 +57,8 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     public static ServerDragonEntity hatch(ServerLevel world, HatchableDragonEggEntity egg, DragonLifeStage stage) {
         return new ServerDragonEntity(world, (level, dragon) -> {
             CompoundTag data = egg.saveWithoutId(new CompoundTag());
-            data.remove(HatchableDragonEggEntity.AGE_DATA_PARAMETER_KEY);
-            data.remove(DragonLifeStage.DATA_PARAMETER_KEY);
+            data.remove(HatchableDragonEggEntity.SERIALIZATION_KEY_AGE);
+            data.remove(DragonLifeStage.SERIALIZATION_KEY);
             dragon.load(data);
             dragon.overrideType(egg.getDragonType(), false);
             dragon.setLifeStage(stage, true, false);
@@ -66,24 +66,22 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
         });
     }
 
-    public static final String AGE_DATA_PARAMETER_KEY = "Age";
+    public static final String SERIALIZATION_KEY_AGE = "Age";
     protected static final EntityDataAccessor<DragonType> DATA_DRAGON_TYPE = SynchedEntityData.defineId(HatchableDragonEggEntity.class, DragonType.SERIALIZER);
-    private static final float EGG_CRACK_PROCESS_THRESHOLD = 0.9F;
-    private static final float EGG_SHAKE_PROCESS_THRESHOLD = 0.75F;
-    private static final float EGG_SHAKE_BASE_CHANCE = 20F;
-    public static final int MIN_HATCHING_TIME = 36000;
-    public static final int EGG_CRACK_THRESHOLD = (int) (EGG_CRACK_PROCESS_THRESHOLD * MIN_HATCHING_TIME);
-    public static final int EGG_SHAKE_THRESHOLD = (int) (EGG_SHAKE_PROCESS_THRESHOLD * MIN_HATCHING_TIME);
-    public static final String VANILLA_DATA_PARAMETER_KEY = "IsVanilla";
-    public static final String SPAWNER_DATA_PARAMETER_KEY = "FromSpawner";
+    public static final float EGG_CRACK_THRESHOLD = 0.9F;
+    public static final float EGG_WOBBLE_THRESHOLD = 0.75F;
+    public static final float EGG_WOBBLE_BASE_CHANCE = 0.05F;
+    public static final String SERIALIZATION_KEY_VANILLA = "IsVanilla";
+    public static final String SERIALIZATION_KEY_SPAWNER = "FromSpawner";
     protected @Nullable String variant;
     protected @Nullable UUID owner;
     protected boolean hatched;
+    protected boolean shatter;
     protected boolean isVanilla;
-    protected float rotationAxis;
     protected float amplitude;
     protected float amplitudeO;
-    protected int shaking;
+    protected float wobbleAxis;
+    protected int wobbling;
     protected int age;
 
     public static HatchableDragonEggEntity construct(EntityType<? extends HatchableDragonEggEntity> type, Level level) {
@@ -113,31 +111,31 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putString(DragonType.DATA_PARAMETER_KEY, this.getDragonType().identifier.toString());
-        tag.putInt(AGE_DATA_PARAMETER_KEY, this.age);
-        tag.putBoolean(VANILLA_DATA_PARAMETER_KEY, this.isVanilla);
+        tag.putString(DragonType.SERIALIZATION_KEY, this.getDragonType().identifier.toString());
+        tag.putInt(SERIALIZATION_KEY_AGE, this.age);
+        tag.putBoolean(SERIALIZATION_KEY_VANILLA, this.isVanilla);
         if (this.owner != null) {
             tag.putUUID("Owner", this.owner);
         }
         if (this.variant != null) {
-            tag.putString(DragonVariant.DATA_PARAMETER_KEY, this.variant);
+            tag.putString(DragonVariant.SERIALIZATION_KEY, this.variant);
         }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains(DragonType.DATA_PARAMETER_KEY)) {
-            this.overrideType(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.DATA_PARAMETER_KEY))), false);
+        if (tag.contains(DragonType.SERIALIZATION_KEY)) {
+            this.overrideType(DragonType.REGISTRY.getValue(tryParse(tag.getString(DragonType.SERIALIZATION_KEY))), false);
         }
-        if (tag.contains(DragonVariant.DATA_PARAMETER_KEY)) {
-            this.variant = tag.getString(DragonVariant.DATA_PARAMETER_KEY);
+        if (tag.contains(DragonVariant.SERIALIZATION_KEY)) {
+            this.variant = tag.getString(DragonVariant.SERIALIZATION_KEY);
         }
-        if (tag.contains(AGE_DATA_PARAMETER_KEY)) {
-            this.setAge(tag.getInt(AGE_DATA_PARAMETER_KEY), !this.firstTick);
+        if (tag.contains(SERIALIZATION_KEY_AGE)) {
+            this.setAge(tag.getInt(SERIALIZATION_KEY_AGE), !this.firstTick);
         }
-        if (tag.contains(VANILLA_DATA_PARAMETER_KEY)) {
-            this.setVanilla(tag.getBoolean(VANILLA_DATA_PARAMETER_KEY));
+        if (tag.contains(SERIALIZATION_KEY_VANILLA)) {
+            this.setVanilla(tag.getBoolean(SERIALIZATION_KEY_VANILLA));
         }
         if (tag.hasUUID("Owner")) {
             this.owner = tag.getUUID("Owner");
@@ -150,7 +148,7 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
         } else {
             this.owner = null;
         }
-        if (tag.getBoolean(SPAWNER_DATA_PARAMETER_KEY)) {
+        if (tag.getBoolean(SERIALIZATION_KEY_SPAWNER)) {
             this.hatched = true;
         }
     }
@@ -172,15 +170,21 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     public void onRemoval(RemovalReason reason) {
         if (this.hatched && this.level() instanceof ServerLevel level) {
             level.addFreshEntity(hatch(level, this, DragonLifeStage.HATCHLING));
-            this.makeSound(DMSounds.DRAGON_EGG_SHATTER);
+            if (this.shatter) {
+                this.spawnScales(level, this.random.nextInt(4) + 4);
+                this.makeSound(DMSounds.DRAGON_EGG_SHATTER);
+                level.levelEvent(2001, this.blockPosition(), Block.getId(
+                        this.asBlock(DMBlocks.ENDER_DRAGON_EGG.get()).defaultBlockState()
+                ));
+            }
         }
     }
 
-    public void hatch() {
+    public void hatch(boolean shatter) {
         if (this.level() instanceof ServerLevel level) {
-            this.spawnScales(level, this.random.nextInt(4) + 4);
+            ((ScoreboardAccessor) level.getScoreboard()).neodragonmounts$preventRemoval(this);
             this.hatched = true;
-            ((ScoreboardAccessor) this.level().getScoreboard()).neodragonmounts$preventRemoval(this);
+            this.shatter = shatter;
         }
         this.discard();
     }
@@ -213,52 +217,56 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     }
 
     @Override
-    public void tick() {
+    public void aiStep() {
         if (this.hatched) {
             this.discard();
             return;
         }
-        var level = this.level();
+        super.aiStep();
         var random = this.random;
-        super.tick();
+        var level = this.level();
         if (level instanceof ServerLevel server) {
-            --this.shaking;
-            // play the egg shake animation based on the time the eggs take to hatch
-            if (++this.age > EGG_SHAKE_THRESHOLD && this.shaking < 0) {
-                float progress = (float) this.age / MIN_HATCHING_TIME;
-                // wait until the egg is nearly hatched
-                float chance = (progress - EGG_SHAKE_PROCESS_THRESHOLD) / EGG_SHAKE_BASE_CHANCE * (1 - EGG_SHAKE_PROCESS_THRESHOLD);
-                if (this.age >= MIN_HATCHING_TIME && random.nextFloat() * 2 < chance) {
-                    this.hatch();
-                    return;
-                }
-                if (random.nextFloat() < chance) {
-                    boolean crack = progress > EGG_CRACK_PROCESS_THRESHOLD;
-                    int flag = crack ? 0b01 : 0b00;
-                    ServerNetworkHandler.sendTracking(this, new ShakeEggPayload(
-                            this.getId(),
-                            this.shaking = random.nextInt(21) + 10,//[10, 30]
-                            random.nextInt(180),
-                            random.nextBoolean() ? 0b10 | flag : flag
-                    ));
-                    if (crack) {
-                        this.spawnScales(server, 1);
+            ++this.age;
+            --this.wobbling;
+            // play the egg wobble animation based on the time the eggs take to hatch
+            if (this.wobbling < 0) {
+                int duration = ServerConfig.INSTANCE.minIncubationDuration.getAsInt();
+                float progress = this.age / (float) duration;
+                if (progress > EGG_WOBBLE_THRESHOLD) {
+                    // wait until the egg is nearly hatched
+                    float chance = (progress - EGG_WOBBLE_THRESHOLD) * EGG_WOBBLE_BASE_CHANCE * (1 - EGG_WOBBLE_THRESHOLD);
+                    if (this.age >= duration && random.nextFloat() * 2.0F < chance) {
+                        this.hatch(true);
+                        return;
+                    }
+                    if (random.nextFloat() < chance) {
+                        boolean crack = progress > EGG_CRACK_THRESHOLD;
+                        int flag = crack ? 0b01 : 0b00;
+                        ServerNetworkHandler.sendTracking(this, new WobbleEggPayload(
+                                this.getId(),
+                                this.wobbling = random.nextInt(21) + 10,//[10, 30]
+                                random.nextInt(180),
+                                random.nextBoolean() ? 0b10 | flag : flag
+                        ));
+                        if (crack) {
+                            this.spawnScales(server, 1);
+                        }
                     }
                 }
             }
-            if (ServerConfig.INSTANCE.isEggPushable.get()) {
+            /*if (ServerConfig.INSTANCE.isEggPushable.get()) {
                 var list = server.getEntities(this, this.getBoundingBox().inflate(0.125F, -0.01F, 0.125F), this::isPushable);
                 if (!list.isEmpty()) {
                     for (var entity : list) {
                         this.push(entity);
                     }
                 }
-            }
+            }*/
             return;
         }
-        if (--this.shaking > 0) {
+        if (--this.wobbling > 0) {
             this.amplitudeO = this.amplitude;
-            this.amplitude = Mth.sin(level.getGameTime() * 0.5F) * Math.min(this.shaking, 15);
+            this.amplitude = Mth.sin(level.getGameTime() * 0.5F) * Math.min(this.wobbling, 15);
         }
         // spawn generic particles
         var type = this.getDragonType();
@@ -374,12 +382,12 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
         return this.age;
     }
 
-    public float getRotationAxis() {
-        return this.rotationAxis;
+    public float getWobbleAxis() {
+        return this.wobbleAxis;
     }
 
     public float getAmplitude(float partialTicks) {
-        return this.shaking <= 0 ? 0 : Mth.lerp(partialTicks, this.amplitudeO, this.amplitude);
+        return this.wobbling > 0 ? Mth.lerp(partialTicks, this.amplitudeO, this.amplitude) : 0;
     }
 
     @Override
@@ -392,10 +400,10 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
         return source.is(DamageTypes.MACE_SMASH) ? DMSounds.DRAGON_EGG_SHATTER : DMSounds.DRAGON_EGG_CRACK;
     }
 
-    public void syncShake(int amplitude, int axis, boolean crack) {
+    public void applyWobble(int amplitude, int axis, boolean crack) {
         var level = this.level();
-        this.shaking = amplitude;
-        this.rotationAxis = axis * TO_RAD_FACTOR;
+        this.wobbling = amplitude;
+        this.wobbleAxis = axis * TO_RAD_FACTOR;
         // use game time to make amplitude consistent between clients
         float target = Mth.sin(level.getGameTime() * 0.5F) * Math.min(amplitude, 15);
         // multiply with a factor to make it smoother

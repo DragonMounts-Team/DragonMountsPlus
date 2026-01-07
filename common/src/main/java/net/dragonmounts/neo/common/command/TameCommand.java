@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -21,27 +20,18 @@ import static net.dragonmounts.neo.common.command.DMCommands.getSingleProfileOrE
 
 public class TameCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register(Predicate<CommandSourceStack> permission) {
-        return Commands.literal("tame").requires(permission).then(Commands.argument("targets", EntityArgument.entities())
-                .executes(context -> tame(context, EntityArgument.getEntities(context, "targets")))
-                .then(Commands.argument("owner", GameProfileArgument.gameProfile())
-                        .executes(context -> tame(context, EntityArgument.getEntities(context, "targets"), getSingleProfileOrException(context, "owner")))
-                        .then(Commands.argument("forced", BoolArgumentType.bool()).executes(
-                                context -> tame(context, BoolArgumentType.getBool(context, "forced"))
-                        ))
-                )
-        );
-    }
-
-    private static int tame(CommandContext<CommandSourceStack> context, Collection<? extends Entity> targets) throws CommandSyntaxException {
-        return tame(context, targets, context.getSource().getPlayerOrException().getGameProfile(), targets.size() == 1);
-    }
-
-    private static int tame(CommandContext<CommandSourceStack> context, Collection<? extends Entity> targets, GameProfile owner) {
-        return tame(context, targets, owner, targets.size() == 1);
-    }
-
-    private static int tame(CommandContext<CommandSourceStack> context, boolean forced) throws CommandSyntaxException {
-        return tame(context, EntityArgument.getEntities(context, "targets"), getSingleProfileOrException(context, "owner"), forced);
+        return Commands.literal("tame").requires(permission).then(Commands.argument("targets", EntityArgument.entities()).executes(context -> {
+            Collection<? extends Entity> targets = EntityArgument.getEntities(context, "targets");
+            return tame(context, targets, context.getSource().getPlayerOrException().getGameProfile(), targets.size() == 1);
+        }).then(Commands.argument("owner", GameProfileArgument.gameProfile()).executes(context -> {
+            Collection<? extends Entity> targets = EntityArgument.getEntities(context, "targets");
+            return tame(context, targets, getSingleProfileOrException(context, "owner"), targets.size() == 1);
+        }).then(Commands.argument("forced", BoolArgumentType.bool()).executes(context -> tame(
+                context,
+                EntityArgument.getEntities(context, "targets"),
+                getSingleProfileOrException(context, "owner"),
+                BoolArgumentType.getBool(context, "forced"))
+        ))));
     }
 
     public static int tame(CommandContext<CommandSourceStack> context, Collection<? extends Entity> targets, GameProfile owner, boolean forced) {

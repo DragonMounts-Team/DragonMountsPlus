@@ -17,11 +17,7 @@ public class DoubleEntry extends ConfigEntry<Double> {
     protected double saved;
     protected double effective;
 
-    public DoubleEntry(
-            double min,
-            double max,
-            DoubleConsumer onChanged
-    ) {
+    public DoubleEntry(double min, double max, DoubleConsumer onChanged) {
         this.min = min;
         this.max = max;
         this.onChanged = onChanged;

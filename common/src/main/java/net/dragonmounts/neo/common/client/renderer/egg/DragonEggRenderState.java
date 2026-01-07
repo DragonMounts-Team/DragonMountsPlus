@@ -7,6 +7,6 @@ import org.jetbrains.annotations.UnknownNullability;
 public class DragonEggRenderState extends EntityRenderState {
     public float amplitude;
     public float axis;
-    public int age;
+    public float progress;
     public @UnknownNullability BlockState block;
 }

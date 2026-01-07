@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.dragonmounts.neo.common.capability.ArmorEffectManagerImpl.DATA_PARAMETER_KEY;
+import static net.dragonmounts.neo.common.capability.ArmorEffectManagerImpl.SERIALIZATION_KEY;
 import static net.minecraft.world.damagesource.DamageTypes.SONIC_BOOM;
 
 @Mixin(Player.class)
@@ -42,12 +42,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Provider
     public void saveCooldown(CompoundTag tag, CallbackInfo info) {
         var data = this.neodragonmounts$manager.saveNBT();
         if (data.isEmpty()) return;
-        tag.put(DATA_PARAMETER_KEY, data);
+        tag.put(SERIALIZATION_KEY, data);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     public void readCooldown(CompoundTag tag, CallbackInfo info) {
-        this.neodragonmounts$manager.readNBT(tag.getCompound(DATA_PARAMETER_KEY));
+        this.neodragonmounts$manager.readNBT(tag.getCompound(SERIALIZATION_KEY));
     }
 
     @Inject(method = "hurtServer", at = @At(

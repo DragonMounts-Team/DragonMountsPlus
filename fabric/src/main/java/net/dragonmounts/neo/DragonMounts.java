@@ -75,7 +75,7 @@ public class DragonMounts implements ModInitializer, ServerPlayConnectionEvents.
         registry.register(FeedDragonPayload.TYPE, FeedDragonPayload.CODEC);
         registry.register(InitCooldownPayload.TYPE, InitCooldownPayload.CODEC);
         registry.register(ControlDragonPayload.TYPE, ControlDragonPayload.CODEC);
-        registry.register(ShakeEggPayload.TYPE, ShakeEggPayload.CODEC);
+        registry.register(WobbleEggPayload.TYPE, WobbleEggPayload.CODEC);
         registry.register(SyncCooldownPayload.TYPE, SyncCooldownPayload.CODEC);
         registry.register(SyncDragonAgePayload.TYPE, SyncDragonAgePayload.CODEC);
         registry.register(SyncEggAgePayload.TYPE, SyncEggAgePayload.CODEC);
@@ -88,6 +88,7 @@ public class DragonMounts implements ModInitializer, ServerPlayConnectionEvents.
         registry.register(S2CSyncConfigPayload.TYPE, S2CSyncConfigPayload.CODEC);
         registry.register(BooleanConfigPayload.TYPE, BooleanConfigPayload.CODEC);
         registry.register(DoubleConfigPayload.TYPE, DoubleConfigPayload.CODEC);
+        registry.register(IntegerConfigPayload.TYPE, IntegerConfigPayload.CODEC);
     }
 
     @Override

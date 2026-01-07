@@ -63,7 +63,7 @@ import static net.dragonmounts.neo.common.util.EntityUtil.addOrMergeEffect;
 import static net.dragonmounts.neo.compat.registry.RegistryHandler.makeDefaultedRegistry;
 
 public class DragonType implements TooltipProvider, DragonTypified {
-    public static final String DATA_PARAMETER_KEY = "DragonType";
+    public static final String SERIALIZATION_KEY = "DragonType";
     public static final ResourceLocation DEFAULT_KEY = makeId("ender");
     public static final DefaultedMappedRegistry<DragonType> REGISTRY = makeDefaultedRegistry(DRAGON_TYPE, DEFAULT_KEY);
     public static final Codec<DragonType> CODEC = REGISTRY.byNameCodec();

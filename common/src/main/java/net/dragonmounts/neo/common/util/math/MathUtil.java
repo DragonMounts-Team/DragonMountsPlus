@@ -1,5 +1,6 @@
 package net.dragonmounts.neo.common.util.math;
 
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
@@ -13,7 +14,7 @@ public class MathUtil {
      * Copy the value of {@link net.minecraft.client.model.EntityModel#MODEL_Y_OFFSET},
      * to make it accessible in server side
      */
-    public static final float MOJANG_MODEL_OFFSET_Y = 1.501F;
+    public static final float MOJANG_MODEL_OFFSET_Y = -EntityModel.MODEL_Y_OFFSET;
     /**
      * Found in 1.12.2 {@code RenderLivingBase::prepareScale}
      */

@@ -6,10 +6,11 @@ import net.dragonmounts.neo.common.api.DescribedArmorEffect;
 import net.dragonmounts.neo.common.api.DragonTypified;
 import net.dragonmounts.neo.common.capability.ArmorEffectManager;
 import net.dragonmounts.neo.common.item.DragonScaleArmorItem;
-import net.dragonmounts.neo.common.util.ArmorSuitInfo;
+import net.dragonmounts.neo.common.util.ArmorFactory;
 import net.dragonmounts.neo.common.util.ItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,16 +36,18 @@ public final class DragonScaleArmorSuit implements DragonTypified, ArmorEffectSo
             String chestplate,
             String leggings,
             String boots,
-            ArmorSuitInfo.Factory<DragonScaleArmorSuit, DragonScaleArmorItem> factory
+            ArmorFactory<DragonScaleArmorSuit, DragonScaleArmorItem> factory
     ) {
         var registry = Registries.ITEM;
-        var suit = new DragonScaleArmorSuit(new ArmorSuitInfo<>(
+        var suit = new DragonScaleArmorSuit(
+                type,
+                effect,
                 makeKey(registry, helmet),
                 makeKey(registry, chestplate),
                 makeKey(registry, leggings),
                 makeKey(registry, boots),
                 factory
-        ), type, effect);
+        );
         type.bindInstance(DragonScaleArmorSuit.class, suit);
         SUITS.add(suit);
         group.add(suit::getHelmet);
@@ -62,49 +65,60 @@ public final class DragonScaleArmorSuit implements DragonTypified, ArmorEffectSo
 
     public final DragonType type;
     public final DescribedArmorEffect effect;
-    public final ArmorSuitInfo<DragonScaleArmorSuit, DragonScaleArmorItem> info;
-    private DragonScaleArmorItem helmet;
-    private DragonScaleArmorItem chestplate;
-    private DragonScaleArmorItem leggings;
-    private DragonScaleArmorItem boots;
+    public final ResourceKey<Item> helmet;
+    public final ResourceKey<Item> chestplate;
+    public final ResourceKey<Item> leggings;
+    public final ResourceKey<Item> boots;
+    public final ArmorFactory<DragonScaleArmorSuit, DragonScaleArmorItem> factory;
+    private DragonScaleArmorItem helmetItem;
+    private DragonScaleArmorItem chestplateItem;
+    private DragonScaleArmorItem leggingsItem;
+    private DragonScaleArmorItem bootsItem;
 
     public DragonScaleArmorSuit(
-            ArmorSuitInfo<DragonScaleArmorSuit, DragonScaleArmorItem> info,
             DragonType type,
-            DescribedArmorEffect effect
+            DescribedArmorEffect effect,
+            ResourceKey<Item> helmet,
+            ResourceKey<Item> chestplate,
+            ResourceKey<Item> leggings,
+            ResourceKey<Item> boots,
+            ArmorFactory<DragonScaleArmorSuit, DragonScaleArmorItem> factory
     ) {
-        this.info = info;
         this.type = type;
         this.effect = effect;
+        this.helmet = helmet;
+        this.chestplate = chestplate;
+        this.leggings = leggings;
+        this.boots = boots;
+        this.factory = factory;
     }
 
     private void register(Registry<Item> registry) {
-        var info = this.info;
-        var factory = info.factory();
-        var key = info.helmet();
-        this.helmet = Registry.register(registry, key, factory.makeArmor(this, ArmorType.HELMET, new Item.Properties().setId(key)));
-        key = info.chestplate();
-        this.chestplate = Registry.register(registry, key, factory.makeArmor(this, ArmorType.CHESTPLATE, new Item.Properties().setId(key)));
-        key = info.leggings();
-        this.leggings = Registry.register(registry, key, factory.makeArmor(this, ArmorType.LEGGINGS, new Item.Properties().setId(key)));
-        key = info.boots();
-        this.boots = Registry.register(registry, key, factory.makeArmor(this, ArmorType.BOOTS, new Item.Properties().setId(key)));
+        var factory = this.factory;
+        var key = this.helmet;
+        this.helmetItem = Registry.register(registry, key, factory.makeArmor(this, ArmorType.HELMET, new Item.Properties().setId(key)));
+        key = this.chestplate;
+        this.chestplateItem = Registry.register(registry, key, factory.makeArmor(this, ArmorType.CHESTPLATE, new Item.Properties().setId(key)));
+        key = this.leggings;
+        this.leggingsItem = Registry.register(registry, key, factory.makeArmor(this, ArmorType.LEGGINGS, new Item.Properties().setId(key)));
+        key = this.boots;
+        this.bootsItem = Registry.register(registry, key, factory.makeArmor(this, ArmorType.BOOTS, new Item.Properties().setId(key)));
     }
 
     public DragonScaleArmorItem getHelmet() {
-        return Objects.requireNonNull(this.helmet);
+        return Objects.requireNonNull(this.helmetItem);
     }
 
     public DragonScaleArmorItem getChestplate() {
-        return Objects.requireNonNull(this.chestplate);
+        return Objects.requireNonNull(this.chestplateItem);
     }
 
     public DragonScaleArmorItem getLeggings() {
-        return Objects.requireNonNull(this.leggings);
+        return Objects.requireNonNull(this.leggingsItem);
     }
 
     public DragonScaleArmorItem getBoots() {
-        return Objects.requireNonNull(this.boots);
+        return Objects.requireNonNull(this.bootsItem);
     }
 
     @Override

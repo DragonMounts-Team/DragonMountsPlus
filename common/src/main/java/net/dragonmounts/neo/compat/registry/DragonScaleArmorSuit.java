@@ -5,15 +5,16 @@ import net.dragonmounts.neo.common.api.DescribedArmorEffect;
 import net.dragonmounts.neo.common.api.DragonTypified;
 import net.dragonmounts.neo.common.capability.ArmorEffectManager;
 import net.dragonmounts.neo.common.item.DragonScaleArmorItem;
-import net.dragonmounts.neo.common.util.ArmorSuitInfo;
+import net.dragonmounts.neo.common.util.ArmorFactory;
 import net.dragonmounts.neo.common.util.ItemGroup;
 import net.dragonmounts.neo.compat.Dummy;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import static net.dragonmounts.neo.common.DragonMountsShared.ITEM_TRANSLATION_KEY_PREFIX;
 
-@SuppressWarnings("ClassCanBeRecord")
 public final class DragonScaleArmorSuit implements DragonTypified, ArmorEffectSource {
     public static final String HELMET_TRANSLATION_KEY = ITEM_TRANSLATION_KEY_PREFIX + "dragon_scale_helmet";
     public static final String CHESTPLATE_TRANSLATION_KEY = ITEM_TRANSLATION_KEY_PREFIX + "dragon_scale_chestplate";
@@ -28,23 +29,33 @@ public final class DragonScaleArmorSuit implements DragonTypified, ArmorEffectSo
             String chestplate,
             String leggings,
             String boots,
-            ArmorSuitInfo.Factory<DragonScaleArmorSuit, DragonScaleArmorItem> factory
+            ArmorFactory<DragonScaleArmorSuit, DragonScaleArmorItem> factory
     ) {
         return Dummy.get();
     }
 
     public final DragonType type;
     public final DescribedArmorEffect effect;
-    public final ArmorSuitInfo<DragonScaleArmorSuit, DragonScaleArmorItem> info;
+    public final ResourceKey<Item> helmet;
+    public final ResourceKey<Item> chestplate;
+    public final ResourceKey<Item> leggings;
+    public final ResourceKey<Item> boots;
 
     public DragonScaleArmorSuit(
-            ArmorSuitInfo<DragonScaleArmorSuit, DragonScaleArmorItem> info,
             DragonType type,
-            DescribedArmorEffect effect
+            DescribedArmorEffect effect,
+            ResourceKey<Item> helmet,
+            ResourceKey<Item> chestplate,
+            ResourceKey<Item> leggings,
+            ResourceKey<Item> boots,
+            ArmorFactory<DragonScaleArmorSuit, DragonScaleArmorItem> factory
     ) {
-        this.info = info;
         this.type = type;
         this.effect = effect;
+        this.helmet = helmet;
+        this.chestplate = chestplate;
+        this.leggings = leggings;
+        this.boots = boots;
     }
 
     public DragonScaleArmorItem getHelmet() {

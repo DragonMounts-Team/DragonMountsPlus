@@ -14,8 +14,6 @@ import net.dragonmounts.neo.config.ServerConfig;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.DoubleTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -63,12 +61,13 @@ public class ClientNetworkHandler {
         ((ArmorEffectManager.Provider) context.player()).neodragonmounts$getManager().setCooldown(category, payload.cd());
     }
 
-    public static void handleEggShake(ShakeEggPayload payload, IPayloadContext context) {
+    public static void handleEggWobble(WobbleEggPayload payload, IPayloadContext context) {
         if (((LocalPlayer) context.player()).clientLevel.getEntity(payload.id()) instanceof HatchableDragonEggEntity egg) {
             int flag = payload.flag();
-            egg.syncShake(
+            egg.applyWobble(
                     payload.amplitude(),
-                    (flag & 0b10) == 0b10 ? -payload.axis() : payload.axis(),
+                    // -0 == +0, so offset all non-negative numbers by +1
+                    (flag & 0b10) == 0b10 ? -payload.axis() : payload.axis() + 1,
                     (flag & 0b01) == 0b01
             );
         }
@@ -119,15 +118,10 @@ public class ClientNetworkHandler {
         }
     }
 
-    public static void handleBooleanConfig(BooleanConfigPayload payload, IPayloadContext ignored) {
+    public static void handleConfig(ConfigPayloadEntry<?> payload, IPayloadContext ignored) {
         var entry = ServerConfig.INSTANCE.getEntry(payload.id());
-        if (entry == null) return;
-        override(entry, ByteTag.valueOf(payload.value()));
-    }
-
-    public static void handleDoubleConfig(DoubleConfigPayload payload, IPayloadContext ignored) {
-        var entry = ServerConfig.INSTANCE.getEntry(payload.id());
-        if (entry == null) return;
-        override(entry, DoubleTag.valueOf(payload.value()));
+        if (entry != null) {
+            override(entry, payload.getAsTag());
+        }
     }
 }

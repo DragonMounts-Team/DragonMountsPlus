@@ -27,7 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 
 import static net.dragonmounts.neo.common.command.DMCommands.createClassCastException;
-import static net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity.FLYING_DATA_PARAMETER_KEY;
+import static net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity.SERIALIZATION_KEY_FLYING;
 import static net.dragonmounts.neo.common.util.EntityUtil.saveWithId;
 
 public class SaveCommand {
@@ -119,7 +119,7 @@ public class SaveCommand {
         if (target.getType().canSerialize()) {
             var stack = input.createItemStack(1, false);
             var tag = saveWithId(target, new CompoundTag());
-            tag.remove(FLYING_DATA_PARAMETER_KEY);
+            tag.remove(SERIALIZATION_KEY_FLYING);
             tag.remove("UUID");
             stack.set(DataComponents.ENTITY_DATA, EntityContainer.simplifyData(tag));
             give(source, stack);

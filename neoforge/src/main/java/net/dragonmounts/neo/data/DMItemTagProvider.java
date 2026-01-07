@@ -76,11 +76,10 @@ public class DMItemTagProvider extends ItemTagsProvider {
         var leg = this.tag(ItemTags.LEG_ARMOR);
         var foot = this.tag(ItemTags.FOOT_ARMOR);
         Consumer<DragonScaleArmorSuit> addScaleSuit = suit -> {
-            var info = suit.info;
-            head.add(info.helmet());
-            chest.add(info.chestplate());
-            leg.add(info.leggings());
-            foot.add(info.boots());
+            head.add(suit.helmet);
+            chest.add(suit.chestplate);
+            leg.add(suit.leggings);
+            foot.add(suit.boots);
         };
         Consumer<Item> addToSwords = this.tag(ItemTags.SWORDS)::add;
         Consumer<Item> addToBows = this.tag(DMItemTags.DRAGON_SCALE_BOWS)::add;
