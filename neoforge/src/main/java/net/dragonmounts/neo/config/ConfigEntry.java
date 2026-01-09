@@ -47,12 +47,17 @@ public abstract class ConfigEntry<T> {
 
     public abstract void override(T value);
 
+    public void sync() {
+        this.setSaved();
+        this.revert();
+    }
+
     /// set to fallback
     public void reset() {
         this.set(this.host.getDefault());
     }
 
-    /// set to saved
+    /// set to last saved
     public abstract void revert();
 
     public abstract void setSaved();

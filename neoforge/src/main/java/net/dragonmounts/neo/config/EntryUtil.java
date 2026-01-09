@@ -5,6 +5,7 @@ import net.minecraft.nbt.Tag;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
+import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 
@@ -90,18 +91,18 @@ public class EntryUtil {
         entry.override(entry.load(data));
     }
 
-    protected static void setSaved(ModConfigEvent event) {
+    protected static void dispatch(ModConfigEvent event, Consumer<ConfigEntry<?>> consumer) {
         switch (event.getConfig().getType()) {
-            case SERVER -> ServerConfig.INSTANCE.getEntries().forEach(ConfigEntry::setSaved);
-            case CLIENT -> ClientConfig.INSTANCE.getEntries().forEach(ConfigEntry::setSaved);
+            case SERVER -> ServerConfig.INSTANCE.getEntries().forEach(consumer);
+            case CLIENT -> ClientConfig.INSTANCE.getEntries().forEach(consumer);
         }
     }
 
-    public static void onLoad(ModConfigEvent.Loading event) {
-        setSaved(event);
+    public static void onLoad(ModConfigEvent event) {
+        dispatch(event, ConfigEntry::sync);
     }
 
-    public static void onReload(ModConfigEvent.Reloading event) {
-        setSaved(event);
+    public static void onUnload(ModConfigEvent.Unloading event) {
+        dispatch(event, ConfigEntry::reset);
     }
 }

@@ -44,6 +44,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -230,16 +231,13 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
             --this.wobbling;
             // play the egg wobble animation based on the time the eggs take to hatch
             if (this.wobbling < 0) {
-                int duration = ServerConfig.INSTANCE.minIncubationDuration.getAsInt();
-                float progress = this.age / (float) duration;
+                float progress = this.getIncubationProgress();
                 if (progress > EGG_WOBBLE_THRESHOLD) {
                     // wait until the egg is nearly hatched
                     float chance = (progress - EGG_WOBBLE_THRESHOLD) * EGG_WOBBLE_BASE_CHANCE * (1 - EGG_WOBBLE_THRESHOLD);
-                    if (this.age >= duration && random.nextFloat() * 2.0F < chance) {
+                    if (progress >= 1.0F && random.nextFloat() * 2.0F < chance) {
                         this.hatch(true);
-                        return;
-                    }
-                    if (random.nextFloat() < chance) {
+                    } else if (random.nextFloat() < chance) {
                         boolean crack = progress > EGG_CRACK_THRESHOLD;
                         int flag = crack ? 0b01 : 0b00;
                         ServerNetworkHandler.sendTracking(this, new WobbleEggPayload(
@@ -252,16 +250,9 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
                             this.spawnScales(server, 1);
                         }
                     }
+
                 }
             }
-            /*if (ServerConfig.INSTANCE.isEggPushable.get()) {
-                var list = server.getEntities(this, this.getBoundingBox().inflate(0.125F, -0.01F, 0.125F), this::isPushable);
-                if (!list.isEmpty()) {
-                    for (var entity : list) {
-                        this.push(entity);
-                    }
-                }
-            }*/
             return;
         }
         if (--this.wobbling > 0) {
@@ -282,8 +273,20 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
         }
     }
 
-    public boolean isPushable(Entity entity) {
-        return !entity.isSpectator() && entity.isPushable() && !entity.hasPassenger(this);
+    @Override
+    protected void pushEntities() {
+        if (!ServerConfig.INSTANCE.isEggPushable.get()) return;
+        var box = this.getBoundingBox().inflate(0.125, -0.0625, 0.125);
+        var level = this.level();
+        (level.isClientSide
+                ? level.getEntities(EntityTypeTest.forClass(Player.class), box, EntitySelector.pushableBy(this))
+                : level.getEntities(this, box, EntitySelector.pushableBy(this))
+        ).forEach(this::doPush);
+    }
+
+    public float getIncubationProgress() {
+        int duration = ServerConfig.INSTANCE.minIncubationDuration.getAsInt();
+        return duration > 0 ? this.age / (float) duration : 1.0F;
     }
 
     @Override

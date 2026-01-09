@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import net.dragonmounts.neo.common.entity.dragon.HatchableDragonEggEntity;
 import net.dragonmounts.neo.common.init.DMBlocks;
-import net.dragonmounts.neo.config.ServerConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -33,7 +32,7 @@ public class DragonEggRenderer extends EntityRenderer<HatchableDragonEggEntity, 
     @Override
     public void extractRenderState(HatchableDragonEggEntity egg, DragonEggRenderState state, float partialTicks) {
         super.extractRenderState(egg, state, partialTicks);
-        state.progress = egg.getAge() / (float) ServerConfig.INSTANCE.minIncubationDuration.getAsInt();
+        state.progress = egg.getIncubationProgress();
         state.block = egg.asBlock(DMBlocks.ENDER_DRAGON_EGG.get()).defaultBlockState();
         state.amplitude = egg.getAmplitude(partialTicks);
         if (state.amplitude != 0.0F) {

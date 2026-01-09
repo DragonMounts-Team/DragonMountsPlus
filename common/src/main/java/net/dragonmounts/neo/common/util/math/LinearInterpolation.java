@@ -28,7 +28,7 @@ public class LinearInterpolation {
     }
 
     public void set(float value) {
-        sync();
+        this.sync();
         this.current = value;
     }
 
