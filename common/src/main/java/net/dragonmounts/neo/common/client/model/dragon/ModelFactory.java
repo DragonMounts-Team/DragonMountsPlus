@@ -109,6 +109,7 @@ public interface ModelFactory {
         ).addOrReplaceChild(
                 "forearm",
                 CubeListBuilder.create()
+                        .mirror(true)
                         .texOffs(0, 164)
                         .addBox(0, -2, -2, 48, 4, 4),
                 PartPose.offsetAndRotation(28, 0, 0, 0.0F, 2.8F, 0.0F)

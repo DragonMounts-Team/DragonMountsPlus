@@ -173,6 +173,32 @@ public enum BuiltinFactory implements ModelFactory {
     },
     SCULK("sculk") {
         @Override
+        public PartDefinition makeBody(PartDefinition root) {
+            var body = root.addOrReplaceChild(
+                    "body",
+                    CubeListBuilder.create()
+                            // body
+                            .texOffs(0, 0)
+                            .addBox(-12, 0, -16, 24, 24, 64)
+                            .texOffs(130, 110)
+                            .addBox(-4, 12, -5, 8, 6, 15)
+                            // scales
+                            .texOffs(0, 32)
+                            .addBox(-1, -6, 10, 2, 6, 12, ATTACHED_TO_BOTTOM)
+                            .addBox(-1, -6, 30, 2, 6, 12, ATTACHED_TO_BOTTOM),
+                    PartPose.offset(0, 4, 8)
+            );
+            body.addOrReplaceChild(
+                    "back",
+                    CubeListBuilder.create()
+                            .texOffs(0, 32)
+                            .addBox(-1, -6, -10, 2, 6, 12, ATTACHED_TO_BOTTOM),
+                    PartPose.ZERO
+            );
+            return body;
+        }
+
+        @Override
         public void makeTail(PartDefinition root) {
             makeHornedTail(root);
         }

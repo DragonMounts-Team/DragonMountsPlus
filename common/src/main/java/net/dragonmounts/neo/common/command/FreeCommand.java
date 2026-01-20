@@ -39,6 +39,7 @@ public class FreeCommand {
                 if (forced || (owner != null && owner.equals(entity.getOwnerUUID()))) {
                     entity.setTame(false, false);
                     entity.setOwnerUUID(null);
+                    entity.setOrderedToSit(false);
                     ++count;
                 }
                 flag = false;

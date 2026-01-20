@@ -9,7 +9,7 @@ plugins {
 }
 
 base {
-    archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+    archivesName = "${mod_compact_name}-${"neoforge" == project.name ? "NeoForge" : project.name.capitalize()}-${minecraft_version}"
 }
 
 java {

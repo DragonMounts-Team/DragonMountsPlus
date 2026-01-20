@@ -34,6 +34,7 @@ public class VariantAppearances {
     public static final VariantAppearance DARK_MALE;
     public static final VariantAppearance ENCHANTED_FEMALE;
     public static final VariantAppearance ENCHANTED_MALE;
+    public static final VariantAppearance ENCHANTING_TABLE;
     public static final VariantAppearance ENDER_FEMALE;
     public static final VariantAppearance ENDER_MALE;
     public static final VariantAppearance ENDER_RARE;
@@ -65,6 +66,7 @@ public class VariantAppearances {
     public static final VariantAppearance AURORA;
     public static final VariantAppearance TERRA_FEMALE;
     public static final VariantAppearance TERRA_MALE;
+    public static final VariantAppearance CRYSTAL;
     public static final VariantAppearance WATER_FEMALE;
     public static final VariantAppearance WATER_MALE;
     public static final VariantAppearance BRINE;
@@ -95,6 +97,7 @@ public class VariantAppearances {
         var builder = builder(BuiltinFactory.NORMAL);
         ENCHANTED_FEMALE = builder.build(makeId("enchanted/female"));
         ENCHANTED_MALE = builder.build(makeId("enchanted/male"));
+        ENCHANTING_TABLE = builder.build(makeId("enchanted/enchanting_table"));
     }
 
     static {
@@ -167,9 +170,10 @@ public class VariantAppearances {
     }
 
     static {
-        var builder = builder(BuiltinFactory.COMPAT);
+        var builder = builder(BuiltinFactory.NORMAL);
         TERRA_FEMALE = builder.build(makeId("terra/female"));
         TERRA_MALE = builder.build(makeId("terra/male"));
+        CRYSTAL = builder.build(makeId("terra/crystal"));
     }
 
     static {
@@ -214,6 +218,7 @@ public class VariantAppearances {
             case "dark_male" -> DARK_MALE;
             case "enchanted_female" -> ENCHANTED_FEMALE;
             case "enchanted_male" -> ENCHANTED_MALE;
+            case "enchanting_table" -> ENCHANTING_TABLE;
             case "ender_female" -> ENDER_FEMALE;
             case "ender_male" -> ENDER_MALE;
             case "ender_rare" -> ENDER_RARE;
@@ -248,6 +253,7 @@ public class VariantAppearances {
             case "aurora" -> AURORA;
             case "terra_female" -> TERRA_FEMALE;
             case "terra_male" -> TERRA_MALE;
+            case "crystal" -> CRYSTAL;
             case "water_female" -> WATER_FEMALE;
             case "water_male" -> WATER_MALE;
             case "brine" -> BRINE;

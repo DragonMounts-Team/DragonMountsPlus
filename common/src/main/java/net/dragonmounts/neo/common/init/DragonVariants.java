@@ -30,6 +30,7 @@ public class DragonVariants {
     public static final DragonVariant DARK_MALE;
     public static final DragonVariant ENCHANTED_FEMALE;
     public static final DragonVariant ENCHANTED_MALE;
+    public static final DragonVariant ENCHANTING_TABLE;
     public static final DragonVariant ENDER_FEMALE;
     public static final DragonVariant ENDER_MALE;
     public static final DragonVariant ENDER_RARE;
@@ -64,6 +65,7 @@ public class DragonVariants {
     public static final DragonVariant AURORA;
     public static final DragonVariant TERRA_FEMALE;
     public static final DragonVariant TERRA_MALE;
+    public static final DragonVariant CRYSTAL;
     public static final DragonVariant WATER_FEMALE;
     public static final DragonVariant WATER_MALE;
     public static final DragonVariant BRINE;
@@ -121,6 +123,7 @@ public class DragonVariants {
         variants.add(DARK_MALE = make(supplier, DragonTypes.DARK, "dark_male"));
         variants.add(ENCHANTED_FEMALE = make(supplier, DragonTypes.ENCHANTED, "enchanted_female"));
         variants.add(ENCHANTED_MALE = make(supplier, DragonTypes.ENCHANTED, "enchanted_male"));
+        variants.add(ENCHANTING_TABLE = make(supplier, DragonTypes.ENCHANTED, "enchanting_table"));
         variants.add(ENDER_FEMALE = make(supplier, DragonTypes.ENDER, "ender_female"));
         variants.add(ENDER_MALE = make(supplier, DragonTypes.ENDER, "ender_male"));
         variants.add(ENDER_RARE = make(supplier, DragonTypes.ENDER, "ender_rare"));
@@ -155,6 +158,7 @@ public class DragonVariants {
         variants.add(AURORA = make(supplier, DragonTypes.SUNLIGHT, "aurora"));
         variants.add(TERRA_FEMALE = make(supplier, DragonTypes.TERRA, "terra_female"));
         variants.add(TERRA_MALE = make(supplier, DragonTypes.TERRA, "terra_male"));
+        variants.add(CRYSTAL = make(supplier, DragonTypes.TERRA, "crystal"));
         variants.add(WATER_FEMALE = make(supplier, DragonTypes.WATER, "water_female"));
         variants.add(WATER_MALE = make(supplier, DragonTypes.WATER, "water_male"));
         variants.add(BRINE = make(supplier, DragonTypes.WATER, "brine"));
