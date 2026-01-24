@@ -125,7 +125,7 @@ public class BreathNode {
 
         float fractionOfFullSize = 1.0F;
         if (lifetimeFraction < YOUNG_AGE) {
-            fractionOfFullSize = Mth.sin(lifetimeFraction / YOUNG_AGE * MathUtil.PI * 0.5F);
+            fractionOfFullSize = Mth.sin(lifetimeFraction / YOUNG_AGE * Mth.HALF_PI);
         }
 
         return this.maxSize * (MathUtil.clamp(fractionOfFullSize) * 0.8F + 0.2F);
@@ -143,9 +143,9 @@ public class BreathNode {
         float fractionOfFullPower = 1.0F;
         if (lifetimeFraction >= 1.0F) return 0.0F;
         if (lifetimeFraction < YOUNG_AGE) {
-            fractionOfFullPower = Mth.sin(lifetimeFraction / YOUNG_AGE * MathUtil.PI * 0.5F);
+            fractionOfFullPower = Mth.sin(lifetimeFraction / YOUNG_AGE * Mth.HALF_PI);
         } else if (lifetimeFraction > OLD_AGE) {
-            fractionOfFullPower = Mth.sin((1.0F - lifetimeFraction) / (1.0F - OLD_AGE) * MathUtil.PI * 0.5F);
+            fractionOfFullPower = Mth.sin((1.0F - lifetimeFraction) / (1.0F - OLD_AGE) * Mth.HALF_PI);
         }
         return fractionOfFullPower * this.power.intensity;
     }

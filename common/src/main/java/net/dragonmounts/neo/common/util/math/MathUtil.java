@@ -5,11 +5,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 
+import static net.minecraft.util.Mth.DEG_TO_RAD;
+
 public class MathUtil {
     public static final AABB ZERO_AABB = new AABB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    public static final float PI = (float) Math.PI;
-    public static final float TO_RAD_FACTOR = PI / 180F;
-    public static final float HALF_RAD_FACTOR = TO_RAD_FACTOR / 2F;
+    public static final float HALF_RAD_FACTOR = DEG_TO_RAD * 0.5F;
     /**
      * Copy the value of {@link net.minecraft.client.model.EntityModel#MODEL_Y_OFFSET},
      * to make it accessible in server side

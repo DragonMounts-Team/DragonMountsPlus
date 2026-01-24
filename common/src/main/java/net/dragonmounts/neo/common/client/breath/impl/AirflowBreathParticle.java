@@ -3,13 +3,13 @@ package net.dragonmounts.neo.common.client.breath.impl;
 import net.dragonmounts.neo.common.client.breath.BreathParticle;
 import net.dragonmounts.neo.common.client.breath.BreathParticleFactory;
 import net.dragonmounts.neo.common.entity.breath.BreathParticleOption;
-import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.Mth;
 
 public class AirflowBreathParticle extends BreathParticle {
     public static final BreathParticleFactory FACTORY = AirflowBreathParticle::new;
-    private static final float ROLL_SPEED = MathUtil.PI / 3;
+    private static final float ROLL_SPEED = Mth.PI / 3;
     protected final float rollSpeed;
 
     public AirflowBreathParticle(BreathParticleOption option, TextureAtlasSprite sprite, ClientLevel level, double x, double y, double z, double motionX, double motionY, double motionZ) {

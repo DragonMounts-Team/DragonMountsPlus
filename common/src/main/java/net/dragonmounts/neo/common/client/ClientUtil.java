@@ -55,19 +55,13 @@ public class ClientUtil {
         return Float.isNaN(neo) ? old : neo;
     }
 
-    public static void loadBasic(ModelPart part, Segment segment) {
+    public static void loadSegment(ModelPart part, Segment segment) {
         part.x = takeIfValid(segment.posX, part.x);
         part.y = takeIfValid(segment.posY, part.y);
         part.z = takeIfValid(segment.posZ, part.z);
         part.xRot = takeIfValid(segment.rotX, part.xRot);
         part.yRot = takeIfValid(segment.rotY, part.yRot);
         part.zRot = takeIfValid(segment.rotZ, part.zRot);
-    }
-
-    public static void loadScale(ModelPart part, Segment.Scalable segment) {
-        part.xScale = takeIfValid(segment.scaleX, part.xScale);
-        part.yScale = takeIfValid(segment.scaleY, part.yScale);
-        part.zScale = takeIfValid(segment.scaleZ, part.zScale);
     }
 
     public static boolean isRemoteServer() {

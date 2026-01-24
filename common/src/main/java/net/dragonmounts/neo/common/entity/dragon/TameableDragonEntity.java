@@ -79,6 +79,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import static net.minecraft.resources.ResourceLocation.tryParse;
+import static net.minecraft.util.Mth.DEG_TO_RAD;
 
 /**
  * @see Mule
@@ -432,7 +433,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         return this.getDragonType().locatePassenger(
                 this.getPassengers().indexOf(entity),
                 this.isInSittingPose()
-        ).scale(scale * MathUtil.MOJANG_MODEL_SCALE).yRot(-MathUtil.TO_RAD_FACTOR * this.yBodyRot);
+        ).scale(scale * MathUtil.MOJANG_MODEL_SCALE).yRot(-DEG_TO_RAD * this.yBodyRot);
     }
 
     @Override
@@ -719,7 +720,7 @@ public abstract class TameableDragonEntity extends TamableAnimal implements
         float upward = 0.0F;
         float forward = 0.0F;
         if (player.zza != 0.0F) {
-            float facing = player.getXRot() * MathUtil.TO_RAD_FACTOR;
+            float facing = player.getXRot() * DEG_TO_RAD;
             float i = Mth.cos(facing);
             float j = -Mth.sin(facing);
             if (player.zza < 0.0F) {

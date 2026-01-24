@@ -1,7 +1,6 @@
 package net.dragonmounts.neo.common.client.model.dragon;
 
 import net.dragonmounts.neo.common.client.renderer.dragon.DragonRenderState;
-import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -9,8 +8,10 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
-import static net.dragonmounts.neo.common.client.ClientUtil.*;
+import static net.dragonmounts.neo.common.client.ClientUtil.getChildren;
+import static net.dragonmounts.neo.common.client.ClientUtil.loadSegment;
 import static net.dragonmounts.neo.common.entity.dragon.DragonModelContracts.*;
+import static net.minecraft.util.Mth.DEG_TO_RAD;
 
 public class DragonModel extends EntityModel<DragonRenderState> implements HeadedModel {
     public static final int HEAD_SIZE = 16;
@@ -26,6 +27,7 @@ public class DragonModel extends EntityModel<DragonRenderState> implements Heade
     public static final int FOOT_HEIGHT = 4;
     public final ModelPart head;
     public final ModelPart jaw;
+    public final ModelPart wings;
     public final ModelPart leftWing;
     public final ModelPart leftArm;
     private final ModelPart[] leftFingers;
@@ -47,10 +49,11 @@ public class DragonModel extends EntityModel<DragonRenderState> implements Heade
         super(root);
         this.head = root.getChild("head");
         this.jaw = this.head.getChild("jaw");
-        this.leftWing = root.getChild("left_wing");
+        this.wings = root.getChild("wings");
+        this.leftWing = this.wings.getChild("left");
         this.leftArm = this.leftWing.getChild("forearm");
         this.leftFingers = getChildren(this.leftArm.getChild("fingers"), WING_FINGERS);
-        this.rightWing = root.getChild("right_wing");
+        this.rightWing = this.wings.getChild("right");
         this.rightArm = this.rightWing.getChild("forearm");
         this.rightFingers = getChildren(this.rightArm.getChild("fingers"), WING_FINGERS);
         this.leftFrontLeg = new LegPart(root.getChild("left_front_leg"));
@@ -69,8 +72,8 @@ public class DragonModel extends EntityModel<DragonRenderState> implements Heade
         var head = this.head;
         head.resetPose();
         head.xScale = head.yScale = head.zScale = scale;
-        this.jaw.xRot = Mth.sin(ticks * MathUtil.PI * 0.2F) * 0.2F + 0.2F;
-        head.yRot = yRot * MathUtil.TO_RAD_FACTOR;
+        this.jaw.xRot = Mth.sin(ticks * Mth.PI * 0.2F) * 0.2F + 0.2F;
+        head.yRot = yRot * DEG_TO_RAD;
         head.y = -6F;
     }
 
@@ -82,9 +85,9 @@ public class DragonModel extends EntityModel<DragonRenderState> implements Heade
     @Override
     public void setupAnim(@NotNull DragonRenderState state) {
         super.setupAnim(state);
-        this.root.xRot = -state.pitch;
+        this.root.xRot = -(this.wings.xRot = state.pitch);
         var head = this.head;
-        loadBasic(head, state.head);
+        loadSegment(head, state.head);
         head.xScale = head.yScale = head.zScale = MAGICAL_HEAD_SCALE;
         this.jaw.xRot = state.jawRotX;
         var parts = this.necks;
@@ -93,7 +96,7 @@ public class DragonModel extends EntityModel<DragonRenderState> implements Heade
             for (int i = 0; i < NECK_SEGMENTS; ++i) {
                 var part = parts[i];
                 var segment = segments[i];
-                loadBasic(part, segment);
+                loadSegment(part, segment);
             }
         }
         parts = this.tails;
@@ -102,8 +105,7 @@ public class DragonModel extends EntityModel<DragonRenderState> implements Heade
             for (int i = 0; i < TAIL_SEGMENTS; ++i) {
                 var part = parts[i];
                 var segment = segments[i];
-                loadBasic(part, segment);
-                loadScale(part, segment);
+                loadSegment(part, segment);
             }
         }
         loadMirroredRot(this.leftWing, this.rightWing, state.wingRot);

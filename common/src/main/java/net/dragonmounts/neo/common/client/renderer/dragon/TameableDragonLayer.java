@@ -54,7 +54,9 @@ public class TameableDragonLayer extends RenderLayer<DragonRenderState, DragonMo
         //armor
         var equippable = state.armor.get(DataComponents.EQUIPPABLE);
         if (equippable == null) return;
-        var texture = appearance.getArmorTexture(equippable.assetId().orElse(null));
+        var material = equippable.assetId();
+        if (material.isEmpty()) return;
+        var texture = appearance.getArmorTexture(material.get());
         if (texture == null) return;
         model.renderToBuffer(matrices, getArmorFoilBuffer(buffers, armorCutoutNoCull(texture), state.armor.hasFoil()), light, OverlayTexture.NO_OVERLAY, -1);
     }

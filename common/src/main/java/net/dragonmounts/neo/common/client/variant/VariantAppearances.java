@@ -81,9 +81,7 @@ public class VariantAppearances {
                 .withBreath(DMParticleSprites.AIRFLOW_BREATH, AirflowBreathParticle.FACTORY);
         AETHER_FEMALE = builder.build(makeId("aether/female"));
         AETHER_MALE = builder.build(makeId("aether/male"));
-        BREEZE = builder(BuiltinFactory.NORMAL)
-                .withBreath(DMParticleSprites.AIRFLOW_BREATH, AirflowBreathParticle.FACTORY)
-                .build(makeId("aether/breeze"));
+        BREEZE = builder.build(makeId("aether/breeze"));
     }
 
     static {
@@ -149,13 +147,6 @@ public class VariantAppearances {
     }
 
     static {
-        var builder = builder(BuiltinFactory.SKELETON).setArmorCategory("skeleton");
-        SKELETON = builder.build(makeId("skeleton/normal"));
-        STRAY = builder.build(makeId("skeleton/stray"));
-        BOGGED = builder.build(makeId("skeleton/bogged"));
-    }
-
-    static {
         var builder = builder(BuiltinFactory.TAIL_HORNED);
         STORM_FEMALE = builder.build(makeId("storm/female"));
         STORM_MALE = builder.build(makeId("storm/male"));
@@ -185,8 +176,11 @@ public class VariantAppearances {
     }
 
     static {
-        WITHER = builder(BuiltinFactory.SKELETON).setArmorCategory("skeleton")
-                .withBreath(DMParticleSprites.WITHER_BREATH)
+        var builder = builder(BuiltinFactory.SKELETON).setArmorCategory("skeleton");
+        SKELETON = builder.build(makeId("skeleton/normal"));
+        STRAY = builder.build(makeId("skeleton/stray"));
+        BOGGED = builder.build(makeId("skeleton/bogged"));
+        WITHER = builder.withBreath(DMParticleSprites.WITHER_BREATH)
                 .build(makeId("wither"));
     }
 

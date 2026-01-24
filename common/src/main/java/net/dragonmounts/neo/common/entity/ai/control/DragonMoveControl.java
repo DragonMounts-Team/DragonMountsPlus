@@ -1,7 +1,6 @@
 package net.dragonmounts.neo.common.entity.ai.control;
 
 import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
-import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
@@ -36,7 +35,7 @@ public class DragonMoveControl extends MoveControl {
             if (dragon.onGround()) {
                 dragon.setYRot(this.rotlerp(
                         dragon.getYRot(),
-                        (float) (Mth.atan2(distZ, distX) * 180.0F / MathUtil.PI) - 90.0F,
+                        (float) (Mth.atan2(distZ, distX) * Mth.RAD_TO_DEG) - 90.0F,
                         90.0F
                 ));
                 // invoke super.tick()
@@ -60,7 +59,7 @@ public class DragonMoveControl extends MoveControl {
                 // TODO: see SmoothSwimmingMoveControl
                 dragon.setYRot(this.rotlerp(
                         dragon.getYRot(),
-                        (float) (Mth.atan2(distZ, distX) * 180.0F / MathUtil.PI) - 90.0F,
+                        (float) (Mth.atan2(distZ, distX) * Mth.RAD_TO_DEG) - 90.0F,
                         30.0F
                 ));
                 double dist = Math.sqrt(squared);
@@ -69,7 +68,7 @@ public class DragonMoveControl extends MoveControl {
                 if (dist > Mth.EPSILON || Math.abs(distY) > Mth.EPSILON) { // adjusted order to simplify population
                     dragon.setXRot(this.rotlerp(
                             dragon.getXRot(),
-                            (float) (Mth.atan2(distY, dist) * -180.0F / MathUtil.PI),
+                            (float) (Mth.atan2(distY, dist) * -Mth.RAD_TO_DEG),
                             85.0F
                     ));
                     dragon.setYya(distY > 0.0 ? speed : -speed);

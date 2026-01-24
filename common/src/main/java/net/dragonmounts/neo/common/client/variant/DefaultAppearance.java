@@ -1,6 +1,7 @@
 package net.dragonmounts.neo.common.client.variant;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.dragonmounts.neo.common.client.DMParticleSprites;
 import net.dragonmounts.neo.common.client.breath.BreathParticleFactory;
 import net.dragonmounts.neo.common.client.breath.impl.FlameBreathParticle;
@@ -19,20 +20,20 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Map;
 
 public class DefaultAppearance implements VariantAppearance {
-    private static final Object2ObjectOpenHashMap<ResourceKey<EquipmentAsset>, ResourceLocation> DEFAULT_ARMOR_TEXTURES = new Object2ObjectOpenHashMap<>();
     private static final Object2ObjectOpenHashMap<String, Map<ResourceKey<EquipmentAsset>, ResourceLocation>> ARMOR_TEXTURES = new Object2ObjectOpenHashMap<>();
+    private static final Map<ResourceKey<EquipmentAsset>, ResourceLocation> DEFAULT_ARMOR_TEXTURES = getTextures(null);
 
-    public static void registerArmorTexture(@Nullable String category, ResourceKey<EquipmentAsset> asset, ResourceLocation texture) {
-        if (category == null) {
-            if (DEFAULT_ARMOR_TEXTURES.putIfAbsent(asset, texture) == null) return;
-        } else if (
-                ARMOR_TEXTURES.computeIfAbsent(category, DefaultAppearance::makeMap).putIfAbsent(asset, texture) == null
-        ) return;
-        throw new IllegalStateException("Duplicate key: " + asset);
+    synchronized static Map<ResourceKey<EquipmentAsset>, ResourceLocation> getTextures(@Nullable String category) {
+        return ARMOR_TEXTURES.computeIfAbsent(category, $ -> new Reference2ObjectOpenHashMap<>());
+    }
+
+    public synchronized static void registerArmorTexture(@Nullable String category, ResourceKey<EquipmentAsset> asset, ResourceLocation texture) {
+        if (getTextures(category).put(asset, texture) != null) {
+            throw new IllegalStateException("Duplicate asset: " + asset);
+        }
     }
 
     public final ModelLayerLocation modelLocation;
@@ -45,8 +46,8 @@ public class DefaultAppearance implements VariantAppearance {
     public final RenderType glowDecal;
     public final RenderType chest;
     public final RenderType saddle;
-    public final Map<ResourceKey<EquipmentAsset>, ResourceLocation> armors;
     private DragonModel model;
+    final Map<ResourceKey<EquipmentAsset>, ResourceLocation> armors;
 
     public DefaultAppearance(
             ModelLayerLocation modelLocation,
@@ -115,9 +116,9 @@ public class DefaultAppearance implements VariantAppearance {
     }
 
     @Override
-    public @Nullable ResourceLocation getArmorTexture(@Nullable ResourceKey<EquipmentAsset> asset) {
-        if (this.armors.containsKey(asset)) return this.armors.get(asset);
-        return DEFAULT_ARMOR_TEXTURES.get(asset);
+    public @Nullable ResourceLocation getArmorTexture(ResourceKey<EquipmentAsset> asset) {
+        var override = this.armors.get(asset);
+        return override == null ? DEFAULT_ARMOR_TEXTURES.get(asset) : override;
     }
 
     @Override
@@ -129,14 +130,14 @@ public class DefaultAppearance implements VariantAppearance {
         public final ModelLayerLocation model;
         public BreathParticleFactory factory = FlameBreathParticle.FACTORY;
         public ResourceLocation breath = DMParticleSprites.FLAME_BREATH;
-        public Map<ResourceKey<EquipmentAsset>, ResourceLocation> armors = Collections.emptyMap();
+        Map<ResourceKey<EquipmentAsset>, ResourceLocation> armors = DEFAULT_ARMOR_TEXTURES;
 
         public Builder(ModelLayerLocation model) {
             this.model = model;
         }
 
         public Builder setArmorCategory(@Nullable String category) {
-            this.armors = category == null ? Collections.emptyMap() : ARMOR_TEXTURES.computeIfAbsent(category, DefaultAppearance::makeMap);
+            this.armors = getTextures(category);
             return this;
         }
 
@@ -161,9 +162,5 @@ public class DefaultAppearance implements VariantAppearance {
         public DefaultAppearance build(ResourceLocation body, ResourceLocation glow) {
             return new DefaultAppearance(this.model, body, glow, this.breath, this.armors, this.factory);
         }
-    }
-
-    static Map<ResourceKey<EquipmentAsset>, ResourceLocation> makeMap(Object ignored) {
-        return new Object2ObjectOpenHashMap<>();
     }
 }

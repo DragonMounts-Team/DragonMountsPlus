@@ -37,7 +37,7 @@ public interface VariantAppearance {
 
     RenderType getSaddle(DragonRenderState state);
 
-    @Nullable ResourceLocation getArmorTexture(@Nullable ResourceKey<EquipmentAsset> asset);
+    @Nullable ResourceLocation getArmorTexture(ResourceKey<EquipmentAsset> asset);
 
     ResourceLocation getBodyTexture(DragonRenderState state);
 

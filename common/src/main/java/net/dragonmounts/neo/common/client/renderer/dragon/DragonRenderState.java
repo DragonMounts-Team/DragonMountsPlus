@@ -41,7 +41,7 @@ public class DragonRenderState extends LivingEntityRenderState implements Dragon
     public final LegPart.Pose leftHindLeg = new LegPart.Pose();
     public final LegPart.Pose rightHindLeg = new LegPart.Pose();
     //--------tail--------
-    public final Segment.Scalable[] tailSegments = ArrayUtil.fillArray(new Segment.Scalable[TAIL_SEGMENTS], Segment.Scalable::new);
+    public final Segment[] tailSegments = ArrayUtil.fillArray(new Segment[TAIL_SEGMENTS], Segment::new);
 
     @Override
     public @Nullable VariantAppearance neodragonmounts$getAppearance() {

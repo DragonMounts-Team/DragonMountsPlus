@@ -11,7 +11,6 @@ import net.dragonmounts.neo.common.entity.dragon.TameableDragonEntity;
 import net.dragonmounts.neo.common.init.DMSounds;
 import net.dragonmounts.neo.common.inventory.DragonInventory;
 import net.dragonmounts.neo.common.tag.DMItemTags;
-import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.dragonmounts.neo.compat.registry.DragonType;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.sounds.SoundEvent;
@@ -26,6 +25,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
+
+import static net.minecraft.util.Mth.DEG_TO_RAD;
 
 @SuppressWarnings("UnstableApiUsage")
 @NotNullByDefault
@@ -210,7 +211,7 @@ public class ClientDragonEntity extends TameableDragonEntity {
                 var motion = this.getDeltaMovement();
                 this.hasImpulse = true;
                 if (input.z > 0.0) {
-                    float facing = this.getYRot() * MathUtil.TO_RAD_FACTOR;
+                    float facing = this.getYRot() * DEG_TO_RAD;
                     this.setDeltaMovement(
                             motion.x - 0.4F * Mth.sin(facing) * power,
                             this.getJumpPower(power) * 2.5,

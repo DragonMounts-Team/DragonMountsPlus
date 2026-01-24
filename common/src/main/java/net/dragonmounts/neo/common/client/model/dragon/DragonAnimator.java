@@ -18,6 +18,7 @@ import org.joml.Vector3f;
 
 import static net.dragonmounts.neo.common.entity.dragon.DragonModelContracts.*;
 import static net.dragonmounts.neo.common.util.math.Interpolation.clampedSmoothLinear;
+import static net.minecraft.util.Mth.DEG_TO_RAD;
 
 /**
  * Animation control class to put useless reptiles in motion.
@@ -111,17 +112,17 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
         sit = sitTimer.get(partialTicks);
         speed = speedTimer.get(partialTicks);
 
-        animBase = anim * MathUtil.PI * 2;
+        animBase = anim * Mth.TWO_PI;
         float baseOffset = Mth.sin(animBase - 1) + 1;
         cycleOfs = (baseOffset + 2) * baseOffset * 0.05F
                 // reduce up/down amplitude
                 * Mth.lerp(flutter, 0.5F, 1.0F) * Mth.lerp(ground, 1.0F, 0.5F);
 
-        // animate head and neck
-        this.calculateHeadAndNeck(state.neckSegments, state.xRot, state.yRot);
-        this.animateTail(state, partialTicks);
-        this.animateWing(state);
-        this.animateLegs(state);
+        // update offset
+        state.offsetY = -this.getModelOffsetY(); // flip y when rendering
+
+        // update pitch
+        state.pitch = this.getPitch() * DEG_TO_RAD;
 
         // update state
         state.maxDeathTime = this.maxDeathTime;
@@ -133,11 +134,12 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
         state.crystal = this.crystal;
         state.renderCrystalBeams = this.renderCrystalBeams;
 
-        // update offset
-        state.offsetY = -this.getModelOffsetY(); // flip y when rendering
+        // animate head and neck
+        this.calculateHeadAndNeck(state.neckSegments, state.xRot, state.yRot);
+        this.animateTail(state, partialTicks);
+        this.animateWing(state);
+        this.animateLegs(state);
 
-        // update pitch
-        state.pitch = this.getPitch() * MathUtil.TO_RAD_FACTOR;
         state.head = this.head;
         state.jawRotX = (1.0F - Mth.sin(animBase)) * 0.1F * flutter + Mth.lerp(partialTicks, this.lastJawRotX, jawRotX);
         if (state.pose == Pose.SLEEPING) {
@@ -383,19 +385,17 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
             // interpolate between flying and grounded
             float rotX = segment.rotX = Mth.lerp(ground, rotXAir, (
                     (i - TAIL_SEGMENTS * 0.6F) * amp * 0.4F + (magicSinFactor * amp - 0.1F) * sitFactor
-            ) * rotXFactor) - MathUtil.TO_RAD_FACTOR * pitchOfs + speedFactor * vertMulti;
+            ) * rotXFactor) - DEG_TO_RAD * pitchOfs + speedFactor * vertMulti;
             float rotY = segment.rotY = Mth.lerp(ground, 0.0F, Mth.lerp(// interpolate between sitting and standing
                     sit,
                     rotYStand,
-                    Mth.sin(vertMulti * MathUtil.PI) * MathUtil.PI * 1.2F - 0.5F // curl to the left
-            )) + yawOfs * MathUtil.TO_RAD_FACTOR;
+                    Mth.sin(vertMulti * Mth.PI) * Mth.PI * 1.2F - 0.5F // curl to the left
+            )) + yawOfs * DEG_TO_RAD;
 
-            // update scale
-            float scale = segment.scaleX = segment.scaleY = segment.scaleZ = Mth.lerp(vertMulti, 1.5F, 0.3F);
             // move next segment behind the current one
             if (++i == TAIL_SEGMENTS) return;
             float posX = segment.posX, posY = segment.posY, posZ = segment.posZ;
-            float tailSize = TAIL_SIZE * scale - 0.7F;
+            float tailSize = TAIL_SIZE * Mth.lerp(vertMulti, 1.5F, 0.3F) - 0.7F;
             float cosFactor = Mth.cos(rotX) * tailSize;
             segment = tailSegments[i];
             segment.posX = posX + Mth.sin(rotY) * cosFactor;

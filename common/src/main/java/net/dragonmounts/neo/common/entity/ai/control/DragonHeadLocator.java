@@ -9,6 +9,7 @@ import net.minecraft.world.phys.Vec3;
 
 import static net.dragonmounts.neo.common.entity.dragon.DragonModelContracts.NECK_SEGMENTS;
 import static net.dragonmounts.neo.common.util.math.Interpolation.clampedSmoothLinear;
+import static net.minecraft.util.Mth.DEG_TO_RAD;
 
 public class DragonHeadLocator<T extends TameableDragonEntity> {
     public static final float ANIMATION_NECK_SIZE = 0.6F * DragonModelContracts.NECK_SIZE - 1.4F;
@@ -42,7 +43,7 @@ public class DragonHeadLocator<T extends TameableDragonEntity> {
         // update main animation timer, depend timing speed on movement
         boolean flying = dragon.isFlying();
         this.anim += flying ? 0.070F - speedMulti * 0.035F : 0.035F;
-        this.animBase = this.anim * MathUtil.PI * 2;
+        this.animBase = this.anim * Mth.TWO_PI;
         // update ground transition
         this.ground = MathUtil.clamp(flying ? this.ground - 0.1F : this.ground * 0.95F + 0.08F);
         // update flutter transition
@@ -87,7 +88,7 @@ public class DragonHeadLocator<T extends TameableDragonEntity> {
         }
         float healthFactor = this.relativeHealth * this.ground;
         float speed = this.speed;
-        float rotYFactor = lookRotY * MathUtil.TO_RAD_FACTOR * speed;
+        float rotYFactor = lookRotY * DEG_TO_RAD * speed;
         float speedFactor = 1.0F - speed;
         float base = this.animBase;
         for (int i = 0; i < NECK_SEGMENTS; ) {
@@ -98,7 +99,7 @@ public class DragonHeadLocator<T extends TameableDragonEntity> {
                     // flex neck down when hovering
                     + speedFactor * vertMulti
                     // lower neck on low health
-                    - Mth.lerp(healthFactor, 0.0F, Mth.sin(vertMulti * MathUtil.PI * 0.9F) * 0.63F);
+                    - Mth.lerp(healthFactor, 0.0F, Mth.sin(vertMulti * Mth.PI * 0.9F) * 0.63F);
             // use looking yaw
             lastRotY = segment.rotY = rotYFactor * vertMulti;
             segment = (++i < NECK_SEGMENTS) ? necks[i] : head;
@@ -109,7 +110,7 @@ public class DragonHeadLocator<T extends TameableDragonEntity> {
             segment.posZ = posZ - Mth.cos(lastRotY) * factor;
         }
         //final float HEAD_TILT_DURING_BREATH = -0.1F;
-        head.rotX = lookRotX * MathUtil.TO_RAD_FACTOR + speedFactor; // + breath * HEAD_TILT_DURING_BREATH
+        head.rotX = lookRotX * DEG_TO_RAD + speedFactor; // + breath * HEAD_TILT_DURING_BREATH
         head.rotY = lastRotY;
         head.rotZ = 0.0F;
     }
@@ -124,9 +125,9 @@ public class DragonHeadLocator<T extends TameableDragonEntity> {
                 .xRot(head.rotX)
                 .yRot(-head.rotY)
                 .add(-head.posX * modelScale, -head.posY * modelScale, head.posZ * modelScale)
-                .xRot(-MathUtil.TO_RAD_FACTOR * this.getPitch())
+                .xRot(-DEG_TO_RAD * this.getPitch())
                 .add(0.0, 0.0, -1.5F * scale)
-                .yRot(MathUtil.PI - MathUtil.TO_RAD_FACTOR * this.dragon.yBodyRot)
+                .yRot(Mth.PI - DEG_TO_RAD * this.dragon.yBodyRot)
                 .add(pos.x, pos.y + scale * (this.getModelOffsetY() + MathUtil.MOJANG_MODEL_OFFSET_Y), pos.z);
     }
 

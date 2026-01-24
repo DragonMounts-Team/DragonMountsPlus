@@ -1,6 +1,6 @@
 package net.dragonmounts.neo.data;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.dragonmounts.neo.compat.registry.DragonType;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
@@ -21,7 +21,7 @@ public record DMEquipmentAssetProvider(PackOutput.PathProvider path) implements 
 
     @Override
     public @NotNull CompletableFuture<?> run(CachedOutput output) {
-        var assets = new Object2ObjectOpenHashMap<ResourceKey<EquipmentAsset>, EquipmentClientInfo>(DragonType.REGISTRY.size());
+        var assets = new Reference2ObjectOpenHashMap<ResourceKey<EquipmentAsset>, EquipmentClientInfo>(DragonType.REGISTRY.size());
         for (var type : DragonType.REGISTRY) {
             var material = type.material;
             if (material == ArmorMaterials.ARMADILLO_SCUTE) continue;

@@ -51,8 +51,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.UUID;
 
-import static net.dragonmounts.neo.common.util.math.MathUtil.TO_RAD_FACTOR;
 import static net.minecraft.resources.ResourceLocation.tryParse;
+import static net.minecraft.util.Mth.DEG_TO_RAD;
 
 public class HatchableDragonEggEntity extends LivingEntity implements DynamicAttributeEntity, DragonTypified.Mutable {
     public static ServerDragonEntity hatch(ServerLevel world, HatchableDragonEggEntity egg, DragonLifeStage stage) {
@@ -406,7 +406,7 @@ public class HatchableDragonEggEntity extends LivingEntity implements DynamicAtt
     public void applyWobble(int amplitude, int axis, boolean crack) {
         var level = this.level();
         this.wobbling = amplitude;
-        this.wobbleAxis = axis * TO_RAD_FACTOR;
+        this.wobbleAxis = axis * DEG_TO_RAD;
         // use game time to make amplitude consistent between clients
         float target = Mth.sin(level.getGameTime() * 0.5F) * Math.min(amplitude, 15);
         // multiply with a factor to make it smoother

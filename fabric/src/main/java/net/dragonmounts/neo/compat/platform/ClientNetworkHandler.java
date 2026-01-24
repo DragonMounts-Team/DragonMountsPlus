@@ -9,7 +9,6 @@ import net.dragonmounts.neo.common.component.DragonFood;
 import net.dragonmounts.neo.common.entity.dragon.DragonLifeStage;
 import net.dragonmounts.neo.common.entity.dragon.HatchableDragonEggEntity;
 import net.dragonmounts.neo.common.network.s2c.*;
-import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.dragonmounts.neo.compat.registry.CooldownCategory;
 import net.dragonmounts.neo.config.ConfigEntry;
 import net.dragonmounts.neo.config.S2CSyncConfigPayload;
@@ -24,6 +23,7 @@ import net.minecraft.util.Mth;
 
 import static net.dragonmounts.neo.config.EntryUtil.override;
 import static net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver;
+import static net.minecraft.util.Mth.DEG_TO_RAD;
 
 public class ClientNetworkHandler {
     public static void send(CustomPacketPayload payload) {
@@ -105,7 +105,7 @@ public class ClientNetworkHandler {
             var pos = dragon.getHeadRelativeOffset(0.0F, -8.0F, 20.0F);
             var option = new ItemParticleOption(ParticleTypes.ITEM, particles);
             var random = dragon.getRandom();
-            float xRot = -dragon.getXRot() * MathUtil.TO_RAD_FACTOR, yRot = -dragon.getYRot() * MathUtil.TO_RAD_FACTOR;
+            float xRot = -dragon.getXRot() * DEG_TO_RAD, yRot = -dragon.getYRot() * DEG_TO_RAD;
             double cosX = Mth.cos(xRot), sinX = Mth.sin(xRot), cosY = Mth.cos(yRot), sinY = Mth.sin(yRot);
             for (int i = 0; i < 8; ++i) {
                 double x = (random.nextFloat() - 0.5) * 0.1, y = random.nextFloat() * 0.1 + 0.1;
