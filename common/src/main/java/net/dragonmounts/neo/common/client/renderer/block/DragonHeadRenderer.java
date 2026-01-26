@@ -54,7 +54,7 @@ public enum DragonHeadRenderer implements BlockEntityRenderer<DragonHeadBlockEnt
         var state = entity.getBlockState();
         if (state.getBlock() instanceof DragonHeadBlock head) {
             var appearance = head.variant.appearance;
-            var model = appearance.getModel();
+            var model = appearance.getModel(null);
             if (model == null) return;
             model.setupBlock(entity.getAnimation(partialTick), head.getYRotation(state), 0.75F);
             if (head.isOnWall) {
@@ -98,7 +98,7 @@ public enum DragonHeadRenderer implements BlockEntityRenderer<DragonHeadBlockEnt
                 variant = this.fallback;
             }
             var appearance = variant.appearance;
-            var model = appearance.getModel();
+            var model = appearance.getModel(null);
             if (model == null) return;
             model.setupBlock(this.animation, 180.0F, 0.75F);
             renderHead(

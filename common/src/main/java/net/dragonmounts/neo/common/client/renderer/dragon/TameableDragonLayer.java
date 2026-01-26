@@ -22,10 +22,10 @@ public class TameableDragonLayer extends RenderLayer<DragonRenderState, DragonMo
     @Override
     public void render(PoseStack matrices, MultiBufferSource buffers, int light, DragonRenderState state, float yRot, float xRot) {
         var appearance = state.variant.appearance;
-        var model = appearance.getModel();
+        var model = appearance.getModel(state);
         if (!state.isInvisible) {
             if (state.deathTime > 0) {
-                int color = ARGB.color(Mth.floor(state.deathTime * 255.0F / state.maxDeathTime), -1);
+                int color = ARGB.color(Math.min(Mth.floor(state.deathTime * 255.0F / state.maxDeathTime), 255), -1);
                 model.renderToBuffer(matrices, buffers.getBuffer(appearance.getDecal(state)), light, OverlayTexture.pack(0.0F, state.hurtTime > 0), color);
                 model.renderToBuffer(matrices, buffers.getBuffer(appearance.getGlowDecal(state)), FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color);
                 return;

@@ -76,7 +76,7 @@ public class DefaultAppearance implements VariantAppearance {
     }
 
     @Override
-    public DragonModel getModel() {
+    public DragonModel getModel(@Nullable DragonRenderState state) {
         return this.model;
     }
 

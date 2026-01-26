@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.equipment.EquipmentAsset;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import static net.dragonmounts.neo.common.DragonMountsShared.makeId;
@@ -23,7 +24,8 @@ public interface VariantAppearance {
 
     void onReload(EntityModelSet models);
 
-    DragonModel getModel();
+    @Contract("!null -> !null")
+    @Nullable DragonModel getModel(@Nullable DragonRenderState state);
 
     RenderType getBase(@Nullable DragonRenderState state);
 

@@ -27,7 +27,7 @@ public class TameableDragonRenderer extends MobRenderer<ClientDragonEntity, Drag
 
     @Override
     public void render(DragonRenderState state, PoseStack matrices, MultiBufferSource buffers, int light) {
-        this.model = state.variant.appearance.getModel();
+        this.model = state.variant.appearance.getModel(state);
         if (state.renderCrystalBeams && state.crystal != null) {
             matrices.pushPose();
             var crystal = state.crystal;

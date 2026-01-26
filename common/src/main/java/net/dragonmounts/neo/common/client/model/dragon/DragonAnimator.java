@@ -5,8 +5,8 @@ import net.dragonmounts.neo.common.client.renderer.dragon.DragonRenderState;
 import net.dragonmounts.neo.common.entity.ai.control.DragonHeadLocator;
 import net.dragonmounts.neo.common.init.DragonVariants;
 import net.dragonmounts.neo.common.util.CircularBuffer;
+import net.dragonmounts.neo.common.util.math.InterpolatedFloat;
 import net.dragonmounts.neo.common.util.math.Interpolation;
-import net.dragonmounts.neo.common.util.math.LinearInterpolation;
 import net.dragonmounts.neo.common.util.math.MathUtil;
 import net.dragonmounts.neo.compat.registry.DragonVariant;
 import net.minecraft.util.Mth;
@@ -19,6 +19,7 @@ import org.joml.Vector3f;
 import static net.dragonmounts.neo.common.entity.dragon.DragonModelContracts.*;
 import static net.dragonmounts.neo.common.util.math.Interpolation.clampedSmoothLinear;
 import static net.minecraft.util.Mth.DEG_TO_RAD;
+import static net.minecraft.util.Mth.lerp;
 
 /**
  * Animation control class to put useless reptiles in motion.
@@ -60,15 +61,14 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
     private boolean wingsDown;
 
     // timing interp vars
-    private final LinearInterpolation animTimer = new LinearInterpolation(0.0F);
-    private final LinearInterpolation groundTimer = new LinearInterpolation.Clamped(1.0F);
-    private final LinearInterpolation flutterTimer = new LinearInterpolation.Clamped(0.0F);
-    private final LinearInterpolation walkTimer = new LinearInterpolation.Clamped(0.0F);
-    private final LinearInterpolation sitTimer = new LinearInterpolation.Clamped(0.0F);
-    private final LinearInterpolation speedTimer = new LinearInterpolation.Clamped(1.0F);
+    private float lastAnim;
+    private final InterpolatedFloat groundTimer = new InterpolatedFloat(1.0F);
+    private final InterpolatedFloat flutterTimer = new InterpolatedFloat(0.0F);
+    private final InterpolatedFloat walkTimer = new InterpolatedFloat(0.0F);
+    private final InterpolatedFloat sitTimer = new InterpolatedFloat(0.0F);
+    private final InterpolatedFloat speedTimer = new InterpolatedFloat(1.0F);
 
     // trails
-    private final CircularBuffer yTrail = new CircularBuffer(8);
     private final CircularBuffer yawTrail = new CircularBuffer(16);
     private final CircularBuffer pitchTrail = new CircularBuffer(16);
 
@@ -98,21 +98,19 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
 
     public DragonAnimator(ClientDragonEntity dragon) {
         super(dragon);
-        this.yawTrail.fill(0.0F);
-        this.pitchTrail.fill(0.0F);
+        this.maxDeathTime = dragon.getMaxDeathTime();
         // just to avoid nullptr :
         this.variant = DragonVariants.ENDER_FEMALE;
     }
 
     public void extractRenderState(DragonRenderState state, float partialTicks) {
-        anim = animTimer.get(partialTicks);
         ground = groundTimer.get(partialTicks);
         flutter = flutterTimer.get(partialTicks);
         walk = walkTimer.get(partialTicks);
         sit = sitTimer.get(partialTicks);
         speed = speedTimer.get(partialTicks);
 
-        animBase = anim * Mth.TWO_PI;
+        animBase = lerp(partialTicks, this.lastAnim, this.anim) * Mth.TWO_PI;
         float baseOffset = Mth.sin(animBase - 1) + 1;
         cycleOfs = (baseOffset + 2) * baseOffset * 0.05F
                 // reduce up/down amplitude
@@ -187,20 +185,26 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
     public void tick() {
         var dragon = this.dragon;
         this.variant = dragon.getVariant();
-        float health = dragon.getHealth();
+        this.lastAnim = this.anim;
         // don't move anything during death sequence
-        if (dragon.getHealth() <= 0) {
-            this.animTimer.sync();
+        if (dragon.isDeadOrDying()) {
+            this.maxDeathTime = dragon.getMaxDeathTime();
+            this.hurtTime = dragon.hurtTime;
             this.groundTimer.sync();
             this.flutterTimer.sync();
             this.walkTimer.sync();
             this.sitTimer.sync();
+            this.speedTimer.sync();
+            this.crystal = null;
+            this.armor = null;
+            this.chested = false;
+            this.saddled = false;
             this.relativeHealth = 0.0F;
+            this.lastJawRotX = this.jawRotX;
+            //TODO update trial
             return;
         }
-        this.relativeHealth = health / dragon.getMaxHealth();
-        this.maxDeathTime = dragon.getMaxDeathTime();
-        this.hurtTime = dragon.hurtTime;
+        this.relativeHealth = dragon.getHealth() / dragon.getMaxHealth();
         this.armor = dragon.getBodyArmorItem();
         this.chested = dragon.hasChest();
         this.saddled = dragon.isSaddled();
@@ -212,10 +216,9 @@ public class DragonAnimator extends DragonHeadLocator<ClientDragonEntity> {
         float speedEnt = (float) (motion.x * motion.x + motion.z * motion.z);
 
         // update main animation timer and depend timing speed on movement
-        animTimer.add(flying
+        this.anim += flying
                 ? 0.070F - MathUtil.clamp(speedEnt / speedMax) * 0.035F // (2 - speedMulti) * 0.035F
-                : 0.035F
-        );
+                : 0.035F;
 
         // update ground transition
         float ground = groundTimer.get();
