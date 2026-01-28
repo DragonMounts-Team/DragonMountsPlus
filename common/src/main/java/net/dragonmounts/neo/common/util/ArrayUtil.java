@@ -31,11 +31,10 @@ public class ArrayUtil {
     public static ListTag saveItems(HolderLookup.Provider provider, ListTag list, ItemStack[] stacks, int index) {
         for (int n = stacks.length; index < n; ++index) {
             var stack = stacks[index];
-            if (!stack.isEmpty()) {
-                var tag = new CompoundTag();
-                tag.putByte("Slot", (byte) index);
-                list.add(stack.save(provider, tag));
-            }
+            if (stack.isEmpty()) continue;
+            var tag = new CompoundTag();
+            tag.putByte("Slot", (byte) index);
+            list.add(stack.save(provider, tag));
         }
         return list;
     }

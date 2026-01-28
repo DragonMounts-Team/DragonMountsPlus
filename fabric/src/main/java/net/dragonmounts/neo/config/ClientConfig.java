@@ -12,7 +12,7 @@ import java.util.List;
 import static net.dragonmounts.neo.config.EntryUtil.config;
 
 public class ClientConfig extends ConfigHolder<FabricClientCommandSource> {
-    public static final ClientConfig INSTANCE = new ClientConfig(DragonMountsShared.NAMESPACE, "client.dat");
+    public static final ClientConfig INSTANCE = new ClientConfig(DragonMountsShared.NAMESPACE, "client.snbt");
     protected final List<ConfigEntry<?>> entries;
     public final BooleanEntry debug;
     public final DoubleEntry cameraDistance;

@@ -4,7 +4,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.dragonmounts.neo.common.network.s2c.IntegerConfigPayload;
-import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -72,7 +72,7 @@ public class IntEntry extends ConfigEntry<Integer> implements IntSupplier {
 
     @Override
     public Tag dump() {
-        return DoubleTag.valueOf(this.value);
+        return IntTag.valueOf(this.value);
     }
 
     @Override

@@ -22,7 +22,7 @@ import static net.dragonmounts.neo.config.EntryUtil.register;
 import static net.minecraft.SharedConstants.TICKS_PER_MINUTE;
 
 public class ServerConfig extends ConfigHolder<CommandSourceStack> {
-    public static final ServerConfig INSTANCE = new ServerConfig(DragonMountsShared.NAMESPACE, "server.dat");
+    public static final ServerConfig INSTANCE = new ServerConfig(DragonMountsShared.NAMESPACE, "server.snbt");
     protected final HashBiMap<ConfigEntry<?>, Integer> entries;
     public final BooleanEntry debug;
     public final BooleanEntry isEggPushable;

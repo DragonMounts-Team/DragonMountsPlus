@@ -22,8 +22,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
+import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 
 import static net.dragonmounts.neo.common.command.DMCommands.createClassCastException;
@@ -46,28 +46,19 @@ public class SaveCommand {
         var source = context.getSource();
         if (target instanceof TameableDragonEntity dragon) {
             var amulet = dragon.getDragonType().getInstance(DragonAmuletItem.class, null);
-            if (amulet != null) {
-                give(source, amulet.saveEntity(dragon, DataComponentPatch.EMPTY));
-                return 1;
-            }
+            if (amulet != null) return give(source, amulet.saveEntity(dragon, DataComponentPatch.EMPTY));
         }
         var stack = DMItems.AMULET.get().saveEntity(target, DataComponentPatch.EMPTY);
-        if (stack.isEmpty()) {
-            source.sendFailure(Component.translatable("commands.neodragonmounts.save.cannot_serialize", target.getDisplayName()));
-            return 0;
-        }
-        give(source, stack);
-        return 1;
+        return stack.isEmpty()
+                ? fail(source, target, "commands.neodragonmounts.save.no_spawn_egg")
+                : give(source, stack);
     }
 
     public static int saveEssence(CommandContext<CommandSourceStack> context, Entity target) throws CommandSyntaxException {
         var source = context.getSource();
         if (target instanceof TameableDragonEntity dragon) {
             var essence = dragon.getDragonType().getInstance(DragonEssenceItem.class, null);
-            if (essence != null) {
-                give(source, essence.saveEntity(dragon, DataComponentPatch.EMPTY));
-                return 1;
-            }
+            if (essence != null) return give(source, essence.saveEntity(dragon, DataComponentPatch.EMPTY));
         }
         source.sendFailure(createClassCastException(target, TameableDragonEntity.class));
         return 0;
@@ -77,44 +68,26 @@ public class SaveCommand {
         var source = context.getSource();
         if (target instanceof TameableDragonEntity dragon) {
             var spawnEgg = dragon.getDragonType().getInstance(DragonSpawnEggItem.class, null);
-            if (spawnEgg != null) {
-                give(source, spawnEgg.saveEntity(dragon));
-                return 1;
-            }
+            if (spawnEgg != null) return give(source, spawnEgg.saveEntity(dragon));
         }
         var type = target.getType();
         if (type.canSerialize()) {
             var item = SpawnEggItem.byId(type);
-            if (item == null) {
-                source.sendFailure(Component.translatable("commands.neodragonmounts.save.no_spawn_egg", target.getDisplayName()));
-                return 0;
-            }
-            give(source, EntityContainer.saveEntityData(item, saveWithId(target, new CompoundTag()), DataComponentPatch.EMPTY));
-            return 1;
+            return item == null
+                    ? fail(source, target, "commands.neodragonmounts.save.no_spawn_egg")
+                    : give(source, EntityContainer.saveEntityData(item, saveWithId(target, new CompoundTag()), DataComponentPatch.EMPTY));
         }
-        source.sendFailure(Component.translatable("commands.neodragonmounts.save.cannot_serialize", target.getDisplayName()));
-        return 0;
+        return fail(source, target, "commands.neodragonmounts.save.cannot_serialize");
     }
 
     public static int save(CommandContext<CommandSourceStack> context, ItemInput input, Entity target) throws CommandSyntaxException {
         var source = context.getSource();
         var item = input.getItem();
-        if (item instanceof EntityContainer<?> container && container.getContentType().isInstance(target)) {
-            ItemStack stack;
-            try {
-                stack = (ItemStack) EntityContainer.class
-                        .getDeclaredMethod("saveEntity", Entity.class, DataComponentPatch.class)
-                        .invoke(container, target, input.createItemStack(1, false).getComponentsPatch());
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                source.sendFailure(Component.literal(e.getMessage()));
-                return 0;
-            }
-            if (stack.isEmpty()) {
-                source.sendFailure(Component.translatable("commands.neodragonmounts.save.cannot_serialize", target.getDisplayName()));
-                return 0;
-            }
-            give(source, stack);
-            return 1;
+        if (item instanceof EntityContainer<?>) {
+            var stack = saveContainer((EntityContainer<?>) item, input, target);
+            if (stack != null) return stack.isEmpty()
+                    ? fail(source, target, "commands.neodragonmounts.save.cannot_serialize")
+                    : give(source, stack);
         }
         if (target.getType().canSerialize()) {
             var stack = input.createItemStack(1, false);
@@ -122,14 +95,20 @@ public class SaveCommand {
             tag.remove(SERIALIZATION_KEY_FLYING);
             tag.remove("UUID");
             stack.set(DataComponents.ENTITY_DATA, EntityContainer.simplifyData(tag));
-            give(source, stack);
-            return 1;
+            return give(source, stack);
         }
-        source.sendFailure(Component.translatable("commands.neodragonmounts.save.cannot_serialize", target.getDisplayName()));
-        return 0;
+        return fail(source, target, "commands.neodragonmounts.save.cannot_serialize");
     }
 
-    public static void give(CommandSourceStack source, ItemStack stack) throws CommandSyntaxException {
+    public static <T extends Entity> @Nullable ItemStack saveContainer(EntityContainer<T> container, ItemInput input, Entity target) throws CommandSyntaxException {
+        var clazz = container.getContentType();
+        return clazz.isInstance(target) ? container.saveEntity(
+                clazz.cast(target),
+                input.createItemStack(1, false).getComponentsPatch()
+        ) : null;
+    }
+
+    public static int give(CommandSourceStack source, ItemStack stack) throws CommandSyntaxException {
         var player = source.getPlayerOrException();
         var name = stack.getDisplayName();
         int count = stack.getCount();
@@ -141,5 +120,11 @@ public class SaveCommand {
             }
         }
         source.sendSuccess(() -> Component.translatable("commands.give.success.single", count, name, player.getDisplayName()), true);
+        return 1;
+    }
+
+    public static int fail(CommandSourceStack source, Entity target, String reason) {
+        source.sendFailure(Component.translatable(reason, target.getDisplayName()));
+        return 0;
     }
 }

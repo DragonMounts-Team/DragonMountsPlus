@@ -134,7 +134,7 @@ public class DragonType implements TooltipProvider, DragonTypified {
     }
 
     public boolean isInvulnerableTo(DamageSource source) {
-        return !this.immunities.isEmpty() && source.typeHolder().is(this.immunities::contains);
+        return source.typeHolder().is(this.immunities::contains);
     }
 
     public void tickServer(ServerDragonEntity dragon) {}
@@ -182,11 +182,11 @@ public class DragonType implements TooltipProvider, DragonTypified {
     }
 
     public boolean isHabitat(Block block) {
-        return !this.blocks.isEmpty() && this.blocks.contains(block);
+        return this.blocks.contains(block);
     }
 
     public boolean isHabitat(@Nullable ResourceKey<Biome> biome) {
-        return biome != null && !this.biomes.isEmpty() && this.biomes.contains(biome);
+        return this.biomes.contains(biome);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -208,10 +208,7 @@ public class DragonType implements TooltipProvider, DragonTypified {
 
     public final <T, V> V ifPresent(Class<T> clazz, Function<? super T, V> function, V fallback) {
         var value = this.map.get(clazz);
-        if (value != null) {
-            return function.apply(clazz.cast(value));
-        }
-        return fallback;
+        return value == null ? fallback : function.apply(clazz.cast(value));
     }
 
     @Override
